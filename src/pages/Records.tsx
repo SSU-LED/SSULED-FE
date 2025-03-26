@@ -4,7 +4,8 @@ import ImageCard from "../components/ImageCard";
 function Records() {
     return (
         <div style={pageStyle}>
-            <MoveLeftTitle title="Records" />
+            {/* <MoveLeftTitle title="Records" /> */}
+            <MoveLeftTitle title="Records" to="/" />
             <div style={listStyle}>
                 {tempData.map((item, index) => (
                     <ImageCard

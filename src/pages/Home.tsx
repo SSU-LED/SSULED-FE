@@ -12,7 +12,8 @@ function Home() {
             <MediumTitle>Home</MediumTitle>
             </div>
             <div>
-                <MoveRightTitle title="Records" subtitle="Show all Records" />
+                {/* <MoveRightTitle title="Records" subtitle="Show all Records" /> */}
+                <MoveRightTitle title="My Records" subtitle="View Records" to="/records" />
             </div>
             <div style={scrollableContainerStyle}>
                 <div style={containerStyle}>

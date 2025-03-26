@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import Home from "./pages/Home";
 import Records from "./pages/Records";
 import Navbar from "./components/Navbar";
+import Profile from "./pages/Profile"
+import ChangeNickname from "./pages/ChangeNickname"
 
 function App() {
   return (
@@ -22,8 +24,9 @@ function MainLayout() {
         <Route path="/stat" element={<h1>Stat</h1>} />
         <Route path="/verify" element={<h1>Verify</h1>} />
         <Route path="/group" element={<h1>Group</h1>} />
-        <Route path="/profile" element={<h1>Profile</h1>} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/records" element={<Records />} />
+        <Route path="/changenickname" element={<ChangeNickname />} />
       </Routes>
 
       {!hideNavbarRoutes.includes(location.pathname) && <Navbar />}
