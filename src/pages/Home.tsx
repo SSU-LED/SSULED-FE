@@ -25,7 +25,7 @@ function Home() {
   
       <div className="header-wrapper">
         <MediumTitle>Home</MediumTitle>
-        <MoveRightTitle title="Records" subtitle="Show all Records" />
+        <MoveRightTitle title="Records" subtitle="Show all Records" to="/records"/>
       </div>
   
       <div className="scrollable-content">

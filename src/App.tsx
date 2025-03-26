@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Records from "./pages/Records";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
+import ChangeNickname from "./pages/ChangeNickname"
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/records" element={<Records />} />
+        <Route path="/changenickname" element={<ChangeNickname />} />
       </Routes>
     </Router>
   );

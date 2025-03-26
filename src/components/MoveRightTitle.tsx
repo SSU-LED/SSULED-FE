@@ -2,7 +2,13 @@ import { Link } from "react-router-dom";
 import { FaRegCalendarCheck } from "react-icons/fa6";
 import { CgProfile } from "react-icons/cg";
 
-function MoveRightTitle({ title, subtitle }: { title: string; subtitle: string }) {
+type MoveRightTitleProps = {
+  title: string;
+  subtitle: string;
+  to?: string; // 동적 링크 추가 (기본값 설정 가능)
+};
+
+function MoveRightTitle({ title, subtitle, to='#' }: MoveRightTitleProps) {
   const icon = getIconForTitle(title);
 
   return (
@@ -11,7 +17,7 @@ function MoveRightTitle({ title, subtitle }: { title: string; subtitle: string }
         {icon && <span style={{ marginRight: "8px" }}>{icon}</span>}
         <span>{title}</span>
       </div>
-      <Link to="/records" style={linkStyle}>
+      <Link to={to} className="block py-2 text-center text-gray-500">
         {subtitle} {">"}
       </Link>
     </div>

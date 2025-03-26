@@ -6,7 +6,7 @@ function Profile() {
     return (
         <div style={pageStyle}>
             <div style={headerStyle}>
-                <MoveRightTitle title="my profile" subtitle={"gogo"}/>
+                <MoveRightTitle title="my profile" subtitle={"gogo"} to="/changenickname"/>
             </div>
             
         </div>
