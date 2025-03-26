@@ -1,6 +1,6 @@
 import React from "react";
 
-function MediumTitle({ children }: React.PropsWithChildren<{}>) {
+function MediumTitle({ children }: React.PropsWithChildren<object>) {
   return <h2 style={titleStyle}>{children}</h2>;
 }
 
@@ -10,6 +10,6 @@ const titleStyle: React.CSSProperties = {
     fontSize: "24px",
     fontWeight: "bold",
     marginBottom: "16px",
-    marginTop: "46px",
+    marginTop: "24px",
 };
     

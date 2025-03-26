@@ -1,11 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
+import { MdHome, MdBarChart, MdOutlineAddAPhoto, MdGroups } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
 
 const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Stat", path: "/stat" },
-    { name: "Verify", path: "/verify" },
-    { name: "Group", path: "/group" },
-    { name: "Profile", path: "/profile" },
+  { name: "Home", path: "/", icon: MdHome },
+  { name: "Stat", path: "/stat", icon: MdBarChart },
+  { name: "Verify", path: "/verify", icon: MdOutlineAddAPhoto },
+  { name: "Group", path: "/group", icon: MdGroups },
+  { name: "Profile", path: "/profile", icon: CgProfile },
 ];
 
 function Navbar() {
@@ -13,26 +15,33 @@ function Navbar() {
 
     return (
         <nav style={navbarStyle}>
-            <ul style={ulStyle}>
-                {navItems.map((item) => (
-                    <li key={item.path} style={liStyle}>
-                        <Link
-                            to={item.path}
-                            style={{
-                                ...linkStyle,
-                                ...(location.pathname === item.path ? activeLinkStyle : {}),
-                            }}
-                        >
-                            {item.name}
-                            {location.pathname === item.path && <div style={underlineStyle} />}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
+        <ul style={ulStyle}>
+            {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+
+            return (
+                <li key={item.path} style={liStyle}>
+                <Link
+                    to={item.path}
+                    style={{
+                    ...linkStyle,
+                    ...(isActive ? activeLinkStyle : {}),
+                    }}
+                >
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Icon size={20} color={isActive ? "#000" : "#888"} />
+                    <span>{item.name}</span>
+                    </div>
+                </Link>
+                </li>
+            );
+            })}
+        </ul>
         </nav>
     );
 }
-
+  
 export default Navbar;
 
 const navbarStyle: React.CSSProperties = {
@@ -41,7 +50,6 @@ const navbarStyle: React.CSSProperties = {
     left: "50%",
     transform: "translateX(-50%)",
     width: "100%",
-    maxWidth: "430px",
     backgroundColor: "#fff",
     borderTop: "1px solid #ddd",
     boxShadow: "0 -2px 5px rgba(0, 0, 0, 0.1)",
@@ -76,15 +84,4 @@ const linkStyle: React.CSSProperties = {
 
 const activeLinkStyle: React.CSSProperties = {
     color: "#000",
-};
-
-const underlineStyle: React.CSSProperties = {
-    position: "absolute",
-    bottom: "0",
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "50%",
-    height: "2px",
-    backgroundColor: "#000",
-    borderRadius: "2px",
 };

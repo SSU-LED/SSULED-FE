@@ -1,55 +1,77 @@
 import { useNavigate } from "react-router-dom";
+import { IoIosArrowBack } from "react-icons/io";
 
 type MoveLeftTitleProps = {
-    title: string;
+  title: string;
 };
 
 function MoveLeftTitle({ title }: MoveLeftTitleProps) {
-    const navigate = useNavigate(); // 이전 페이지로 이동하는 함수
+  const navigate = useNavigate();
 
-    return (
-        <div style={containerStyle}>
-            <button onClick={() => navigate(-1)} style={backButtonStyle}>
-                {"<"}
-            </button>
-            <div style={titleContainerStyle}>
-                <div style={titleStyle}>{title}</div>
-            </div>
-        </div>
-    );
+  return (
+    <div style={containerStyle}>
+      <style>{responsiveCSS}</style>
+      <button onClick={() => navigate(-1)} className="back-button">
+        <IoIosArrowBack/>
+      </button>
+      <div className="title">{title}</div>
+    </div>
+  );
 }
 
 export default MoveLeftTitle;
 
 const containerStyle: React.CSSProperties = {
-    display: "flex",
+    position: "sticky", // 또는 fixed
+    top: 0,
+    zIndex: 100,
     backgroundColor: "#fff",
-    width: "100vw",
-    borderBottom: "1px solid #ddd",
-    alignItems: "center",
-    position: "relative",
     height: "50px",
-    marginTop: "46px",
-};
-
-const backButtonStyle: React.CSSProperties = {
-    background: "none",
-    border: "none",
-    fontSize: "20px",
-    fontWeight: "bold",
-    color: "#333",
-    cursor: "pointer",
-    position: "absolute",
-    left: "16px",
-};
-
-const titleContainerStyle: React.CSSProperties = {
-    flex: 1, // 부모 요소에서 중앙 정렬
+    borderBottom: "1px solid #ddd",
     display: "flex",
+    alignItems: "center",
     justifyContent: "center",
-};
+    width: "100%",
+  };
+  
 
-const titleStyle: React.CSSProperties = {
-    fontSize: "18px",
-    fontWeight: "bold",
-};
+const responsiveCSS = `
+  .back-button {
+    position: absolute;
+    left: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+  }
+
+  .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  @media (max-width: 480px) {
+    .title {
+      font-size: 16px;
+    }
+    .back-button {
+      font-size: 18px;
+      left: 12px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .title {
+      font-size: 20px;
+    }
+    .back-button {
+      font-size: 22px;
+      left: 20px;
+    }
+  }
+`;
