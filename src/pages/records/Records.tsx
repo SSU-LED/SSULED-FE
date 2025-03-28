@@ -1,16 +1,17 @@
-import MoveLeftTitle from "../components/MoveLeftTitle";
-import SmallCard from "../components/SmallCard";
-import rawData from "../assets/tempData.json";
-import Tabsbar from "../components/Tabsbar";
-
-type CardItem = {
-  imageUrl: string;
-  title: string;
-  content?: string;
-};
+import { useNavigate } from "react-router-dom";
+import { CardProps } from "../../types/CardProps";
+import MoveLeftTitle from "../../components/MoveLeftTitle";
+import SmallCard from "../../components/SmallCard";
+import rawData from "../../assets/tempData.json";
+import Tabsbar from "../../components/Tabsbar";
 
 function Records() {
-  const tempData: CardItem[] = rawData;
+  const tempData: CardProps[] = rawData;
+  const navigate = useNavigate();
+
+  const handleCardClick = (id: number) => {
+    navigate(`/records/${id}`);
+  };
 
   return (
     <div style={pageStyle}>
@@ -25,16 +26,20 @@ function Records() {
           }
         `}
       </style>
-
-      <MoveLeftTitle title="Records" />
+      <MoveLeftTitle title="Records" page="/" />
       <div style={barStyle}>
         <Tabsbar />
       </div>
-
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
           {tempData.map((item, index) => (
-            <SmallCard key={index} imageUrl={item.imageUrl} title={item.title} />
+            <SmallCard 
+              key={index} 
+              imageUrl={item.imageUrl} 
+              title={item.title}
+              id={item.id}
+              onClick={handleCardClick}
+            />
           ))}
         </div>
       </div>
