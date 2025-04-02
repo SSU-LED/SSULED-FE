@@ -1,22 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../components/MoveLeftTitle";
 
-type ProfileData = {
-    nickname: string;
-    bio: string;
-    profileImage: string;
-};
 
-interface ChangeNicknameProps {
-    setProfileData: React.Dispatch<React.SetStateAction<ProfileData>>;
-}
 
-function ChangeNickname({ setProfileData }: ChangeNicknameProps) {
+function ChangeNickname() {
     const [nickname, setNickname] = useState("");
     const [bio, setBio] = useState("");
     const [profileImage, setProfileImage] = useState("");
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -26,14 +18,10 @@ function ChangeNickname({ setProfileData }: ChangeNicknameProps) {
         }
     };
 
-    const handleSave = () => {
-        setProfileData({ nickname, bio, profileImage });
-        navigate("/profile");
-    };
 
     return (
         <div style={layoutStyle}>
-            <MoveLeftTitle title="닉네임 변경" />
+            <MoveLeftTitle title="닉네임 변경" page="/profile"/>
             
             <div style={profileImageContainerStyle}>
                 <label htmlFor="profile-upload">
@@ -76,7 +64,7 @@ function ChangeNickname({ setProfileData }: ChangeNicknameProps) {
                 />
             </div>
             
-            <button style={buttonStyle} onClick={handleSave}>
+            <button style={buttonStyle}>
                 변경하기
             </button>
         </div>
