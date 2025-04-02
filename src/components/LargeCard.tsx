@@ -26,7 +26,7 @@ const containerStyle: React.CSSProperties = {
 
 const imageStyleWrapper: React.CSSProperties = {
   width: "100%",
-  height: "212px",
+  height: "260px",
   borderRadius: "12px",
   overflow: "hidden",
 };

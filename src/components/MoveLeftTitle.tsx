@@ -1,25 +1,48 @@
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
+import { IoOptionsOutline } from "react-icons/io5";
 
 type MoveLeftTitleProps = {
   title: string;
+  page: string;
+  showOptionButton?: boolean;
+  onOptionClick?: () => void;
 };
 
-function MoveLeftTitle({ title }: MoveLeftTitleProps) {
+function MoveLeftTitle({
+  title,
+  page,
+  showOptionButton = false,
+  onOptionClick,
+}: MoveLeftTitleProps) {
   const navigate = useNavigate();
 
   return (
     <div style={containerStyle}>
       <style>{responsiveCSS}</style>
-      <button onClick={() => navigate(-1)} className="back-button">
-        <IoIosArrowBack/>
+
+      <button onClick={() => navigate(page)} className="back-button">
+        <IoIosArrowBack />
       </button>
+
       <div className="title">{title}</div>
+
+      {showOptionButton && (
+        <button
+          onClick={onOptionClick}
+          className="option-button"
+          aria-label="Options"
+        >
+          <IoOptionsOutline />
+        </button>
+      )}
     </div>
   );
 }
 
 export default MoveLeftTitle;
+
+
 
 const containerStyle: React.CSSProperties = {
     position: "sticky", // 또는 fixed
@@ -35,22 +58,28 @@ const containerStyle: React.CSSProperties = {
   };
   
 
-const responsiveCSS = `
+  const responsiveCSS = `
   .back-button {
     position: absolute;
     left: 16px;
     background: none;
     border: none;
     font-size: 20px;
-    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+  }
+
+  .option-button {
+    position: absolute;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
     color: #333;
     cursor: pointer;
   }
 
   .title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     font-size: 18px;
     font-weight: bold;
   }
@@ -59,9 +88,8 @@ const responsiveCSS = `
     .title {
       font-size: 16px;
     }
-    .back-button {
+    .back-button, .option-button {
       font-size: 18px;
-      left: 12px;
     }
   }
 
@@ -69,9 +97,8 @@ const responsiveCSS = `
     .title {
       font-size: 20px;
     }
-    .back-button {
+    .back-button, .option-button {
       font-size: 22px;
-      left: 20px;
     }
   }
 `;

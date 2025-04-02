@@ -5,17 +5,10 @@ import MoveRightTitle from "../components/MoveRightTitle";
 import Tabsbar from "../components/Tabsbar";
 import SmallImageCard from "../components/SmallImageCard";
 import rawData from "../assets/tempData.json";
+import { CardProps } from "../types/CardProps";
 
-type CardItem = {
-  imageUrl: string;
-  title: string;
-  content?: string;
-  size?: "small" | "medium" | "large";
-};
-
-const tempData: CardItem[] = rawData.map((item) => ({
+const tempData: CardProps[] = rawData.map((item) => ({
   ...item,
-  size: ["small", "medium", "large"].includes(item.size) ? item.size as "small" | "medium" | "large" : undefined,
 }));
 
 function Home() {
@@ -34,6 +27,7 @@ function Home() {
             {tempData.map((item, index) => (
               <MediumCard
                 key={index}
+                id={item.id}
                 imageUrl={item.imageUrl}
                 title={item.title}
               />
