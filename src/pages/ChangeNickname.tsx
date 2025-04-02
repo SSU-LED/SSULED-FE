@@ -1,28 +1,82 @@
-// import MoveLeftTitle from "../components/MoveLeftTitle";
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import MoveLeftTitle from "../components/MoveLeftTitle";
 
-function ChangeNickname() {
-    const [nickname, setNickname] = React.useState("");
+type ProfileData = {
+    nickname: string;
+    bio: string;
+    profileImage: string;
+};
+
+interface ChangeNicknameProps {
+    setProfileData: React.Dispatch<React.SetStateAction<ProfileData>>;
+}
+
+function ChangeNickname({ setProfileData }: ChangeNicknameProps) {
+    const [nickname, setNickname] = useState("");
+    const [bio, setBio] = useState("");
+    const [profileImage, setProfileImage] = useState("");
+    const navigate = useNavigate();
+
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setProfileImage(imageUrl);
+        }
+    };
+
+    const handleSave = () => {
+        setProfileData({ nickname, bio, profileImage });
+        navigate("/profile");
+    };
 
     return (
-        <div style={pageStyle}>
-            {/* 상단 뒤로가기 버튼*/}
-            {/* MoveLeftTitle */}
+        <div style={layoutStyle}>
+            <MoveLeftTitle title="닉네임 변경" />
             
-            {/*닉네임 입력 폼*/}
+            <div style={profileImageContainerStyle}>
+                <label htmlFor="profile-upload">
+                    <img 
+                        src={profileImage || "https://via.placeholder.com/150"} 
+                        alt="Profile" 
+                        style={profileImageStyle} 
+                    />
+                </label>
+                <input 
+                    type="file" 
+                    id="profile-upload" 
+                    accept="image/*" 
+                    style={{ display: "none" }} 
+                    onChange={handleImageChange} 
+                />
+            </div>
+
             <div style={inputContainerStyle}>
-                <label htmlFor="nickname" style={labelStyle}>새 닉네임</label>
+                <label htmlFor="nickname" style={labelStyle}>닉네임</label>
                 <input
                     id="nickname"
                     type="text"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
-                    placeholder="새 닉네임을 입력하세요"
+                    placeholder="닉네임을 입력하세요"
                     style={inputStyle}
-                    />
+                />
             </div>
-            {/* 변경 버튼 */}
-            <button style={buttonStyle} onClick={() => alert(`닉네임이 "${nickname}"(으)로 변경되었습니다!`)}>
+
+            <div style={inputContainerStyle}>
+                <label htmlFor="bio" style={labelStyle}>자기소개</label>
+                <input
+                    id="bio"
+                    type="text"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="자기소개를 입력하세요"
+                    style={inputStyle}
+                />
+            </div>
+            
+            <button style={buttonStyle} onClick={handleSave}>
                 변경하기
             </button>
         </div>
@@ -31,8 +85,34 @@ function ChangeNickname() {
 
 export default ChangeNickname;
 
-const pageStyle: React.CSSProperties = {
-    padding: "0 16px",
+const layoutStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    overflow: "hidden",
+    width: "100vw",
+    height: "100vh",
+};
+
+const profileImageContainerStyle: React.CSSProperties = {
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    overflow: "hidden",
+    marginTop: "20px",
+    position: "relative",
+    cursor: "pointer",
+};
+
+const profileImageStyle: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    borderRadius: "50%",
 };
 
 const inputContainerStyle: React.CSSProperties = {
@@ -40,6 +120,7 @@ const inputContainerStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
     gap: "8px",
+    width: "80%",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -57,7 +138,7 @@ const inputStyle: React.CSSProperties = {
 
 const buttonStyle: React.CSSProperties = {
     marginTop: "20px",
-    width: "100%",
+    width: "80%",
     padding: "10px",
     fontSize: "16px",
     fontWeight: "bold",
