@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import LargeTitle from "../../components/LargeTitle";
-import MediumTitle from "../../components/MediumTitle";
+import LargeTitle from "../../components/title/LargeTitle";
+import MediumTitle from "../../components/title/MediumTitle";
 import { SiNaver } from "react-icons/si";
 import { SiKakaotalk } from "react-icons/si";
 

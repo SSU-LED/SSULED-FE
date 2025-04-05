@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { CardProps } from "../../types/CardProps";
-import MoveLeftTitle from "../../components/MoveLeftTitle";
-import SmallCard from "../../components/SmallCard";
+import MoveLeftTitle from "../../components/title/MoveLeftTitle";
+import MediumCard from "../../components/card/MediumCard";
 import rawData from "../../assets/tempData.json";
 import Tabsbar from "../../components/Tabsbar";
 
@@ -33,7 +33,7 @@ function Records() {
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
           {tempData.map((item, index) => (
-            <SmallCard 
+            <MediumCard 
               key={index} 
               imageUrl={item.imageUrl} 
               title={item.title}

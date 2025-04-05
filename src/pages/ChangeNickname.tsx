@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import MoveLeftTitle from "../components/MoveLeftTitle";
+import MoveLeftTitle from "../components/title/MoveLeftTitle";
 
 
 

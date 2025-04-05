@@ -1,56 +1,60 @@
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import rawData from "../../assets/tempData.json";
-import MediumTitle from "../../components/title/MediumTitle";
+import React, { useRef, useState } from "react";
+import { Camera } from "react-camera-pro";
+import { FiCamera } from "react-icons/fi";
+import MediumTitle from "../components/title/MediumTitle";
 
-function RecordEdit() {
-  const { id } = useParams();
-  const numericId = Number(id);
-  const item = rawData.find((item) => item.id === numericId);
-
-  const [description, setDescription] = useState(item?.content || "");
+function Verify() {
+  const cameraRef = useRef<{ takePhoto: () => string } | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState("group");
   const [selectedParts, setSelectedParts] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState("20");
+  const [showCamera, setShowCamera] = useState(false);
 
-  const navigate = useNavigate();
-
-  const handleSave = () => {
-    const updatedData = {
-      id: item!.id,
-      title: item!.title,
-      imageUrl: item!.imageUrl,
-      content: description,
-      visibility,
-      parts: selectedParts,
-      time: selectedTime,
-    };
-
-    navigate(`/records/${item!.id}`, { state: { updatedData } });
+  const handleCapture = () => {
+    const img = cameraRef.current?.takePhoto();
+    if (img) setPhoto(img);
+    setShowCamera(false);
   };
-
-
-  if (!item) return <div>Record not found</div>;
 
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
 
       <div className="header-wrapper">
-        <MediumTitle>운동 기록 수정</MediumTitle>
+        <MediumTitle>Verify</MediumTitle>
       </div>
 
       <div className="scrollable-content">
         <div className="record-preview">
-          <img src={item.imageUrl} alt={item.title} className="record-image" />
-          <div className="record-title">{item.title}</div>
+          {photo ? (
+            <img src={photo} alt="Preview" className="record-image" />
+          ) : showCamera ? (
+            <div className="camera-container">
+              <Camera
+                ref={cameraRef}
+                aspectRatio={4 / 3}
+                facingMode="environment"
+                errorMessages={{
+                  noCameraAccessible: "카메라에 접근할 수 없습니다.",
+                  permissionDenied: "카메라 권한이 거부되었습니다.",
+                  switchCamera: "카메라 전환 중 오류가 발생했습니다.",
+                  canvas: "이미지를 렌더링할 수 없습니다.",
+                }}
+              />
+              <button className="capture-button" onClick={handleCapture}>캡처</button>
+            </div>
+          ) : (
+            <div className="placeholder-container" onClick={() => setShowCamera(true)}>
+              <FiCamera size={36} color="#aaa" />
+            </div>
+          )}
         </div>
 
         <div className="metadata-form">
           <div className="description-wrapper">
-            <div className="form-title">
-              Description
-            </div>
+            <div className="form-title">Description</div>
             <textarea
               className="description-input"
               value={description}
@@ -58,6 +62,7 @@ function RecordEdit() {
               placeholder="운동 설명을 입력하세요"
             />
           </div>
+
           <div className="visibility-selector">
             <div className="form-section">
               <div className="form-title">Visibility</div>
@@ -77,6 +82,7 @@ function RecordEdit() {
               </div>
             </div>
           </div>
+
           <div className="exercise-detail-wrapper">
             <div className="exercise-part-selector">
               <div className="form-section">
@@ -117,6 +123,7 @@ function RecordEdit() {
               </div>
             </div>
           </div>
+
           <div className="selected-tags">
             {selectedParts.map((part) => (
               <div key={part} className="tag">
@@ -135,15 +142,14 @@ function RecordEdit() {
         </div>
       </div>
 
-      <div className="save-button-wrapper">
-        <button className="save-button" onClick={handleSave}>save</button>
+      <div className="floating-button-wrapper">
+        <button className="save-button">upload</button>
       </div>
     </div>
   );
 }
 
-export default RecordEdit;
-
+export default Verify;
 
 const layoutStyle: React.CSSProperties = {
   display: "flex",
@@ -152,6 +158,7 @@ const layoutStyle: React.CSSProperties = {
   height: "100vh",
   overflow: "hidden",
 };
+
 
 const responsiveCSS = `
   * {
@@ -171,7 +178,54 @@ const responsiveCSS = `
     flex: 1;
     overflow-y: auto;
     padding: 16px;
-    padding-bottom: 100px;
+    padding-bottom: 120px; /* floating-button-wrapper 공간 확보 */
+  }
+
+  .record-preview {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .record-image {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .camera-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .capture-button {
+    margin-top: 12px;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    background-color: #111;
+    color: white;
+    cursor: pointer;
+  }
+
+  .placeholder-container {
+    width: 100%;
+    height: 240px;
+    background-color: #f1f2f6;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
   }
 
   .metadata-form {
@@ -187,30 +241,6 @@ const responsiveCSS = `
     color: #111;
     margin-bottom: 6px;
   }
-  
-  .record-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-
-  .record-image {
-    width: 420px;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-
-  .record-title {
-    margin-top: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    color: #111;
-  }
-
 
   .description-input {
     width: 100%;
@@ -222,6 +252,16 @@ const responsiveCSS = `
     background-color: #f1f2f6;
     color: #111;
     resize: vertical;
+  }
+  .placeholder-container {
+    width: 100%;
+    height: 280px;
+    background-color: #f1f2f6;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
   }
 
   .form-section {
@@ -280,20 +320,47 @@ const responsiveCSS = `
     background: none;
     border: none;
     cursor: pointer;
+    padding: 2px;
   }
 
   .tag-remove:hover {
     color: #000;
   }
 
-  .save-button-wrapper {
+  .segmented-control {
+    display: flex;
+    background-color: #f1f2f6;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .segment-button {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .segment-button.active {
+    background-color: #fff;
+    color: #111;
+    font-weight: 600;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .floating-button-wrapper {
     position: fixed;
-    bottom: 0;
+    bottom: 56px; /* navbar 높이 고려 */
     left: 0;
     right: 0;
-    padding: 16px;
-    background-color: white;
-    border-top: 1px solid #eee;
+    padding: 0 16px 16px;
+    background-color: transparent;
+    z-index: 20;
   }
 
   .save-button {
@@ -317,7 +384,8 @@ const responsiveCSS = `
       font-size: 14px;
     }
 
-    .form-select, .description-input {
+    .form-select,
+    .description-input {
       font-size: 14px;
       padding: 12px;
     }
@@ -327,29 +395,4 @@ const responsiveCSS = `
       padding: 14px;
     }
   }
-    .segmented-control {
-  display: flex;
-  background-color: #f1f2f6;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.segment-button {
-  flex: 1;
-  padding: 10px 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: #666;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.segment-button.active {
-  background-color: #fff;
-  color: #111;
-  font-weight: 600;
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.06);
-}
 `;

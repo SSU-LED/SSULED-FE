@@ -1,7 +1,7 @@
 import React from "react";
-import { CardProps } from "../types/CardProps";
+import { CardProps } from "../../types/CardProps";
 
-function SmallCard({ imageUrl, title, id, onClick }: CardProps) {
+function MediumCard({ imageUrl, title, id, onClick }: CardProps) {
   const handleClick = () => {
     if (onClick) {
       onClick(id);
@@ -18,7 +18,7 @@ function SmallCard({ imageUrl, title, id, onClick }: CardProps) {
   );
 }
 
-export default SmallCard;
+export default MediumCard;
 
 const containerStyle: React.CSSProperties = {
   width: "180px",

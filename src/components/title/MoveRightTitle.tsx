@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { FaRegCalendarCheck } from "react-icons/fa6";
 import { CgProfile } from "react-icons/cg";
+import { IoChevronForward } from "react-icons/io5";
 
 type MoveRightTitleProps = {
   title: string;
   subtitle: string;
-  to?: string; // 동적 링크 추가 (기본값 설정 가능)
+  to?: string;
 };
 
-function MoveRightTitle({ title, subtitle, to='#' }: MoveRightTitleProps) {
+function MoveRightTitle({ title, subtitle, to = "#" }: MoveRightTitleProps) {
   const icon = getIconForTitle(title);
 
   return (
@@ -17,8 +18,9 @@ function MoveRightTitle({ title, subtitle, to='#' }: MoveRightTitleProps) {
         {icon && <span style={{ marginRight: "8px" }}>{icon}</span>}
         <span>{title}</span>
       </div>
-      <Link to={to} className="block py-2 text-center text-gray-500">
-        {subtitle} {">"}
+      <Link to={to} style={linkStyle}>
+        {subtitle}
+        <IoChevronForward size={16} style={{ marginLeft: "4px", verticalAlign: "middle" }} />
       </Link>
     </div>
   );
@@ -47,12 +49,14 @@ const containerStyle: React.CSSProperties = {
 const titleWithIconStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  fontSize: "20px",
-  fontWeight: "bold",
+  fontSize: "16px",
+  fontWeight: 600,
 };
 
 const linkStyle: React.CSSProperties = {
   fontSize: "14px",
-  color: "#666",
+  color: "#a0a0b0",
+  display: "flex",
+  alignItems: "center",
   textDecoration: "none",
 };
