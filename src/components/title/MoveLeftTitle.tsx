@@ -4,7 +4,7 @@ import { IoOptionsOutline } from "react-icons/io5";
 
 type MoveLeftTitleProps = {
   title: string;
-  page: string;
+  page?: string;
   showOptionButton?: boolean;
   onOptionClick?: () => void;
 };
@@ -17,11 +17,19 @@ function MoveLeftTitle({
 }: MoveLeftTitleProps) {
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    if (page) {
+      navigate(page);
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <div style={containerStyle}>
       <style>{responsiveCSS}</style>
 
-      <button onClick={() => navigate(page)} className="back-button">
+      <button onClick={handleBack} className="back-button">
         <IoIosArrowBack />
       </button>
 
@@ -45,20 +53,20 @@ export default MoveLeftTitle;
 
 
 const containerStyle: React.CSSProperties = {
-    position: "sticky", // 또는 fixed
-    top: 0,
-    zIndex: 100,
-    backgroundColor: "#fff",
-    height: "50px",
-    borderBottom: "1px solid #ddd",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  };
-  
+  position: "sticky", // 또는 fixed
+  top: 0,
+  zIndex: 100,
+  backgroundColor: "#fff",
+  height: "50px",
+  borderBottom: "1px solid #ddd",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+};
 
-  const responsiveCSS = `
+
+const responsiveCSS = `
   .back-button {
     position: absolute;
     left: 16px;

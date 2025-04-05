@@ -9,7 +9,7 @@ export default MediumTitle;
 const titleStyle: React.CSSProperties = {
     fontSize: "24px",
     fontWeight: "bold",
-    marginBottom: "16px",
-    marginTop: "24px",
+    marginBottom: "8px",
+    marginTop: "16px",
 };
     
