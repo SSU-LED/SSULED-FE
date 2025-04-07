@@ -1,9 +1,15 @@
 import React from "react";
-import { CardProps } from "../types/CardProps";
+import { CardProps } from "../../types/CardProps";
 
-function MediumCard({ imageUrl, title }: CardProps) {
+function LargeCard({ imageUrl, title, id, onClick }: CardProps) {
+  const handleClick = () => {
+    if (onClick) {
+      onClick(id);
+    }
+  };
+
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} onClick={handleClick}>
       <div style={imageStyleWrapper}>
         <img src={imageUrl} alt={title} style={imageStyle} />
       </div>
@@ -12,7 +18,7 @@ function MediumCard({ imageUrl, title }: CardProps) {
   );
 }
 
-export default MediumCard;
+export default LargeCard;
 
 const containerStyle: React.CSSProperties = {
   width: "280px",

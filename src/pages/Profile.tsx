@@ -1,5 +1,5 @@
-import { useState } from "react";
-import MoveRightTitle from "../components/MoveRightTitle";
+import React, { useState } from "react";
+import MoveRightTitle from "../components/title/MoveRightTitle";
 
 const Profile = () => { //오흔
     const [nickname] = useState<string>("숭실대벤치프레스");

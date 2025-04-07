@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import rawData from "../../assets/tempData.json";
-import MoveLeftTitle from "../../components/MoveLeftTitle";
-import LargeCard from "../../components/LargeCard";
-import SmallImageCard from "../../components/SmallImageCard";
+import MoveLeftTitle from "../../components/title/MoveLeftTitle";
+import CommentCard from "../../components/card/CommentCard";
 import { FaRegPaperPlane } from "react-icons/fa";
 
 function RecordDetail() {
@@ -50,7 +49,7 @@ function RecordDetail() {
       </div>
     </div>
   );
-  
+
 
   return (
     <div style={layoutStyle}>
@@ -61,7 +60,6 @@ function RecordDetail() {
       <div className="header-wrapper">
         <MoveLeftTitle
           title={`${item.id}: ${item.title}`}
-          page="/records"
           showOptionButton={true}
           onOptionClick={handleOptionClick}
         />
@@ -69,20 +67,20 @@ function RecordDetail() {
 
       <div className="scroll-area">
         <div className="content-wrapper">
-          <LargeCard
-            id={item.id}
-            title={item.title}
-            imageUrl={item.imageUrl}
-            content={item.content}
-          />
+          <div className="record-preview">
+            <img src={item.imageUrl} alt={item.title} className="record-image" />
+            <div className="record-title">{item.title}</div>
+            <div className="record-description">{item.content}</div>
+          </div>
 
           <div className="comments-wrapper">
             {fakeComments.map((comment, index) => (
-              <SmallImageCard
+              <CommentCard
                 key={`${comment.name}-${index}`}
-                image={comment.imageUrl}
-                title={comment.name}
-                content={comment.comment}
+                id={comment.id}
+                imageUrl={comment.imageUrl}
+                nickname={comment.name}
+                comment={comment.comment}
               />
             ))}
           </div>
@@ -112,56 +110,67 @@ const fakeComments = [
     imageUrl: "https://placekitten.com/80/80",
     name: "Alice",
     comment: "Great workout!",
+    id: 0
   },
   {
     imageUrl: "https://placekitten.com/81/81",
     name: "Bob",
     comment: "Respect 👏",
+    id: 1
   },
   {
     imageUrl: "https://placekitten.com/82/82",
     name: "Charlie",
     comment: "Let’s do it again tomorrow!",
+    id: 2
   },
   {
     imageUrl: "https://placekitten.com/83/83",
     name: "Dana",
     comment: "That looked intense!",
+    id: 3
   },
   {
     imageUrl: "https://placekitten.com/84/84",
     name: "Eli",
     comment: "Good energy today.",
+    id: 4
   },
   {
     imageUrl: "https://placekitten.com/85/85",
     name: "Fiona",
     comment: "Nice shot!",
+    id: 5
   },
   {
     imageUrl: "https://placekitten.com/86/86",
     name: "George",
     comment: "🔥🔥🔥",
+    id: 6
   },
   {
     imageUrl: "https://placekitten.com/87/87",
     name: "Hannah",
     comment: "Can’t wait to join next time.",
+    id: 7
   },
   {
     imageUrl: "https://placekitten.com/88/88",
     name: "Ian",
     comment: "Good form!",
+    id: 8
   },
   {
     imageUrl: "https://placekitten.com/89/89",
     name: "Jade",
     comment: "This motivated me to work out too!",
+    id: 9
   },
   {
     imageUrl: "https://placekitten.com/90/90",
     name: "Kai",
     comment: "Let’s go again tomorrow.",
+    id: 10
   },
 ];
 
@@ -172,6 +181,7 @@ const layoutStyle: React.CSSProperties = {
   height: "100vh",
   position: "relative",
 };
+
 
 const responsiveCSS = `
   .header-wrapper {
@@ -187,12 +197,12 @@ const responsiveCSS = `
     overflow-y: auto;
     box-sizing: border-box;
 
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE 10+ */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   .scroll-area::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
+    display: none;
   }
 
   .content-wrapper {
@@ -200,6 +210,35 @@ const responsiveCSS = `
     display: flex;
     flex-direction: column;
     gap: 2rem;
+  }
+
+  .record-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .record-image {
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .record-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .record-description {
+    font-size: 14px;
+    color: #555;
+    padding: 0 8px;
   }
 
   .comments-wrapper {

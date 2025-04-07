@@ -1,9 +1,10 @@
 import React from "react";
-import MediumTitle from "../components/MediumTitle";
-import MediumCard from "../components/MediumCard";
-import MoveRightTitle from "../components/MoveRightTitle";
+import { useNavigate } from "react-router-dom";
+import MediumTitle from "../components/title/MediumTitle";
+import LargeCard from "../components/card/LargeCard";
+import MoveRightTitle from "../components/title/MoveRightTitle";
 import Tabsbar from "../components/Tabsbar";
-import SmallImageCard from "../components/SmallImageCard";
+import SmallCard from "../components/card/SmallCard";
 import rawData from "../assets/tempData.json";
 import { CardProps } from "../types/CardProps";
 
@@ -12,38 +13,47 @@ const tempData: CardProps[] = rawData.map((item) => ({
 }));
 
 function Home() {
+  const navigate = useNavigate();
+
+  const handleCardClick = (id: number) => {
+    navigate(`/records/${id}`);
+  };
+
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
-  
+
       <div className="header-wrapper">
         <MediumTitle>Home</MediumTitle>
-        <MoveRightTitle title="Records" subtitle="Show all Records" to="/records"/>
+        <MoveRightTitle title="Records" subtitle="Show all Records" to="/records" />
       </div>
-  
+
       <div className="scrollable-content">
         <div className="image-scroll-container">
           <div className="image-card-grid">
             {tempData.map((item, index) => (
-              <MediumCard
+              <LargeCard
                 key={index}
                 id={item.id}
                 imageUrl={item.imageUrl}
                 title={item.title}
+                onClick={handleCardClick}
               />
             ))}
           </div>
         </div>
-  
+
         <Tabsbar />
-  
+
         <div className="small-card-list">
           {tempData.map((item, index) => (
-            <SmallImageCard
+            <SmallCard
               key={index}
-              image={item.imageUrl}
+              id={item.id}
+              imageUrl={item.imageUrl}
               title={item.title}
               content={item.content || ""}
+              onClick={handleCardClick}
             />
           ))}
         </div>
@@ -55,13 +65,13 @@ function Home() {
 export default Home;
 
 const layoutStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    width: "100vw",
-    height: "100vh",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+  width: "100vw",
+  height: "100vh",
 };
-  
+
 const responsiveCSS = `
   .header-wrapper {
     position: sticky;
