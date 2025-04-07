@@ -14,6 +14,9 @@ import RecordDetail from "./pages/records/RecordDetail";
 import RecordEdit from "./pages/records/RecordEdit";
 import Profile from "./pages/Profile";
 import ChangeNickname from "./pages/ChangeNickname"
+import CreateGroup from "./pages/group/CreateGroup";
+import EditGroup from "./pages/group/EditGroup";
+import Verify from "./pages/Verify";
 
 function App() {
   return (
@@ -22,7 +25,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/stat" element={<h1>Stat</h1>} />
-          <Route path="/verify" element={<h1>Verify</h1>} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="/group" element={<h1>Group</h1>} />
           <Route path="/profile" element={<Profile />} />
         </Route>
@@ -33,6 +36,8 @@ function App() {
         <Route path="/records/:id" element={<RecordDetail />} />
         <Route path="/records/:id/edit" element={<RecordEdit />} />
         <Route path="/changenickname" element={<ChangeNickname />} />
+        <Route path="/create-group" element={<CreateGroup />} />
+        <Route path="/edit-group" element={<EditGroup />} />
       </Routes>
     </Router>
   );
