@@ -13,12 +13,12 @@ import LoginKakaoCallback from "./pages/auth/LoginKakaoCallback";
 import RecordDetail from "./pages/records/RecordDetail";
 import RecordEdit from "./pages/records/RecordEdit";
 import Profile from "./pages/Profile";
-import ChangeNickname from "./pages/ChangeNickname;
-import Group from "./pages/Group"
-import GroupFeeds from "./pages/myGroup/GroupFeeds"
-import GroupPeople from "./pages/myGroup/GroupPeople"
-import GroupStatistics from "./pages/myGroup/GroupSatistics"
-import PeopleInfo from "./pages/myGroup/PeopleInfo"
+import ChangeNickname from "./pages/ChangeNickname";
+import Group from "./pages/Group";
+import GroupFeeds from "./pages/myGroup/GroupFeeds";
+import GroupPeople from "./pages/myGroup/GroupPeople";
+import GroupStatistics from "./pages/myGroup/GroupSatistics";
+import PeopleInfo from "./pages/myGroup/PeopleInfo";
 import CreateGroup from "./pages/group/CreateGroup";
 import EditGroup from "./pages/group/EditGroup";
 import Verify from "./pages/Verify";
@@ -34,8 +34,8 @@ function App() {
           <Route path="/group" element={<Group />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
-        <Route path="/login" element={<Login/>} />
-        <Route path="/login-naver" element={<LoginNaverCallback />}/>
+        <Route path="/login" element={<Login />} />
+        <Route path="/login-naver" element={<LoginNaverCallback />} />
         <Route path="/login-kakao" element={<LoginKakaoCallback />} />
         <Route path="/records" element={<Records />} />
         <Route path="/records/:id" element={<RecordDetail />} />
@@ -64,6 +64,5 @@ function MainLayout() {
 export default App;
 
 const pageStyle: React.CSSProperties = {
-
   backgroundColor: "white",
 };
