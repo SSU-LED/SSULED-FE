@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import MoveRightTitle from "../components/MoveRightTitle";
 
 const Profile = () => { //오흔
-    const [nickname, setNickname] = useState<string>("숭실대벤치프레스");
+    const [nickname] = useState<string>("숭실대벤치프레스");
     const [bio] = useState("안녕? 나 3대 50 ㅋ");
     const defaultProfileImage = "https://via.placeholder.com/150";
 
@@ -28,7 +28,7 @@ const Profile = () => { //오흔
                             className="profile-image" 
                         />
                     </div>
-                    <div className="nickname-container">
+                    <div className="header-wrapper">
                         <MoveRightTitle title={nickname} subtitle="닉네임 변경" to="/changenickname" />
                     </div>
                     <div className="bio-box">{bio}</div>
@@ -102,13 +102,6 @@ const responsiveCSS = `
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-  }
-  
-  .nickname-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: min(5vw, 28px);
   }
   
   .bio-box {
