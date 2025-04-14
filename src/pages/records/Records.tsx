@@ -33,9 +33,9 @@ function Records() {
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
           {tempData.map((item, index) => (
-            <MediumCard 
-              key={index} 
-              imageUrl={item.imageUrl} 
+            <MediumCard
+              key={index}
+              imageUrl={item.imageUrl}
               title={item.title}
               id={item.id}
               onClick={handleCardClick}
@@ -50,26 +50,26 @@ function Records() {
 export default Records;
 
 const pageStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    width: "100vw",
-    height: "100vh",
-    overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100vh",
+  overflow: "hidden",
 };
 
 const scrollAreaStyle: React.CSSProperties = {
-    flex: 1,
-    overflowY: "auto",
-    padding: "16px",
+  flex: 1,
+  overflowY: "auto",
+  padding: "16px",
 };
 
 const barStyle: React.CSSProperties = {
-    padding: "0 16px 16px 16px",
+  padding: "0 16px 16px 16px",
 };
 
 const listStyle: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: "16px",
-    placeItems: "center",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+  gap: "16px",
+  placeItems: "center",
 };

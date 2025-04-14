@@ -1,43 +1,54 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import MoveRightTitle from "../components/title/MoveRightTitle";
 
-const Profile = () => { //오흔
-    const [nickname] = useState<string>("숭실대벤치프레스");
-    const [bio] = useState("안녕? 나 3대 50 ㅋ");
-    const defaultProfileImage = "https://via.placeholder.com/150";
+const Profile = () => {
+  //오흔
+  const [nickname] = useState<string>("숭실대벤치프레스");
+  const [bio] = useState("안녕? 나 3대 50 ㅋ");
+  const defaultProfileImage = "https://via.placeholder.com/150";
 
-    const handleDeleteAccount = () => {
-        if (window.confirm("정말 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-            alert("계정이 삭제되었습니다.");
-            // 실제 계정 삭제 로직 추가 가능
-        }
-    };
+  const handleDeleteAccount = () => {
+    if (
+      window.confirm(
+        "정말 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+      )
+    ) {
+      alert("계정이 삭제되었습니다.");
+      // 실제 계정 삭제 로직 추가 가능
+    }
+  };
 
-    return (
-        <div className="layout">
-            <style>{responsiveCSS}</style>
-            <div className="header-wrapper">
-                <header className="header-title">Profile</header>
-            </div>
-            <div className="profile-wrapper">
-                <div className="profile-container">
-                    <div className="profile-image-container">
-                        <img 
-                            src={defaultProfileImage} 
-                            alt="Profile" 
-                            className="profile-image" 
-                        />
-                    </div>
-                    <div className="header-wrapper">
-                        <MoveRightTitle title={nickname} subtitle="닉네임 변경" to="/changenickname" />
-                    </div>
-                    <div className="bio-box">{bio}</div>
-                    <button className="delete-account" onClick={handleDeleteAccount}>delete account</button>
-                </div>
-            </div>
+  return (
+    <div className="layout">
+      <style>{responsiveCSS}</style>
+      <div className="header-wrapper">
+        <header className="header-title">Profile</header>
+      </div>
+      <div className="profile-wrapper">
+        <div className="profile-container">
+          <div className="profile-image-container">
+            <img
+              src={defaultProfileImage}
+              alt="Profile"
+              className="profile-image"
+            />
+          </div>
+          <div className="header-wrapper">
+            <MoveRightTitle
+              title={nickname}
+              subtitle="닉네임 변경"
+              to="/changenickname"
+            />
+          </div>
+          <div className="bio-box">{bio}</div>
+          <button className="delete-account" onClick={handleDeleteAccount}>
+            delete account
+          </button>
         </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
 
 export default Profile;
 
@@ -46,7 +57,7 @@ const responsiveCSS = `
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     background: #ffffff;
     padding: 24px 16px;

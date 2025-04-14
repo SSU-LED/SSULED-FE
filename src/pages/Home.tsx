@@ -25,7 +25,11 @@ function Home() {
 
       <div className="header-wrapper">
         <MediumTitle>Home</MediumTitle>
-        <MoveRightTitle title="Records" subtitle="Show all Records" to="/records" />
+        <MoveRightTitle
+          title="Records"
+          subtitle="Show all Records"
+          to="/records"
+        />
       </div>
 
       <div className="scrollable-content">
@@ -68,7 +72,7 @@ const layoutStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  width: "100vw",
+  width: "100%",
   height: "100vh",
 };
 

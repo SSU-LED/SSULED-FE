@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import rawData from "../../assets/tempData.json";
-import MoveLeftTitle from "../../components/MoveLeftTitle";
-import LargeCard from "../../components/LargeCard";
-import SmallImageCard from "../../components/SmallImageCard";
+import MoveLeftTitle from "../../components/title/MoveLeftTitle";
+import LargeCard from "../../components/card/LargeCard";
+import SmallImageCard from "../../components/card/SmallImageCard";
 import { FaRegPaperPlane } from "react-icons/fa";
 
 function RecordDetail() {
@@ -50,7 +50,6 @@ function RecordDetail() {
       </div>
     </div>
   );
-  
 
   return (
     <div style={layoutStyle}>
@@ -105,7 +104,6 @@ function RecordDetail() {
 }
 
 export default RecordDetail;
-
 
 const fakeComments = [
   {

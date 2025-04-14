@@ -4,135 +4,135 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 
 function CreateGroup() {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [maximum, setMaximum] = useState("1");
-    const [visibility, setVisibility] = useState("public");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [maximum, setMaximum] = useState("1");
+  const [visibility, setVisibility] = useState("public");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleCreate = () => {
-        const newGroup = {
-            name,
-            content: description,
-            capacity: parseInt(maximum, 10),
-            visibility,
-            password: visibility === "private" ? password : "",
-        };
-
-        navigate("/group", { state: { group: newGroup } });
+  const handleCreate = () => {
+    const newGroup = {
+      name,
+      content: description,
+      capacity: parseInt(maximum, 10),
+      visibility,
+      password: visibility === "private" ? password : "",
     };
 
-    return (
-        <div style={layoutStyle}>
-            <style>{responsiveCSS}</style>
-            <MoveLeftTitle title="Create Group" />
+    navigate("/group", { state: { group: newGroup } });
+  };
 
-            <div className="group-info-wrapper">
-                <div className="floating-input-wrapper">
-                    <input
-                        type="text"
-                        id="groupName"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        placeholder=" "  // ← floating label 작동 조건
-                    />
-                    <label htmlFor="groupName">Group Name</label>
-                </div>
-            </div>
+  return (
+    <div style={layoutStyle}>
+      <style>{responsiveCSS}</style>
+      <MoveLeftTitle title="Create Group" />
 
-            <div className="group-info-wrapper">
-                <div className="floating-input-wrapper">
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        required
-                        placeholder=" "
-                        rows={4}
-                    />
-                    <label htmlFor="description">Description</label>
-                </div>
-            </div>
-
-            <div className="group-info-wrapper">
-                <div className="floating-select-wrapper">
-                    <select
-                        id="capacity"
-                        value={maximum}
-                        onChange={(e) => setMaximum(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled hidden></option>
-                        {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>{n}</option>
-                        ))}
-                    </select>
-                    <label htmlFor="capacity">Maximum Capacity</label>
-                </div>
-            </div>
-
-            <div className="group-info-wrapper">
-                <div className="floating-select-wrapper">
-                    <select
-                        id="visibility"
-                        value={visibility}
-                        onChange={(e) => setVisibility(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled hidden></option>
-                        <option value="public">공개</option>
-                        <option value="private">비공개</option>
-                    </select>
-                    <label htmlFor="visibility">Visibility</label>
-                </div>
-            </div>
-
-            {visibility === "private" && (
-                <div className="group-info-wrapper">
-                    <div className="floating-input-wrapper password-input-with-icon">
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder=" "
-                            required
-                        />
-                        <label htmlFor="password">Password</label>
-                        <button
-                            type="button"
-                            className="password-toggle"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
-                        </button>
-                    </div>
-                </div>
-
-            )}
-
-
-            <div className="create-wrapper">
-                <button className="create-button" onClick={handleCreate}>
-                    create
-                </button>
-            </div>
+      <div className="group-info-wrapper">
+        <div className="floating-input-wrapper">
+          <input
+            type="text"
+            id="groupName"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder=" " // ← floating label 작동 조건
+          />
+          <label htmlFor="groupName">Group Name</label>
         </div>
-    );
+      </div>
+
+      <div className="group-info-wrapper">
+        <div className="floating-input-wrapper">
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            placeholder=" "
+            rows={4}
+          />
+          <label htmlFor="description">Description</label>
+        </div>
+      </div>
+
+      <div className="group-info-wrapper">
+        <div className="floating-select-wrapper">
+          <select
+            id="capacity"
+            value={maximum}
+            onChange={(e) => setMaximum(e.target.value)}
+            required
+          >
+            <option value="" disabled hidden></option>
+            {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="capacity">Maximum Capacity</label>
+        </div>
+      </div>
+
+      <div className="group-info-wrapper">
+        <div className="floating-select-wrapper">
+          <select
+            id="visibility"
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value)}
+            required
+          >
+            <option value="" disabled hidden></option>
+            <option value="public">공개</option>
+            <option value="private">비공개</option>
+          </select>
+          <label htmlFor="visibility">Visibility</label>
+        </div>
+      </div>
+
+      {visibility === "private" && (
+        <div className="group-info-wrapper">
+          <div className="floating-input-wrapper password-input-with-icon">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder=" "
+              required
+            />
+            <label htmlFor="password">Password</label>
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="create-wrapper">
+        <button className="create-button" onClick={handleCreate}>
+          create
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default CreateGroup;
 
 const layoutStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    width: "100vw",
-    height: "100vh",
-    overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100vh",
+  overflow: "hidden",
 };
 
 const responsiveCSS = `

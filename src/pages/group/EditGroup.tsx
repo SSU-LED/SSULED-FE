@@ -4,162 +4,169 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 
 function EditGroup() {
-    const location = useLocation();
-    const { group } = location.state || {};
+  const location = useLocation();
+  const { group } = location.state || {};
 
-    const [name, setName] = useState(group?.name || "");
-    const [description, setDescription] = useState(group?.content || "");
-    const [maximum, setMaximum] = useState(group?.capacity?.toString() || "1");
-    const [visibility, setVisibility] = useState(group?.visibility || "public");
-    const [password, setPassword] = useState(group?.password || "");
-    const [showPassword, setShowPassword] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+  const [name, setName] = useState(group?.name || "");
+  const [description, setDescription] = useState(group?.content || "");
+  const [maximum, setMaximum] = useState(group?.capacity?.toString() || "1");
+  const [visibility, setVisibility] = useState(group?.visibility || "public");
+  const [password, setPassword] = useState(group?.password || "");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleSave = () => {
-        const updatedGroup = {
-            ...group,
-            name,
-            content: description,
-            capacity: parseInt(maximum, 10),
-            visibility,
-            password: visibility === "private" ? password : "",
-        };
-
-        navigate("/group", { state: { group: updatedGroup } });
+  const handleSave = () => {
+    const updatedGroup = {
+      ...group,
+      name,
+      content: description,
+      capacity: parseInt(maximum, 10),
+      visibility,
+      password: visibility === "private" ? password : "",
     };
 
-    const handleDeleteConfirmed = () => {
-        console.log("Group deleted:", group?.id);
-        setShowModal(false);
-        navigate("/group");
-    };
+    navigate("/group", { state: { group: updatedGroup } });
+  };
 
-    return (
-        <div style={layoutStyle}>
-            <style>{responsiveCSS}</style>
-            <MoveLeftTitle title="Edit Group" />
+  const handleDeleteConfirmed = () => {
+    console.log("Group deleted:", group?.id);
+    setShowModal(false);
+    navigate("/group");
+  };
 
-            <div className="group-info-wrapper">
-                <div className="floating-input-wrapper">
-                    <input
-                        type="text"
-                        id="groupName"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        placeholder=" "
-                    />
-                    <label htmlFor="groupName">Group Name</label>
-                </div>
-            </div>
+  return (
+    <div style={layoutStyle}>
+      <style>{responsiveCSS}</style>
+      <MoveLeftTitle title="Edit Group" />
 
-            <div className="group-info-wrapper">
-                <div className="floating-input-wrapper">
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder=" "
-                        rows={4}
-                        required
-                    />
-                    <label htmlFor="description">Description</label>
-                </div>
-            </div>
-
-            <div className="group-info-wrapper">
-                <div className="floating-select-wrapper">
-                    <select
-                        id="capacity"
-                        value={maximum}
-                        onChange={(e) => setMaximum(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled hidden></option>
-                        {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>{n}</option>
-                        ))}
-                    </select>
-                    <label htmlFor="capacity">Options</label>
-                </div>
-            </div>
-            <div className="group-info-wrapper">
-                <div className="floating-select-wrapper">
-                    <select
-                        id="visibility"
-                        value={visibility}
-                        onChange={(e) => setVisibility(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled hidden></option>
-                        <option value="public">공개</option>
-                        <option value="private">비공개</option>
-                    </select>
-                    <label htmlFor="visibility">Visibility</label>
-                </div>
-            </div>
-            {visibility === "private" && (
-                <div className="group-info-wrapper">
-                    <div className="floating-input-wrapper password-input-with-icon">
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder=" "
-                            required
-                        />
-                        <label htmlFor="password">Password</label>
-                        <button
-                            type="button"
-                            className="password-toggle"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            <div className="create-wrapper">
-                <button className="delete-button" onClick={() => setShowModal(true)}>
-                    delete group
-                </button>
-                <button className="create-button" onClick={handleSave}>
-                    save
-                </button>
-            </div>
-
-            {showModal && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <div className="modal-title">Delete Group</div>
-                        <div className="modal-message">Are you sure you want to delete this group?</div>
-                        <div className="modal-buttons">
-                            <button className="modal-cancel" onClick={() => setShowModal(false)}>
-                                Cancel
-                            </button>
-                            <button className="modal-confirm" onClick={handleDeleteConfirmed}>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+      <div className="group-info-wrapper">
+        <div className="floating-input-wrapper">
+          <input
+            type="text"
+            id="groupName"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder=" "
+          />
+          <label htmlFor="groupName">Group Name</label>
         </div>
-    );
+      </div>
+
+      <div className="group-info-wrapper">
+        <div className="floating-input-wrapper">
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder=" "
+            rows={4}
+            required
+          />
+          <label htmlFor="description">Description</label>
+        </div>
+      </div>
+
+      <div className="group-info-wrapper">
+        <div className="floating-select-wrapper">
+          <select
+            id="capacity"
+            value={maximum}
+            onChange={(e) => setMaximum(e.target.value)}
+            required
+          >
+            <option value="" disabled hidden></option>
+            {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="capacity">Options</label>
+        </div>
+      </div>
+      <div className="group-info-wrapper">
+        <div className="floating-select-wrapper">
+          <select
+            id="visibility"
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value)}
+            required
+          >
+            <option value="" disabled hidden></option>
+            <option value="public">공개</option>
+            <option value="private">비공개</option>
+          </select>
+          <label htmlFor="visibility">Visibility</label>
+        </div>
+      </div>
+      {visibility === "private" && (
+        <div className="group-info-wrapper">
+          <div className="floating-input-wrapper password-input-with-icon">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder=" "
+              required
+            />
+            <label htmlFor="password">Password</label>
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="create-wrapper">
+        <button className="delete-button" onClick={() => setShowModal(true)}>
+          delete group
+        </button>
+        <button className="create-button" onClick={handleSave}>
+          save
+        </button>
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-title">Delete Group</div>
+            <div className="modal-message">
+              Are you sure you want to delete this group?
+            </div>
+            <div className="modal-buttons">
+              <button
+                className="modal-cancel"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button className="modal-confirm" onClick={handleDeleteConfirmed}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default EditGroup;
 
 const layoutStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    width: "100vw",
-    height: "100vh",
-    overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100vh",
+  overflow: "hidden",
 };
 
 const responsiveCSS = `

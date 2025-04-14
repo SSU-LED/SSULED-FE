@@ -1,4 +1,4 @@
-:root {
+/* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -30,6 +30,7 @@ body {
   min-height: 100vh;
   background-color: #ffffff;
   color: black;
+  max-width: 1024px;
 }
 
 h1 {
@@ -67,4 +68,21 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+} */
+
+body {
+  margin: 0;
+  padding: 0;
+  border-color: lightgray;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
 }

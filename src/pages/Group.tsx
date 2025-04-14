@@ -1,39 +1,38 @@
 import React from "react";
-import MediumTitle from "../components/MediumTitle";
+import MediumTitle from "../components/title/MediumTitle";
 import Top3Ranking from "../components/Top3Ranking";
-import SmallImageCard from "../components/SmallImageCard";
 import rawData from "../assets/tempData.json";
 import { CardProps } from "../types/CardProps";
-import MoveRightTitle from "../components/MoveRightTitle";
+import MoveRightTitle from "../components/title/MoveRightTitle";
 import PeriodTabsbar from "../components/PeriodTabsbar";
+import SmallImageCard from "../components/card/SmallImageCard";
 
 const tempData: CardProps[] = rawData.map((item) => ({
   ...item,
 }));
 
 const rankingData: CardProps[] = rawData.slice(0, 3).map((item, index) => ({
-    ...item,
-    rank: index + 1, // 순위 부여 (1, 2, 3)
-  }));  
+  ...item,
+  rank: index + 1, // 순위 부여 (1, 2, 3)
+}));
 
 function Group() {
-
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
-  
-    <div className="header-wrapper">
+
+      <div className="header-wrapper">
         <MediumTitle>Group</MediumTitle>
-        <MoveRightTitle title="내 그룹" subtitle="" to="/groupfeeds"/>
-    </div>
+        <MoveRightTitle title="내 그룹" subtitle="" to="/groupfeeds" />
+      </div>
 
       <PeriodTabsbar />
-  
+
       <div className="scrollable-content">
         <div>
-            <Top3Ranking data={rankingData}/>
+          <Top3Ranking data={rankingData} />
         </div>
-  
+
         <div className="small-card-list">
           {tempData.map((item, index) => (
             <SmallImageCard
@@ -52,13 +51,13 @@ function Group() {
 export default Group;
 
 const layoutStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    width: "100vw",
-    height: "100vh",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+  width: "100%",
+  height: "100vh",
 };
-  
+
 const responsiveCSS = `
   .header-wrapper {
     position: sticky;

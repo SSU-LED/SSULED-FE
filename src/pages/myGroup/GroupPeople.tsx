@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MoveLeftTitle from "../../components/MoveLeftTitle";
+import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import GroupTabsbar from "../../components/GroupTabsbar";
 
 interface Member {
@@ -70,7 +70,7 @@ function GroupPeople() {
       <MoveLeftTitle title="My Group" page="/group" />
       <div style={barStyle}>
         <div>
-        <GroupTabsbar />
+          <GroupTabsbar />
         </div>
         <input
           type="text"
@@ -117,7 +117,7 @@ export default GroupPeople;
 const pageStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  width: "100vw",
+  width: "100%",
   height: "100vh",
   overflow: "hidden",
 };
