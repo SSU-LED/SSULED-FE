@@ -29,7 +29,6 @@ function RecordEdit() {
     navigate(`/records/${item!.id}`, { state: { updatedData } });
   };
 
-
   if (!item) return <div>Record not found</div>;
 
   return (
@@ -48,9 +47,7 @@ function RecordEdit() {
 
         <div className="metadata-form">
           <div className="description-wrapper">
-            <div className="form-title">
-              Description
-            </div>
+            <div className="form-title">Description</div>
             <textarea
               className="description-input"
               value={description}
@@ -63,13 +60,17 @@ function RecordEdit() {
               <div className="form-title">Visibility</div>
               <div className="segmented-control">
                 <button
-                  className={`segment-button ${visibility === "group" ? "active" : ""}`}
+                  className={`segment-button ${
+                    visibility === "group" ? "active" : ""
+                  }`}
                   onClick={() => setVisibility("group")}
                 >
                   그룹공개
                 </button>
                 <button
-                  className={`segment-button ${visibility === "public" ? "active" : ""}`}
+                  className={`segment-button ${
+                    visibility === "public" ? "active" : ""
+                  }`}
                   onClick={() => setVisibility("public")}
                 >
                   전체공개
@@ -111,7 +112,11 @@ function RecordEdit() {
                 >
                   {Array.from({ length: 12 }, (_, i) => {
                     const value = (i + 1) * 10;
-                    return <option key={value} value={value}>{value}분</option>;
+                    return (
+                      <option key={value} value={value}>
+                        {value}분
+                      </option>
+                    );
                   })}
                 </select>
               </div>
@@ -136,7 +141,9 @@ function RecordEdit() {
       </div>
 
       <div className="save-button-wrapper">
-        <button className="save-button" onClick={handleSave}>save</button>
+        <button className="save-button" onClick={handleSave}>
+          save
+        </button>
       </div>
     </div>
   );
@@ -144,11 +151,10 @@ function RecordEdit() {
 
 export default RecordEdit;
 
-
 const layoutStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  width: "100vw",
+  width: "100%",
   height: "100vh",
   overflow: "hidden",
 };

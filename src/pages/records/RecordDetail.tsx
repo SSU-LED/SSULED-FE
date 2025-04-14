@@ -50,7 +50,6 @@ function RecordDetail() {
     </div>
   );
 
-
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
@@ -68,7 +67,11 @@ function RecordDetail() {
       <div className="scroll-area">
         <div className="content-wrapper">
           <div className="record-preview">
-            <img src={item.imageUrl} alt={item.title} className="record-image" />
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="record-image"
+            />
             <div className="record-title">{item.title}</div>
             <div className="record-description">{item.content}</div>
           </div>
@@ -104,84 +107,82 @@ function RecordDetail() {
 
 export default RecordDetail;
 
-
 const fakeComments = [
   {
     imageUrl: "https://placekitten.com/80/80",
     name: "Alice",
     comment: "Great workout!",
-    id: 0
+    id: 0,
   },
   {
     imageUrl: "https://placekitten.com/81/81",
     name: "Bob",
     comment: "Respect 👏",
-    id: 1
+    id: 1,
   },
   {
     imageUrl: "https://placekitten.com/82/82",
     name: "Charlie",
     comment: "Let’s do it again tomorrow!",
-    id: 2
+    id: 2,
   },
   {
     imageUrl: "https://placekitten.com/83/83",
     name: "Dana",
     comment: "That looked intense!",
-    id: 3
+    id: 3,
   },
   {
     imageUrl: "https://placekitten.com/84/84",
     name: "Eli",
     comment: "Good energy today.",
-    id: 4
+    id: 4,
   },
   {
     imageUrl: "https://placekitten.com/85/85",
     name: "Fiona",
     comment: "Nice shot!",
-    id: 5
+    id: 5,
   },
   {
     imageUrl: "https://placekitten.com/86/86",
     name: "George",
     comment: "🔥🔥🔥",
-    id: 6
+    id: 6,
   },
   {
     imageUrl: "https://placekitten.com/87/87",
     name: "Hannah",
     comment: "Can’t wait to join next time.",
-    id: 7
+    id: 7,
   },
   {
     imageUrl: "https://placekitten.com/88/88",
     name: "Ian",
     comment: "Good form!",
-    id: 8
+    id: 8,
   },
   {
     imageUrl: "https://placekitten.com/89/89",
     name: "Jade",
     comment: "This motivated me to work out too!",
-    id: 9
+    id: 9,
   },
   {
     imageUrl: "https://placekitten.com/90/90",
     name: "Kai",
     comment: "Let’s go again tomorrow.",
-    id: 10
+    id: 10,
   },
 ];
 
 const layoutStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  width: "100vw",
+  width: "100%",
   height: "100vh",
   position: "relative",
 };
-
 
 const responsiveCSS = `
   .header-wrapper {

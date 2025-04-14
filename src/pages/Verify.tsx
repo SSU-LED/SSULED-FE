@@ -43,10 +43,15 @@ function Verify() {
                   canvas: "이미지를 렌더링할 수 없습니다.",
                 }}
               />
-              <button className="capture-button" onClick={handleCapture}>캡처</button>
+              <button className="capture-button" onClick={handleCapture}>
+                캡처
+              </button>
             </div>
           ) : (
-            <div className="placeholder-container" onClick={() => setShowCamera(true)}>
+            <div
+              className="placeholder-container"
+              onClick={() => setShowCamera(true)}
+            >
               <FiCamera size={36} color="#aaa" />
             </div>
           )}
@@ -68,13 +73,17 @@ function Verify() {
               <div className="form-title">Visibility</div>
               <div className="segmented-control">
                 <button
-                  className={`segment-button ${visibility === "group" ? "active" : ""}`}
+                  className={`segment-button ${
+                    visibility === "group" ? "active" : ""
+                  }`}
                   onClick={() => setVisibility("group")}
                 >
                   그룹공개
                 </button>
                 <button
-                  className={`segment-button ${visibility === "public" ? "active" : ""}`}
+                  className={`segment-button ${
+                    visibility === "public" ? "active" : ""
+                  }`}
                   onClick={() => setVisibility("public")}
                 >
                   전체공개
@@ -117,7 +126,11 @@ function Verify() {
                 >
                   {Array.from({ length: 12 }, (_, i) => {
                     const value = (i + 1) * 10;
-                    return <option key={value} value={value}>{value}분</option>;
+                    return (
+                      <option key={value} value={value}>
+                        {value}분
+                      </option>
+                    );
                   })}
                 </select>
               </div>
@@ -154,11 +167,10 @@ export default Verify;
 const layoutStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  width: "100vw",
+  width: "100%",
   height: "100vh",
   overflow: "hidden",
 };
-
 
 const responsiveCSS = `
   * {
