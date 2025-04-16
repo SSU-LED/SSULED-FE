@@ -17,7 +17,7 @@ function ChangeNickname() {
   };
 
   return (
-    <div style={layoutStyle}>
+    <div style={pageStyle}>
       <MoveLeftTitle title="닉네임 변경" page="/profile" />
 
       <div style={profileImageContainerStyle}>
@@ -64,21 +64,22 @@ function ChangeNickname() {
           style={inputStyle}
         />
       </div>
-
-      <button style={buttonStyle}>변경하기</button>
+      <button style={buttonStyle}>
+        변경하기
+      </button>
     </div>
   );
 }
 
 export default ChangeNickname;
 
-const layoutStyle: React.CSSProperties = {
+const pageStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
-  overflow: "hidden",
   width: "100%",
   height: "100vh",
+  alignItems: "center",
+  overflow: "hidden",
 };
 
 const profileImageContainerStyle: React.CSSProperties = {
@@ -124,14 +125,14 @@ const inputStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-  marginTop: "20px",
   width: "80%",
-  padding: "10px",
-  fontSize: "16px",
-  fontWeight: "bold",
-  color: "#fff",
-  backgroundColor: "#000",
+  padding: "10px 20px",
   border: "none",
-  borderRadius: "8px",
+  fontSize: "16px",
+  fontWeight: 500,
+  backgroundColor: "#FFB6C1",
+  color: "black",
   cursor: "pointer",
+  borderRadius: "12px",
+  marginTop: "100px",
 };

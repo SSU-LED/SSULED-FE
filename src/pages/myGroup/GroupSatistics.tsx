@@ -1,18 +1,30 @@
-import { useNavigate } from "react-router-dom";
-import { CardProps } from "../../types/CardProps";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import rawData from "../../assets/tempData.json";
-import Tabsbar from "../../components/Tabsbar";
 import GroupTabsbar from "../../components/GroupTabsbar";
-import SmallCard from "../../components/card/SmallCard";
+import { ResponsiveCalendar } from '@nivo/calendar'
+import data from "../../store/dummyData"
+import { useState, useEffect } from "react";
+
+// 그룹 등수 정보를 받아오는 예시 함수 (API 호출)
+const fetchGroupRanking = async () => {
+  // API 호출 또는 데이터 처리 로직 (여기서는 더미 데이터)
+  return {
+    rank: 1, // 예시: 그룹 등수 1등
+    groupName: "슈레딩거 고양이는 슈레드 치즈를 좋아해", // 그룹 이름
+  };
+};
 
 function GroupFeeds() {
-  const tempData: CardProps[] = rawData;
-  const navigate = useNavigate();
+  const [ranking, setRanking] = useState<{ rank: number; groupName: string } | null>(null);
 
-  const handleCardClick = (id: number) => {
-    navigate(`/records/${id}`);
-  };
+  // 그룹 등수 정보 가져오기
+  useEffect(() => {
+    const getRanking = async () => {
+      const rankData = await fetchGroupRanking();
+      setRanking(rankData);
+    };
+
+    getRanking();
+  }, []);
 
   return (
     <div style={pageStyle}>
@@ -30,19 +42,46 @@ function GroupFeeds() {
       <MoveLeftTitle title="My Group" page="/group" />
       <div style={barStyle}>
         <GroupTabsbar />
-        <Tabsbar />
       </div>
       <div className="no-scrollbar" style={scrollAreaStyle}>
-        <div style={listStyle}>
-          {tempData.map((item, index) => (
-            <SmallCard
-              key={index}
-              imageUrl={item.imageUrl}
-              title={item.title}
-              id={item.id}
-              onClick={handleCardClick}
+        <div>
+          {/* 그룹 등수 표시 */}
+          {ranking && (
+            <div style={rankingStyle}>
+              <h2>Current Rank 🏆</h2>
+              <p>
+                <span style={{ color: "#4CAF50" }}>{ranking.groupName}</span> 의 현재 등수는{" "}
+                <span style={{ color: "#FF9800" }}>{ranking.rank} 등</span> 입니다.
+              </p>
+            </div>
+          )}
+
+          <h2 style={{marginTop: "50px"}}>Streak 🎖️</h2>
+          <div style={{ height: 200 }}>
+            <ResponsiveCalendar
+              data={data}
+              from="2015-03-01"
+              to="2016-07-12"
+              emptyColor="#eeeeee"
+              colors={[ '#61cdbb', '#97e3d5', '#e8c1a0', '#f47560' ]}
+              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+              yearSpacing={40}
+              monthBorderColor="#ffffff"
+              dayBorderWidth={2}
+              dayBorderColor="#ffffff"
+              legends={[
+              { 
+                anchor: 'bottom-right',
+                direction: 'row',
+                translateY: 36,
+                itemCount: 4,
+                itemWidth: 42,
+                itemHeight: 36,
+                itemsSpacing: 14,
+                itemDirection: 'right-to-left'
+              }]}
             />
-          ))}
+          </div>
         </div>
       </div>
     </div>
@@ -69,9 +108,10 @@ const barStyle: React.CSSProperties = {
   padding: "0 16px 16px 16px",
 };
 
-const listStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-  gap: "16px",
-  placeItems: "center",
+const rankingStyle: React.CSSProperties = {
+  padding: "16px",
+  backgroundColor: "#f0f4f8",
+  borderRadius: "8px",
+  marginBottom: "16px",
+  textAlign: "center",
 };

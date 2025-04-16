@@ -116,8 +116,8 @@ const responsiveCSS = `
   }
   
   .bio-box {
-    font-size: 16px;
-    padding: 18px;
+    font-size: 14px;
+    padding: 10px;
     text-align: center;
     width: 100%;
     max-width: 400px;
