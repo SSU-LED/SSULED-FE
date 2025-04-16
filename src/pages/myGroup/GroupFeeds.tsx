@@ -6,27 +6,26 @@ import SmallCard from "../../components/card/SmallCard";
 import rawData from "../../assets/tempData.json";
 import Tabsbar from "../../components/Tabsbar";
 import GroupTabsbar from "../../components/GroupTabsbar";
+import { Settings } from "lucide-react";
 
 function GroupFeeds() {
   const tempData: CardProps[] = rawData;
   const navigate = useNavigate();
 
-  const [isJoined, setIsJoined] = useState(true); // 초기값: 가입된 상태
+  const [_isJoined, setIsJoined] = useState(true); // 초기값: 가입된 상태
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
 
   const handleButtonClick = () => {
-    if (isJoined) {
-      // 탈퇴 처리 로직 (예: API 호출 등)
-      setIsJoined(false);
-      alert("그룹에서 탈퇴했습니다.");
-    } else {
-      // 등록 처리 로직
-      setIsJoined(true);
-      alert("그룹에 등록했습니다.");
-    }
+    const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
+      if (confirmLeave) {
+        // 탈퇴 처리 로직 (예: API 호출 등)
+        setIsJoined(false);
+        alert("그룹에서 탈퇴했습니다.");
+        navigate("/newgroup/{$id}")
+      }
   };
 
   return (
@@ -42,7 +41,13 @@ function GroupFeeds() {
           }
         `}
       </style>
-      <MoveLeftTitle title="My Group" page="/group" />
+      <div style={headerWrapperStyle}>
+        <MoveLeftTitle title="My Group" page="/group" />
+        <button style={iconButtonStyle} onClick={() => navigate("/edit-group")}>
+          <Settings size={20} color="#555" />
+        </button>
+      </div>
+
       <div style={barStyle}>
         <GroupTabsbar />
         <Tabsbar />
@@ -60,9 +65,7 @@ function GroupFeeds() {
           ))}
         </div>
       </div>
-      <button style={buttonStyle} onClick={handleButtonClick}>
-        {isJoined ? "탈퇴하기" : "등록하기"}
-      </button>
+      <button style={buttonStyle} onClick={handleButtonClick}>탈퇴하기</button>
     </div>
   );
 }
@@ -103,4 +106,24 @@ const buttonStyle: React.CSSProperties = {
   color: "black",
   cursor: "pointer",
   borderRadius: "12px",
+};
+
+const headerWrapperStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "0 16px",
+  marginBottom: "8px",
+};
+
+const iconButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  padding: "8px",
+  borderRadius: "50%",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  transition: "background 0.2s",
 };

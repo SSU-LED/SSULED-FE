@@ -22,6 +22,8 @@ import PeopleInfo from "./pages/myGroup/PeopleInfo";
 import CreateGroup from "./pages/group/CreateGroup";
 import EditGroup from "./pages/group/EditGroup";
 import Verify from "./pages/Verify";
+import Stat from "./pages/Stat";
+import NewGroup from "./pages/myGroup/newGroup"
 
 function App() {
   return (
@@ -29,7 +31,7 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/stat" element={<h1>Stat</h1>} />
+          <Route path="/stat" element={<Stat />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/group" element={<Group />} />
           <Route path="/profile" element={<Profile />} />
@@ -41,6 +43,7 @@ function App() {
         <Route path="/records/:id" element={<RecordDetail />} />
         <Route path="/records/:id/edit" element={<RecordEdit />} />
         <Route path="/changenickname" element={<ChangeNickname />} />
+        <Route path="/newgroup/:id" element={<NewGroup />} />
         <Route path="/groupfeeds" element={<GroupFeeds />} />
         <Route path="/grouppeople" element={<GroupPeople />} />
         <Route path="/groupstatistics" element={<GroupStatistics />} />

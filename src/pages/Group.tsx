@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import MediumTitle from "../components/title/MediumTitle";
 import Top3Ranking from "../components/Top3Ranking";
 import rawData from "../assets/tempData.json";
 import { CardProps } from "../types/CardProps";
 import MoveRightTitle from "../components/title/MoveRightTitle";
 import PeriodTabsbar from "../components/PeriodTabsbar";
-import SmallImageCard from "../components/card/SmallImageCard";
+import SmallGroupCard from "../components/card/SmallGroupCard";
+import { useNavigate } from "react-router-dom";
 
 const tempData: CardProps[] = rawData.map((item) => ({
   ...item,
@@ -17,13 +18,32 @@ const rankingData: CardProps[] = rawData.slice(0, 3).map((item, index) => ({
 }));
 
 function Group() {
+  const navigate = useNavigate();
+  const [isJoined] = useState(true);
+  
+  const handleCardClick = (id: number) => {
+    navigate(`/newGroup/${id}`);
+  };
+
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
 
       <div className="header-wrapper">
         <MediumTitle>Group</MediumTitle>
-        <MoveRightTitle title="내 그룹" subtitle="" to="/groupfeeds" />
+        <MoveRightTitle
+          title="내 그룹"
+          subtitle=""
+          to="/groupfeeds"
+          onClick={(e) => {
+            if (!isJoined) {
+              e.preventDefault(); // 링크 이동 막기
+              alert("가입한 그룹이 없습니다 🥲");
+            }
+          }}
+        />
+
+
       </div>
 
       <PeriodTabsbar />
@@ -35,14 +55,21 @@ function Group() {
 
         <div className="small-card-list">
           {tempData.map((item, index) => (
-            <SmallImageCard
+            <SmallGroupCard
               key={index}
-              image={item.imageUrl}
+              id={item.id}
+              imageUrl={item.imageUrl}
               title={item.title}
               content={item.content || ""}
+              onClick={handleCardClick}
             />
           ))}
         </div>
+      </div>
+      <div className = "buttonPosition">
+        <button className = "floatingButtonStyle" onClick={() => navigate("/create-group")}>
+          +
+        </button>
       </div>
     </div>
   );
@@ -114,4 +141,28 @@ const responsiveCSS = `
     margin-top: 16px;
   }
 
+  .buttonPosition {
+  position: fixed; 
+  bottom: 68px;   
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: 100%;
+  z-index: 1000;
+  background-color: transparent;
+  }
+
+  .floatingButtonStyle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #FFB6C1;
+  color: white;
+  font-size: 32px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 `;

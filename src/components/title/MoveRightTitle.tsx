@@ -7,9 +7,10 @@ type MoveRightTitleProps = {
   title: string;
   subtitle: string;
   to?: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
-function MoveRightTitle({ title, subtitle, to = "#" }: MoveRightTitleProps) {
+function MoveRightTitle({ title, subtitle, to = "#", onClick }: MoveRightTitleProps) {
   const icon = getIconForTitle(title);
 
   return (
@@ -18,7 +19,13 @@ function MoveRightTitle({ title, subtitle, to = "#" }: MoveRightTitleProps) {
         {icon && <span style={{ marginRight: "8px" }}>{icon}</span>}
         <span>{title}</span>
       </div>
-      <Link to={to} style={linkStyle}>
+      <Link 
+        to={to} 
+        onClick={(e) => {
+          if (onClick) onClick(e);
+        }}
+        style={linkStyle}
+      >
         {subtitle}
         <IoChevronForward size={16} style={{ marginLeft: "4px", verticalAlign: "middle" }} />
       </Link>
