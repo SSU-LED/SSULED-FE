@@ -5,7 +5,7 @@ function PeriodTabsbar() {
 
   return (
     <div style={containerStyle}>
-      {["Today", "Week", "Month"].map((tab) => (
+      {["이번 분기", "지난 분기"].map((tab) => (
         <div
           key={tab}
           style={tabContainerStyle}
