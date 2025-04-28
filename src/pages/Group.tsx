@@ -45,10 +45,9 @@ function Group() {
 
 
       </div>
-
-      <PeriodTabsbar />
-
+      <PeriodTabsbar /> 
       <div className="scrollable-content">
+        <h3>🏆명예의 전당🏆</h3>
         <div>
           <Top3Ranking data={rankingData} />
         </div>
