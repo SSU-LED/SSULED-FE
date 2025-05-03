@@ -1,67 +1,58 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import LargeTitle from "../../components/title/LargeTitle";
 import MediumTitle from "../../components/title/MediumTitle";
 import { SiNaver } from "react-icons/si";
 import { SiKakaotalk } from "react-icons/si";
 
 function Login() {
-    const navigate = useNavigate();
+  const NaverUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${
+    import.meta.env.VITE_NAVER_ID
+  }&state=naver&redirect_uri=${import.meta.env.VITE_NAVER_REDIRECT_URL}`;
 
-    const handleNaverLogin = () => {
-        // TODO: Replace with real API when backend is ready
-        // window.location.href = "https://your-api.com/api/auth/naver";
-        navigate("/");
-    };
-
-    const handleKakaoLogin = () => {
-        // TODO: Replace with real API when backend is ready
-        // window.location.href = "https://your-api.com/api/auth/kakao";
-        navigate("/");
-    };
-
-    return (
-        <div style={layoutStyle}>
-            <style>{responsiveCSS}</style>
-            <div className="title-wrapper">
-                <LargeTitle>SSULED💡</LargeTitle>
-            </div>
-            <div className="brif-content-wrapper">
-                This app allows users to join or create workout groups 
-                where they can check in and verify their daily exercise.
-                Group members can view each other's check-ins, leave comments, 
-                and motivate one another to stay consistent. 
-            </div>
-            <div className="content-wrapper">
-                <MediumTitle>소셜 로그인</MediumTitle>
-                <div className="buttons-wrapper">
-                    <div className="login-button" onClick={handleNaverLogin}>
-                        <SiNaver />
-                        네이버로 로그인
-                    </div>
-                    <div className="login-button" onClick={handleKakaoLogin}>
-                        <SiKakaotalk />
-                        카카오로 로그인
-                    </div>
-                </div>
-            </div>
+  const KakaoUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${
+    import.meta.env.VITE_KAKAO_REST_API_KEY
+  }&state=kakao&redirect_uri=${import.meta.env.VITE_KAKAO_REDIRECT_URL}`;
+  return (
+    <div style={layoutStyle}>
+      <style>{responsiveCSS}</style>
+      <div className="title-wrapper">
+        <LargeTitle>SSULED💡</LargeTitle>
+      </div>
+      <div className="brif-content-wrapper">
+        This app allows users to join or create workout groups where they can
+        check in and verify their daily exercise. Group members can view each
+        other's check-ins, leave comments, and motivate one another to stay
+        consistent.
+      </div>
+      <div className="content-wrapper">
+        <MediumTitle>소셜 로그인</MediumTitle>
+        <div className="buttons-wrapper">
+          <Link className="login-button" to={NaverUrl}>
+            <SiNaver />
+            네이버로 로그인
+          </Link>
+          <Link className="login-button" to={KakaoUrl}>
+            <SiKakaotalk />
+            카카오로 로그인
+          </Link>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 export default Login;
 
-
 const layoutStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    padding: '2rem',
-    fontFamily: 'sans-serif',
-    textAlign: 'center',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  height: "100vh",
+  padding: "2rem",
+  fontFamily: "sans-serif",
+  textAlign: "center",
 };
-
 
 const responsiveCSS = `
     .title-wrapper {

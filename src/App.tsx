@@ -23,7 +23,8 @@ import CreateGroup from "./pages/group/CreateGroup";
 import EditGroup from "./pages/group/EditGroup";
 import Verify from "./pages/Verify";
 import Stat from "./pages/Stat";
-import NewGroup from "./pages/myGroup/newGroup"
+import NewGroup from "./pages/myGroup/newGroup";
+import { LoginCallback } from "./pages/auth/LoginCallback";
 
 function App() {
   return (
@@ -37,8 +38,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/login" element={<Login />} />
-        <Route path="/login-naver" element={<LoginNaverCallback />} />
-        <Route path="/login-kakao" element={<LoginKakaoCallback />} />
+        {/* <Route path="/login-naver" element={<LoginNaverCallback />} />
+        <Route path="/login-kakao" element={<LoginKakaoCallback />} /> */}
+        <Route path="/login/callback" element={<LoginCallback />} />
         <Route path="/records" element={<Records />} />
         <Route path="/records/:id" element={<RecordDetail />} />
         <Route path="/records/:id/edit" element={<RecordEdit />} />

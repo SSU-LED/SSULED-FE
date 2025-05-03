@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MediumTitle from "../components/title/MediumTitle";
 import LargeCard from "../components/card/LargeCard";
@@ -7,6 +7,7 @@ import Tabsbar from "../components/Tabsbar";
 import SmallCard from "../components/card/SmallCard";
 import rawData from "../assets/tempData.json";
 import { CardProps } from "../types/CardProps";
+import { apiClient } from "../api/apiClient";
 
 const tempData: CardProps[] = rawData.map((item) => ({
   ...item,
@@ -18,6 +19,19 @@ function Home() {
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await apiClient.get("/user/userinfo");
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getUser();
+  }, []);
 
   return (
     <div style={layoutStyle}>
