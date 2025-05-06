@@ -8,8 +8,6 @@ import Home from "./pages/Home";
 import Records from "./pages/records/Records";
 import Navbar from "./components/Navbar";
 import Login from "./pages/auth/Login";
-import LoginNaverCallback from "./pages/auth/LoginNaverCallback";
-import LoginKakaoCallback from "./pages/auth/LoginKakaoCallback";
 import RecordDetail from "./pages/records/RecordDetail";
 import RecordEdit from "./pages/records/RecordEdit";
 import Profile from "./pages/Profile";
@@ -38,8 +36,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/login-naver" element={<LoginNaverCallback />} />
-        <Route path="/login-kakao" element={<LoginKakaoCallback />} /> */}
         <Route path="/login/callback" element={<LoginCallback />} />
         <Route path="/records" element={<Records />} />
         <Route path="/records/:id" element={<RecordDetail />} />
