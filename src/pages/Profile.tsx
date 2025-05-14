@@ -1,22 +1,56 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MoveRightTitle from "../components/title/MoveRightTitle";
+import { apiClient } from "../api/apiClient";
+import { useNavigate } from "react-router-dom";
+
+interface IFUserInfo {
+  userImage: string
+  userIntroduction: string | null;
+  userName: string
+}
 
 const Profile = () => {
   //오흔
-  const [nickname] = useState<string>("숭실대벤치프레스");
-  const [bio] = useState("안녕? 나 3대 50 ㅋ");
   const defaultProfileImage = "https://via.placeholder.com/150";
+  const [user, setUser] = useState<IFUserInfo | null>(null);
+  const navigate = useNavigate();
 
-  const handleDeleteAccount = () => {
+  const handleLogoutAccount = async () => {
+    const confirmLogout = window.confirm("로그아웃 하시겠습니까?");
+    if (!confirmLogout) return;
+  
+    try {
+      const response = await apiClient.post("/user/logout");
+      console.log(response);
+  
+      if (response.status >= 200 && response.status < 300) {
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+
+  const handleDeleteAccount = async() => {
     if (
       window.confirm(
         "정말 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
       )
     ) {
       alert("계정이 삭제되었습니다.");
-      // 실제 계정 삭제 로직 추가 가능
     }
   };
+
+  useEffect(() => {
+    const getProfile = async() => {
+      const response = await apiClient.get("/user/userInfo");
+      console.log(response.data);
+
+      setUser(response.data);
+    }
+    getProfile();
+  },[])
 
   return (
     <div className="layout">
@@ -28,19 +62,22 @@ const Profile = () => {
         <div className="profile-container">
           <div className="profile-image-container">
             <img
-              src={defaultProfileImage}
+              src={user?.userImage ? user.userImage:  defaultProfileImage}
               alt="Profile"
               className="profile-image"
             />
           </div>
           <div className="header-wrapper">
             <MoveRightTitle
-              title={nickname}
+              title={user?.userName ? user?.userName : "이름없음"}
               subtitle="닉네임 변경"
               to="/changenickname"
             />
           </div>
-          <div className="bio-box">{bio}</div>
+          <div className="bio-box">{user?.userIntroduction ? user.userIntroduction : '안녕하세요'}</div>
+          <button className="logout-account" onClick={handleLogoutAccount}>
+            logout
+          </button>
           <button className="delete-account" onClick={handleDeleteAccount}>
             delete account
           </button>
@@ -126,6 +163,15 @@ const responsiveCSS = `
     background: #f9f9f9;
     color: #333;
     font-weight: 500;
+  }
+
+  .logout-account {
+    background: none;
+    border: none;
+    color: black;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
   }
 
   .delete-account {

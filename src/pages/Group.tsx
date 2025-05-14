@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MediumTitle from "../components/title/MediumTitle";
 import Top3Ranking from "../components/Top3Ranking";
 import rawData from "../assets/tempData.json";
@@ -7,6 +7,7 @@ import MoveRightTitle from "../components/title/MoveRightTitle";
 import PeriodTabsbar from "../components/PeriodTabsbar";
 import SmallGroupCard from "../components/card/SmallGroupCard";
 import { useNavigate } from "react-router-dom";
+import { apiClient } from "../api/apiClient";
 
 const tempData: CardProps[] = rawData.map((item) => ({
   ...item,
@@ -17,13 +18,48 @@ const rankingData: CardProps[] = rawData.slice(0, 3).map((item, index) => ({
   rank: index + 1, // 순위 부여 (1, 2, 3)
 }));
 
+interface IFGroup{
+  createdAt: string;
+  id: number;
+  isAccessible: boolean;
+  maxMember: number;
+  memberUuid: string[];
+  ownerUuid: string;
+  password: string | null;
+  title: string;
+  updatedAt: string;
+}
+
 function Group() {
   const navigate = useNavigate();
   const [isJoined] = useState(true);
+  const [group, setGroup] = useState<IFGroup[]>([]);
+  const [myGroup, setMyGroup] =useState<IFGroup[]>([]);
   
   const handleCardClick = (id: number) => {
     navigate(`/newGroup/${id}`);
   };
+
+  useEffect(() => {
+    const getAllGroup = async() => {
+      const response = await apiClient.get("/group", {
+        params: {
+          page: 1,
+          limit: 10
+        }
+      })
+      console.group(response.data.data);
+      setGroup(response.data.data);
+    }
+    getAllGroup();
+  }, [])
+
+  const getMyGroup = async () => {
+    const response = await apiClient.get("group/user");
+    console.group(response.data);
+
+    setMyGroup(response.data);
+  }
 
   return (
     <div style={layoutStyle}>
@@ -53,13 +89,11 @@ function Group() {
         </div>
 
         <div className="small-card-list">
-          {tempData.map((item, index) => (
+          {group.map((item, index) => (
             <SmallGroupCard
               key={index}
               id={item.id}
-              imageUrl={item.imageUrl}
               title={item.title}
-              content={item.content || ""}
               onClick={handleCardClick}
             />
           ))}
@@ -97,7 +131,7 @@ const responsiveCSS = `
   .scrollable-content {
     flex: 1;
     overflow-y: auto;
-    padding: 0 16px 16px 16px;
+    padding: 0 16px 50px 16px;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
