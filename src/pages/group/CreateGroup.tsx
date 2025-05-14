@@ -191,9 +191,9 @@ const responsiveCSS = `
   .floating-select-wrapper select:not([value=""]) + label {
     top: -8px;
     left: 10px;
-    font-size: 12px;
+    font-size: 13px;
     color: #333;
-    background: white;
+    background: transparent;
     padding: 0 4px;
   }
 

@@ -1,17 +1,49 @@
 import { useNavigate } from "react-router-dom";
-import { CardProps } from "../../types/CardProps";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import MediumCard from "../../components/card/MediumCard";
-import rawData from "../../assets/tempData.json";
 import Tabsbar from "../../components/Tabsbar";
+import { fetchAllRecords } from "../../api/apiRecords";
+import { useEffect, useState } from "react";
+import { RecordData } from "../../types/RecordTypes";
 
 function Records() {
-  const tempData: CardProps[] = rawData;
   const navigate = useNavigate();
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
+
+  const [records, setRecords] = useState<RecordData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        const response = await fetchAllRecords(1, 24);
+        if (!response || !response.data) {
+          throw new Error("No data returned from API");
+        }
+        setRecords(response.data);
+        console.log("Fetched records:", response.data);
+      } catch (error) {
+        console.error("Error fetching records:", error);
+        setRecords([]);
+        setError("Failed to fetch records. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecords();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    console.log("error", error);
+  }
 
   return (
     <div style={pageStyle}>
@@ -32,11 +64,11 @@ function Records() {
       </div>
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
-          {tempData.map((item, index) => (
+          {records?.map((item, index) => (
             <MediumCard
               key={index}
-              imageUrl={item.imageUrl}
-              title={item.title}
+              imageUrl={item.imageUrl[0]}
+              title={item.updatedAt}
               id={item.id}
               onClick={handleCardClick}
             />

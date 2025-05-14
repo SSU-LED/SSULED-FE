@@ -1,60 +1,82 @@
-import { CommentProps } from "../../types/CommentProps";
+import React from "react";
+import { commentCard } from "../../types/CommentTypes";
+import { SlOptionsVertical } from "react-icons/sl";
 
-function CommentCard({ imageUrl, nickname, id, comment, onClick }: CommentProps) {
-    const handleClick = () => {
-        if (onClick) {
-            onClick(id);
-        }
-    };
+function CommentCard({
+  profileImage,
+  nickname,
+  content,
+  isMine,
+  commentId,
+  onClick,
+}: commentCard) {
+  return (
+    <div style={containerStyle}>
+      <div style={imageContainerStyle}>
+        <img src={profileImage} alt={nickname} style={imageStyle} />
+      </div>
+      <div style={textContainerStyle}>
+        <div style={textStyle}>{nickname}</div>
+        <div style={contentStyle}>{content}</div>
+      </div>
 
-    return (
-        <div style={containerStyle} onClick={handleClick}>
-            <div style={imageContainerStyle}>
-                <img src={imageUrl} alt={nickname} style={imageStyle} />
-            </div>
-            <div style={textContainerStyle}>
-                <div style={textStyle}>{nickname}</div>
-                <div style={contentStyle}>{comment}</div>
-            </div>
+      {isMine && (
+        <div style={optionsContainerStyle}>
+          <button onClick={() => onClick?.(commentId)} style={iconButtonStyle}>
+            <SlOptionsVertical />
+          </button>
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 export default CommentCard;
 
 const containerStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "left",
-    marginBottom: "8px",
-    gap: "8px",
-    padding: "8px 0",
-}
+  display: "flex",
+  alignItems: "center",
+  marginBottom: "8px",
+  gap: "8px",
+  padding: "8px 0",
+};
 
 const imageContainerStyle: React.CSSProperties = {
-    position: "relative",
-    flexShrink: 0,
-    width: "56px",
-    height: "56px",
-}
+  flexShrink: 0,
+  width: "42px",
+  height: "42px",
+};
 
 const imageStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    borderRadius: "16px",
-}
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  borderRadius: "50%",
+};
 
 const textContainerStyle: React.CSSProperties = {
-    alignItems: "left",
-    alignContent: "center",
-}
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+};
 
-const textStyle = {
-    fontSize: "16px",
-    fontWeight: "bold",
-}
+const textStyle: React.CSSProperties = {
+  fontSize: "14px",
+  fontWeight: "bold",
+};
 
-const contentStyle = {
-    fontSize: "14px",
-    color: "#555",
-}
+const contentStyle: React.CSSProperties = {
+  fontSize: "12px",
+  color: "#555",
+};
+
+const optionsContainerStyle: React.CSSProperties = {
+  marginLeft: "auto",
+  position: "relative",
+};
+
+const iconButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+};

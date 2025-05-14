@@ -1,22 +1,55 @@
-import { useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import rawData from "../../assets/tempData.json";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import CommentCard from "../../components/card/CommentCard";
 import { FaRegPaperPlane } from "react-icons/fa";
+import { fetchRecordById, deleteRecord as apiDeleteRecord } from "../../api/apiRecords"; // Renaming import
+import { RecordData } from "../../types/RecordTypes";
+import { commentCard } from "../../types/CommentTypes";
+import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
+import { addLike, removeLike } from "../../api/apiLike";
+import { createComment } from "../../api/apiComment";
+import { newComment } from "../../types/CommentTypes";
+import { deleteComment } from "../../api/apiComment";
+
 
 function RecordDetail() {
   const { id } = useParams();
-  const location = useLocation();
-  const numericId = Number(id);
-
-  const updated = location.state?.updatedData;
-  const item = updated || rawData.find((item) => item.id === numericId);
-  const [showOptions, setShowOptions] = useState(false);
-  const [commentInput, setCommentInput] = useState("");
   const navigate = useNavigate();
 
-  if (!item) return <div>Record not found</div>;
+  const [record, setRecord] = useState<RecordData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [comments, setComments] = useState<commentCard[]>([]);
+  const [showOptions, setShowOptions] = useState(false);
+  const [commentInput, setCommentInput] = useState("");
+  const [selectedCommentId, setSelectedCommentId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchRecord = async () => {
+      try {
+        const response = await fetchRecordById(id);
+        setRecord(response);
+        setComments(response.comments);
+        console.log("Fetched record:", response);
+      } catch (error) {
+        console.error("Error fetching record by ID:", error);
+        setError("Failed to fetch record. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecord();
+  }, [id]);
+
+  if (!record) return <div>Loading or record not found</div>;
+  if (error) return <div>{error}</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleOptionClick = () => setShowOptions(true);
   const closeOptions = () => setShowOptions(false);
@@ -25,10 +58,50 @@ function RecordDetail() {
     setCommentInput(e.target.value);
   };
 
+  const handleDeleteRecord = (recordId: number) => { // Renamed function
+    if (!recordId) return;
+
+    apiDeleteRecord(recordId) // Use the renamed API function
+      .then(() => {
+        alert("Record deleted successfully.");
+        navigate("/records");
+      })
+      .catch((error) => {
+        console.error("Error deleting record:", error);
+        alert("Failed to delete record.");
+      });
+  };
+
+  const handleDeleteClick = () => {
+    if (record) {
+      handleDeleteRecord(Number(id)); // Corrected ID passing here
+    }
+  };
+
   const handleSendClick = () => {
     if (!commentInput.trim()) return;
-    console.log("Sending comment:", commentInput);
-    setCommentInput("");
+
+    const newCommentData: newComment = {
+      postId: record.id,
+      content: commentInput,
+    };
+
+    createComment(newCommentData.postId, newCommentData.content)
+      .then((response) => {
+        setComments((prevComments) => [
+          ...prevComments,
+          {
+            ...response,
+            isMine: true,
+            nickname: record.user.nickname,
+            profileImage: record.user.profileImage,
+          },
+        ]);
+        setCommentInput("");
+      })
+      .catch((error) => {
+        console.error("Error creating comment:", error);
+      });
   };
 
   const renderOptionSheet = () => (
@@ -39,27 +112,90 @@ function RecordDetail() {
             className="edit-button"
             onClick={() => {
               closeOptions();
-              navigate(`/records/${id}/edit`);
+              navigate(`/records/${id}/edit`, {
+                state: { updatedData: record }
+              });
             }}
           >
             Edit
           </button>
-          <button className="delete-button">Delete</button>
+          <button 
+            className="delete-button"
+            onClick={handleDeleteClick} // Corrected to call handleDeleteClick without arguments
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>
   );
+
+  const renderCommentOptionSheet = () => (
+    <div className="blur-overlay" onClick={() => setSelectedCommentId(null)}>
+      <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="button-wrapper">
+          <button
+            className="delete-button"
+            onClick={() => {
+              if (selectedCommentId !== null) {
+                handleCommentDelete(selectedCommentId);
+                setSelectedCommentId(null);
+              }
+            }}
+          >
+            삭제
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const handleCommentDelete = async (commentId: number) => {
+    try {
+      await deleteComment(commentId);
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      alert("댓글이 삭제되었습니다.");
+    } catch (error) {
+      console.error("댓글 삭제 실패:", error);
+      alert("댓글 삭제에 실패했습니다.");
+    }
+  };
+
+  const handleLikeToggle = async () => {
+    if (!record) return;
+
+    try {
+      if (record.userLiked) {
+        await removeLike(record.id);
+        setRecord({
+          ...record,
+          userLiked: false,
+          likeCount: record.likeCount - 1,
+        });
+      } else {
+        await addLike(record.id);
+        setRecord({
+          ...record,
+          userLiked: true,
+          likeCount: record.likeCount + 1,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
 
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
 
       {showOptions && renderOptionSheet()}
+      {selectedCommentId !== null && renderCommentOptionSheet()}
 
       <div className="header-wrapper">
         <MoveLeftTitle
-          title={`${item.id}: ${item.title}`}
-          showOptionButton={true}
+          title={`${record.id}: ${record.title}`}
+          showOptionButton={record.isMine}
           onOptionClick={handleOptionClick}
         />
       </div>
@@ -68,22 +204,50 @@ function RecordDetail() {
         <div className="content-wrapper">
           <div className="record-preview">
             <img
-              src={item.imageUrl}
-              alt={item.title}
+              src={record.imageUrl[0]}
+              alt={record.title}
               className="record-image"
             />
-            <div className="record-title">{item.title}</div>
-            <div className="record-description">{item.content}</div>
+            <div className="record-title">{record.title}</div>
+            <div className="record-description">
+              <div className="record-description record-content">
+                {record.content}
+              </div>
+              <div className="record-description record-date">
+                {record.createdAt}
+              </div>
+              <div className="record-description record-likes" onClick={handleLikeToggle}>
+                {record.userLiked ? (
+                  <IoIosHeart style={{ color: "red", fontSize: "24px" }} />
+                ) : (
+                  <IoIosHeartEmpty style={{ color: "red", fontSize: "24px" }} />
+                )}
+                <span>{record.likeCount}</span>
+              </div>
+              <div className="record-description user">
+                <img
+                  src={record.user.profileImage}
+                  alt={record.user.nickname}
+                  className="record-description user-profile"
+                />
+                <div className="record-description user-nickname">
+                  {record.user.nickname}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="comments-wrapper">
-            {fakeComments.map((comment, index) => (
+            {comments.map((comment) => (
               <CommentCard
-                key={`${comment.name}-${index}`}
+                key={comment.id}
                 id={comment.id}
-                imageUrl={comment.imageUrl}
-                nickname={comment.name}
-                comment={comment.comment}
+                isMine={comment.isMine}
+                commentId={comment.id}
+                profileImage={comment.profileImage}
+                nickname={comment.nickname}
+                content={comment.content}
+                onClick={(id) => setSelectedCommentId(id)}
               />
             ))}
           </div>
@@ -106,75 +270,6 @@ function RecordDetail() {
 }
 
 export default RecordDetail;
-
-const fakeComments = [
-  {
-    imageUrl: "https://placekitten.com/80/80",
-    name: "Alice",
-    comment: "Great workout!",
-    id: 0,
-  },
-  {
-    imageUrl: "https://placekitten.com/81/81",
-    name: "Bob",
-    comment: "Respect 👏",
-    id: 1,
-  },
-  {
-    imageUrl: "https://placekitten.com/82/82",
-    name: "Charlie",
-    comment: "Let’s do it again tomorrow!",
-    id: 2,
-  },
-  {
-    imageUrl: "https://placekitten.com/83/83",
-    name: "Dana",
-    comment: "That looked intense!",
-    id: 3,
-  },
-  {
-    imageUrl: "https://placekitten.com/84/84",
-    name: "Eli",
-    comment: "Good energy today.",
-    id: 4,
-  },
-  {
-    imageUrl: "https://placekitten.com/85/85",
-    name: "Fiona",
-    comment: "Nice shot!",
-    id: 5,
-  },
-  {
-    imageUrl: "https://placekitten.com/86/86",
-    name: "George",
-    comment: "🔥🔥🔥",
-    id: 6,
-  },
-  {
-    imageUrl: "https://placekitten.com/87/87",
-    name: "Hannah",
-    comment: "Can’t wait to join next time.",
-    id: 7,
-  },
-  {
-    imageUrl: "https://placekitten.com/88/88",
-    name: "Ian",
-    comment: "Good form!",
-    id: 8,
-  },
-  {
-    imageUrl: "https://placekitten.com/89/89",
-    name: "Jade",
-    comment: "This motivated me to work out too!",
-    id: 9,
-  },
-  {
-    imageUrl: "https://placekitten.com/90/90",
-    name: "Kai",
-    comment: "Let’s go again tomorrow.",
-    id: 10,
-  },
-];
 
 const layoutStyle: React.CSSProperties = {
   display: "flex",
@@ -210,14 +305,14 @@ const responsiveCSS = `
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .record-preview {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-records: center;
+    text-align: left;
     gap: 12px;
   }
 
@@ -239,7 +334,28 @@ const responsiveCSS = `
   .record-description {
     font-size: 14px;
     color: #555;
-    padding: 0 8px;
+    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .record-description.record-likes {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .record-description.user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .record-description.user-profile {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
   }
 
   .comments-wrapper {
@@ -291,12 +407,13 @@ const responsiveCSS = `
     background-color: rgba(0, 0, 0, 0.2);
     z-index: 999;
     display: flex;
-    justify-content: center;
     align-items: flex-end;
   }
 
   .bottom-sheet {
     background: transparent;
+    display: flex;
+    justify-content: center;
     width: 100%;
     padding: 0 1.25rem 2rem;
     animation: slideUp 0.2s ease-out forwards;
@@ -306,6 +423,7 @@ const responsiveCSS = `
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    width: 430px;
   }
 
   @media (min-width: 480px) {
