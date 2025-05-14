@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../components/title/MoveLeftTitle";
+import { apiClient } from "../api/apiClient";
 
 function ChangeNickname() {
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
   const [profileImage, setProfileImage] = useState("");
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -15,6 +16,23 @@ function ChangeNickname() {
       setProfileImage(imageUrl);
     }
   };
+
+  const changenickname = async() => {
+    try{
+      const response = await apiClient.post('/user/nickname',{
+        newNickname: nickname
+      });
+
+      console.log(response);
+
+      if (response.status >= 200 && response.status < 300) {
+        navigate("/profile");
+      }
+      
+    }catch(error){
+      console.error(error);
+    }
+  }
 
   return (
     <div style={pageStyle}>
@@ -64,7 +82,7 @@ function ChangeNickname() {
           style={inputStyle}
         />
       </div>
-      <button style={buttonStyle}>
+      <button style={buttonStyle} onClick={changenickname}>
         변경하기
       </button>
     </div>

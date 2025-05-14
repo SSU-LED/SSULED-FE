@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CardProps } from "../../types/CardProps";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
@@ -7,12 +7,42 @@ import rawData from "../../assets/tempData.json";
 import Tabsbar from "../../components/Tabsbar";
 import GroupTabsbar from "../../components/GroupTabsbar";
 import { Settings } from "lucide-react";
+import { apiClient } from "../../api/apiClient";
+
+interface MyGroup {
+  id: number;
+  ownerUuid: string;
+  memberUuid: string[];
+  title: string;
+  isAccessible: boolean;
+  maxMember: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface MyGroupPost {
+  id: number;
+  title: string;
+  userUuid: string;
+  content: string;
+  imageUrl: string;
+  isPublic: boolean;
+  createAt: string;
+  updateAt: string;
+  likeCount: number;
+  commentCount: number;
+  isMine: boolean;
+  nickname: string;
+  profileImage: string;
+}
 
 function GroupFeeds() {
-  const tempData: CardProps[] = rawData;
+  //const tempData: CardProps[] = rawData;
   const navigate = useNavigate();
 
   const [_isJoined, setIsJoined] = useState(true); // 초기값: 가입된 상태
+  const [group, setGroup] = useState<MyGroup[]>([]);
+  const [post, setPost] = useState<MyGroupPost[]>([]);
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
@@ -27,6 +57,53 @@ function GroupFeeds() {
         navigate("/newgroup/{$id}")
       }
   };
+
+  useEffect(() => {
+    const getMyGroup = async() => {
+      const response = await apiClient.get("group/user");
+      console.group(response.data);
+
+      setGroup(response.data);
+    }
+    getMyGroup();
+  }, [])
+
+  useEffect(() => {
+  const getGroupPost = async () => {
+    try {
+      const response = await apiClient.get(`/post/group/${1}`, {
+        params: {
+          page: 1,
+          limit: 24,
+        },
+      });
+
+      console.log(response.data.data); // 확인용 로그
+      setPost(
+        response.data.data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          userUuid: item.userUuid,
+          content: item.content,
+          imageUrl: item.imageUrl[0], 
+          isPublic: item.isPublic,
+          createAt: item.createdAt,
+          updateAt: item.updatedAt,
+          likeCount: item.likeCount,
+          commentCount: item.commentCount,
+          isMine: item.isMine,
+          nickname: item.user.nickname,
+          profileImage: item.user.profileImage,
+        }))
+      );
+    } catch (error) {
+      console.error("그룹 게시물 불러오기 실패:", error);
+    }
+  };
+
+  getGroupPost();
+}, []);
+
 
   return (
     <div style={pageStyle}>
@@ -54,11 +131,12 @@ function GroupFeeds() {
       </div>
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
-          {tempData.map((item, index) => (
+          {post.map((item, index) => (
             <SmallCard
               key={index}
               imageUrl={item.imageUrl}
               title={item.title}
+              content={item.content}
               id={item.id}
               onClick={handleCardClick}
             />
@@ -92,8 +170,8 @@ const barStyle: React.CSSProperties = {
 
 const listStyle: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-  gap: "16px",
+  // gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+  gap: "12px",
   placeItems: "center",
 };
 

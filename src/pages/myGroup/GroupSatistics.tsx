@@ -1,17 +1,81 @@
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import GroupTabsbar from "../../components/GroupTabsbar";
-import { ResponsiveCalendar } from '@nivo/calendar'
-import data from "../../store/dummyData"
-import { useState, useEffect } from "react";
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
+import { subDays, addDays } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 // 그룹 등수 정보를 받아오는 예시 함수 (API 호출)
 const fetchGroupRanking = async () => {
   // API 호출 또는 데이터 처리 로직 (여기서는 더미 데이터)
   return {
     rank: 1, // 예시: 그룹 등수 1등
-    groupName: "슈레딩거 고양이는 슈레드 치즈를 좋아해", // 그룹 이름
+    groupName: "SSULED", // 그룹 이름
   };
 };
+
+const generateThreeMonthData = (startDate: Date, endDate: Date) => {
+  const data = [];
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    data.push({
+      date: new Date(d).toISOString().split('T')[0],
+      count: Math.floor(Math.random() * 5),
+    });
+  }
+
+  return data;
+};
+
+export function ThreeMonthHeatmap() {
+  const [startDate, setStartDate] = useState(subDays(new Date(), 89));
+  const [endDate, setEndDate] = useState(new Date());
+  const [values, setValues] = useState<{ date: string; count: number }[]>([]);
+
+  useEffect(() => {
+    setValues(generateThreeMonthData(startDate, endDate));
+  }, [startDate, endDate]);
+
+  const goToPrevQuarter = () => {
+    const newEnd = subDays(startDate, 1);
+    const newStart = subDays(newEnd, 89);
+    setStartDate(newStart);
+    setEndDate(newEnd);
+  };
+
+  const goToNextQuarter = () => {
+    const newStart = addDays(endDate, 1);
+    const newEnd = addDays(newStart, 89);
+    setStartDate(newStart);
+    setEndDate(newEnd);
+  };
+
+  return (
+    <div style={{ marginTop: 20, width: '100%' }}>
+      <div style={navStyle}>
+        <button onClick={goToPrevQuarter} style={arrowBtnStyle}>←</button>
+        <span style={{ fontWeight: 500 }}>{startDate.toISOString().slice(0,10)} ~ {endDate.toISOString().slice(0,10)}</span>
+        <button onClick={goToNextQuarter} style={arrowBtnStyle}>→</button>
+      </div>
+
+      <div style={{ marginTop: 10 }}>
+        <CalendarHeatmap
+          startDate={startDate}
+          endDate={endDate}
+          values={values}
+          classForValue={(value) => {
+            if (!value || value.count === 0) return 'color-empty';
+            return `color-github-${value.count}`;
+          }}
+          showWeekdayLabels
+          tooltipDataAttrs={(value: any) => ({
+            'data-tip': `${value.date} - 활동: ${value.count}`,
+          })}
+        />
+      </div>
+    </div>
+  );
+}
 
 function GroupFeeds() {
   const [ranking, setRanking] = useState<{ rank: number; groupName: string } | null>(null);
@@ -58,29 +122,7 @@ function GroupFeeds() {
 
           <h2 style={{marginTop: "50px"}}>Streak 🎖️</h2>
           <div style={{ height: 200 }}>
-            <ResponsiveCalendar
-              data={data}
-              from="2015-03-01"
-              to="2016-07-12"
-              emptyColor="#eeeeee"
-              colors={[ '#61cdbb', '#97e3d5', '#e8c1a0', '#f47560' ]}
-              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-              yearSpacing={40}
-              monthBorderColor="#ffffff"
-              dayBorderWidth={2}
-              dayBorderColor="#ffffff"
-              legends={[
-              { 
-                anchor: 'bottom-right',
-                direction: 'row',
-                translateY: 36,
-                itemCount: 4,
-                itemWidth: 42,
-                itemHeight: 36,
-                itemsSpacing: 14,
-                itemDirection: 'right-to-left'
-              }]}
-            />
+            <ThreeMonthHeatmap />
           </div>
         </div>
       </div>
@@ -114,4 +156,21 @@ const rankingStyle: React.CSSProperties = {
   borderRadius: "8px",
   marginBottom: "16px",
   textAlign: "center",
+};
+
+const navStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+};
+
+const arrowBtnStyle: React.CSSProperties = {
+  background: 'white',
+  border: '1px solid #ccc',
+  borderRadius: '6px',
+  padding: '4px 10px',
+  cursor: 'pointer',
+  fontSize: '16px',
+  transition: 'background 0.2s',
 };
