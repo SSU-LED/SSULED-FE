@@ -1,48 +1,63 @@
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import rawData from "../../assets/tempData.json";
+import React, { useState, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import MediumTitle from "../../components/title/MediumTitle";
+import { RecordData } from "../../types/RecordTypes";
 
 function RecordEdit() {
-  const { id } = useParams();
-  const numericId = Number(id);
-  const item = rawData.find((item) => item.id === numericId);
-
-  const [description, setDescription] = useState(item?.content || "");
-  const [visibility, setVisibility] = useState("group");
-  const [selectedParts, setSelectedParts] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState("20");
-
+  const location = useLocation();
   const navigate = useNavigate();
 
+  const record = useMemo(() => {
+    return location.state?.updatedData as RecordData | undefined;
+  }, [location.state]);
+
+  const [description, setDescription] = useState("");
+  const [visibility, setVisibility] = useState("group");
+  const [selectedParts, setSelectedParts] = useState<RecordData["bodyPart"]>([]);
+  const [selectedTime, setSelectedTime] = useState("20");
+
+  useEffect(() => {
+    if (!record) return;
+
+    setDescription(record.content || "");
+    setVisibility(record.isPublic ? "public" : "group");
+    setSelectedParts(record.bodyPart || []);
+    setSelectedTime((record.duration ?? 20).toString());
+  }, [record]);
+
   const handleSave = () => {
-    const updatedData = {
-      id: item!.id,
-      title: item!.title,
-      imageUrl: item!.imageUrl,
+    if (!record) return;
+
+    const updatedData: RecordData = {
+      ...record,
       content: description,
-      visibility,
-      parts: selectedParts,
-      time: selectedTime,
+      isPublic: visibility === "public",
+      bodyPart: selectedParts,
+      duration: Number(selectedTime),
     };
 
-    navigate(`/records/${item!.id}`, { state: { updatedData } });
+    navigate(`/records/${record.id}`, { state: { updatedData } });
   };
 
-  if (!item) return <div>Record not found</div>;
+  if (!record) {
+    return <div>Record not found</div>;
+  }
 
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
-
       <div className="header-wrapper">
         <MediumTitle>운동 기록 수정</MediumTitle>
       </div>
 
       <div className="scrollable-content">
         <div className="record-preview">
-          <img src={item.imageUrl} alt={item.title} className="record-image" />
-          <div className="record-title">{item.title}</div>
+          <img
+            src={record.imageUrl[0]}
+            alt={record.title}
+            className="record-image"
+          />
+          <div className="record-title">{record.title}</div>
         </div>
 
         <div className="metadata-form">
@@ -55,6 +70,7 @@ function RecordEdit() {
               placeholder="운동 설명을 입력하세요"
             />
           </div>
+
           <div className="visibility-selector">
             <div className="form-section">
               <div className="form-title">Visibility</div>
@@ -78,6 +94,7 @@ function RecordEdit() {
               </div>
             </div>
           </div>
+
           <div className="exercise-detail-wrapper">
             <div className="exercise-part-selector">
               <div className="form-section">
@@ -93,11 +110,11 @@ function RecordEdit() {
                   }}
                 >
                   <option value="">운동 부위 선택</option>
-                  <option value="가슴">가슴</option>
-                  <option value="등">등</option>
-                  <option value="어깨">어깨</option>
-                  <option value="하체">하체</option>
-                  <option value="복근">복근</option>
+                  <option value="chest">가슴</option>
+                  <option value="back">등</option>
+                  <option value="shoulders_arms">어깨/팔</option>
+                  <option value="legs">하체</option>
+                  <option value="abs">복근</option>
                 </select>
               </div>
             </div>
@@ -122,6 +139,7 @@ function RecordEdit() {
               </div>
             </div>
           </div>
+
           <div className="selected-tags">
             {selectedParts.map((part) => (
               <div key={part} className="tag">
@@ -142,7 +160,7 @@ function RecordEdit() {
 
       <div className="save-button-wrapper">
         <button className="save-button" onClick={handleSave}>
-          save
+          저장
         </button>
       </div>
     </div>
@@ -156,8 +174,9 @@ const layoutStyle: React.CSSProperties = {
   flexDirection: "column",
   width: "100%",
   height: "100vh",
-  overflow: "hidden",
+  position: "relative",
 };
+
 
 const responsiveCSS = `
   * {

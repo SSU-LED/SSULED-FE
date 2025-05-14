@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Outlet,
+  useLocation,
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Records from "./pages/records/Records";
@@ -34,30 +35,34 @@ function App() {
           <Route path="/verify" element={<Verify />} />
           <Route path="/group" element={<Group />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/login/callback" element={<LoginCallback />} />
+          <Route path="/records" element={<Records />} />
+          <Route path="/records/:id" element={<RecordDetail />} />
+          <Route path="/records/:id/edit" element={<RecordEdit />} />
+          <Route path="/changenickname" element={<ChangeNickname />} />
+          <Route path="/newgroup/:id" element={<NewGroup />} />
+          <Route path="/groupfeeds" element={<GroupFeeds />} />
+          <Route path="/grouppeople" element={<GroupPeople />} />
+          <Route path="/groupstatistics" element={<GroupStatistics />} />
+          <Route path="/peopleinfo/:id" element={<PeopleInfo />} />
+          <Route path="/create-group" element={<CreateGroup />} />
+          <Route path="/edit-group" element={<EditGroup />} />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/login/callback" element={<LoginCallback />} />
-        <Route path="/records" element={<Records />} />
-        <Route path="/records/:id" element={<RecordDetail />} />
-        <Route path="/records/:id/edit" element={<RecordEdit />} />
-        <Route path="/changenickname" element={<ChangeNickname />} />
-        <Route path="/newgroup/:id" element={<NewGroup />} />
-        <Route path="/groupfeeds" element={<GroupFeeds />} />
-        <Route path="/grouppeople" element={<GroupPeople />} />
-        <Route path="/groupstatistics" element={<GroupStatistics />} />
-        <Route path="/peopleinfo/:id" element={<PeopleInfo />} />
-        <Route path="/create-group" element={<CreateGroup />} />
-        <Route path="/edit-group" element={<EditGroup />} />
       </Routes>
     </Router>
   );
 }
 
 function MainLayout() {
+  const location = useLocation();
+  const NavbarRoutes = ["/", "/stat", "/verify", "/group", "/profile"];
+  const showNavbar = NavbarRoutes.includes(location.pathname);
+
   return (
     <div style={pageStyle}>
       <Outlet />
-      <Navbar />
+      {showNavbar && <Navbar />}
     </div>
   );
 }

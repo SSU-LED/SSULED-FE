@@ -10,7 +10,6 @@ type MoveLeftTitleProps = {
 };
 
 function MoveLeftTitle({
-  title,
   page,
   showOptionButton = false,
   onOptionClick,
@@ -32,8 +31,6 @@ function MoveLeftTitle({
       <button onClick={handleBack} className="back-button">
         <IoIosArrowBack />
       </button>
-
-      <div className="title">{title}</div>
 
       {showOptionButton && (
         <button

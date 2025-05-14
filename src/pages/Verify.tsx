@@ -2,20 +2,48 @@ import React, { useRef, useState } from "react";
 import { Camera } from "react-camera-pro";
 import { FiCamera } from "react-icons/fi";
 import MediumTitle from "../components/title/MediumTitle";
+import { createRecord } from "../api/apiRecords";
 
 function Verify() {
   const cameraRef = useRef<{ takePhoto: () => string } | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState("group");
   const [selectedParts, setSelectedParts] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState("20");
+  const [selectedTime, setSelectedTime] = useState("10");
   const [showCamera, setShowCamera] = useState(false);
 
   const handleCapture = () => {
     const img = cameraRef.current?.takePhoto();
     if (img) setPhoto(img);
     setShowCamera(false);
+  };
+
+  const handleSaveButtonClick = async () => {
+    if (!photo) return;
+
+    try {
+      const response = await createRecord({
+        content: description,
+        imageUrl: [photo],
+        bodyPart: selectedParts,
+        duration: parseInt(selectedTime, 10),
+        isPublic: visibility === "public",
+      });
+
+      console.log("Record saved:", response);
+      alert("업로드가 완료되었습니다!");
+
+      setPhoto(null);
+      setDescription("");
+      setSelectedParts([]);
+      setSelectedTime("20");
+      setVisibility("group");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("업로드에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -59,13 +87,25 @@ function Verify() {
 
         <div className="metadata-form">
           <div className="description-wrapper">
-            <div className="form-title">Description</div>
-            <textarea
-              className="description-input"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="운동 설명을 입력하세요"
-            />
+            <div className="form-section">
+              <div className="form-title">Title</div>
+              <input
+                type="text"
+                className="title-input"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="제목을 입력하세요"
+              />
+            </div>
+            <div className="form-section">
+              <div className="form-title">Description</div>
+              <textarea
+                className="description-input"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="운동 설명을 입력하세요"
+              />
+            </div>
           </div>
 
           <div className="visibility-selector">
@@ -73,17 +113,15 @@ function Verify() {
               <div className="form-title">Visibility</div>
               <div className="segmented-control">
                 <button
-                  className={`segment-button ${
-                    visibility === "group" ? "active" : ""
-                  }`}
+                  className={`segment-button ${visibility === "group" ? "active" : ""
+                    }`}
                   onClick={() => setVisibility("group")}
                 >
                   그룹공개
                 </button>
                 <button
-                  className={`segment-button ${
-                    visibility === "public" ? "active" : ""
-                  }`}
+                  className={`segment-button ${visibility === "public" ? "active" : ""
+                    }`}
                   onClick={() => setVisibility("public")}
                 >
                   전체공개
@@ -107,11 +145,11 @@ function Verify() {
                   }}
                 >
                   <option value="">운동 부위 선택</option>
-                  <option value="가슴">가슴</option>
-                  <option value="등">등</option>
-                  <option value="어깨">어깨</option>
-                  <option value="하체">하체</option>
-                  <option value="복근">복근</option>
+                  <option value="chest">가슴</option>
+                  <option value="back">등</option>
+                  <option value="shoulders_arms">어깨/팔</option>
+                  <option value="legs">하체</option>
+                  <option value="abs">복근</option>
                 </select>
               </div>
             </div>
@@ -156,7 +194,7 @@ function Verify() {
       </div>
 
       <div className="floating-button-wrapper">
-        <button className="save-button">upload</button>
+        <button className="save-button" onClick={handleSaveButtonClick}>upload</button>
       </div>
     </div>
   );
@@ -373,10 +411,12 @@ const responsiveCSS = `
     padding: 0 16px 16px;
     background-color: transparent;
     z-index: 20;
+    display: flex;
+    justify-content: center;
   }
 
   .save-button {
-    width: 100%;
+    width: 430px;
     padding: 16px;
     font-size: 16px;
     font-weight: 600;
