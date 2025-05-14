@@ -9,6 +9,7 @@ interface Member {
   role: "Leader" | "Member";
   profileImage: string;
   bio: string;
+  status: "참여완료"|"미참여";
 }
 
 const dummyMembers: Member[] = [
@@ -18,6 +19,7 @@ const dummyMembers: Member[] = [
     role: "Leader",
     profileImage: "https://via.placeholder.com/80",
     bio: "안녕하세요? 주디에요 ^!^",
+    status: "미참여",
   },
   {
     id: 2,
@@ -25,6 +27,7 @@ const dummyMembers: Member[] = [
     role: "Member",
     profileImage: "https://via.placeholder.com/80",
     bio: "장래희망 : 감자",
+    status: "참여완료",
   },
   {
     id: 3,
@@ -32,6 +35,7 @@ const dummyMembers: Member[] = [
     role: "Member",
     profileImage: "https://via.placeholder.com/80",
     bio: "3대 50",
+    status: "미참여",
   },
   {
     id: 4,
@@ -39,6 +43,7 @@ const dummyMembers: Member[] = [
     role: "Member",
     profileImage: "https://via.placeholder.com/80",
     bio: "내 피카츄 어디갔어!?",
+    status: "참여완료",
   },
 ];
 
@@ -98,6 +103,9 @@ function GroupPeople() {
                   {member.name}{" "}
                   <span style={roleStyle}>
                     {member.role === "Leader" ? "👑 Leader" : "🙋 Member"}
+                  </span>
+                  <span style={statusStyle(member.status)}>
+                    {member.status === "참여완료" ? "참여완료" : "미참여"}
                   </span>
                 </div>
                 <div style={bioStyle}>{member.bio}</div>
@@ -187,3 +195,10 @@ const bioStyle: React.CSSProperties = {
   fontSize: "14px",
   color: "#555",
 };
+
+const statusStyle = (status: string): React.CSSProperties => ({
+  marginLeft: "8px",
+  fontSize: "14px",
+  fontWeight: "normal",
+  color: status === "참여완료" ? "#888" : "#FFB6C1", 
+});
