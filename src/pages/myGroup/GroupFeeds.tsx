@@ -172,7 +172,7 @@ const listStyle: React.CSSProperties = {
   display: "grid",
   // gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
   gap: "12px",
-  placeItems: "center",
+  placeItems: "flex-start",
 };
 
 const buttonStyle: React.CSSProperties = {
