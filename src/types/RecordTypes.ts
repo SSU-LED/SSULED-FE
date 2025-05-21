@@ -37,6 +37,7 @@ export interface RecordResponse {
 }
 
 export interface RecordCreateRequest {
+  title: string;
   content: string;
   imageUrl: string[];
   bodyPart: ("chest" | "shoulders_arms" | "back" | string)[];

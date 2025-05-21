@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 
-function Tabsbar() {
+function Tabsbar({ onTabChange }: { onTabChange: (tab: string) => void }) {
   const [activeTab, setActiveTab] = useState("Recents");
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    onTabChange(tab);
+  };
 
   return (
     <div style={containerStyle}>
@@ -9,7 +14,7 @@ function Tabsbar() {
         <div
           key={tab}
           style={tabContainerStyle}
-          onClick={() => setActiveTab(tab)}
+          onClick={() => handleTabClick(tab)}
         >
           <div
             style={{
@@ -32,6 +37,7 @@ function Tabsbar() {
 }
 
 export default Tabsbar;
+
 
 const containerStyle: React.CSSProperties = {
     display: "flex",

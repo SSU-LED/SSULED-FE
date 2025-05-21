@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Camera } from "react-camera-pro";
 import { FiCamera } from "react-icons/fi";
 import MediumTitle from "../components/title/MediumTitle";
-import { createRecord } from "../api/apiRecords";
+import { createRecord, uploadImage } from "../api/apiRecords";
 
 function Verify() {
   const cameraRef = useRef<{ takePhoto: () => string } | null>(null);
@@ -13,38 +13,46 @@ function Verify() {
   const [selectedParts, setSelectedParts] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState("10");
   const [showCamera, setShowCamera] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleCapture = () => {
     const img = cameraRef.current?.takePhoto();
-    if (img) setPhoto(img);
-    setShowCamera(false);
+    if (img) {
+      setPhoto(img);         // 상태만 저장
+      setShowCamera(false);  // 카메라 닫기
+    }
   };
 
   const handleSaveButtonClick = async () => {
-    if (!photo) return;
+    if (!photo) {
+      alert("사진을 먼저 촬영해주세요.");
+      return;
+    }
 
+    setLoading(true);
     try {
+      const uploadedImageUrl = await uploadImage(photo);
+      if (!uploadedImageUrl) throw new Error("이미지 업로드 실패");
+
       const response = await createRecord({
+        title: title,
         content: description,
-        imageUrl: [photo],
+        imageUrl: [uploadedImageUrl],
         bodyPart: selectedParts,
         duration: parseInt(selectedTime, 10),
         isPublic: visibility === "public",
       });
 
-      console.log("Record saved:", response);
+      console.log("업로드 성공:", response);
       alert("업로드가 완료되었습니다!");
-
-      setPhoto(null);
-      setDescription("");
-      setSelectedParts([]);
-      setSelectedTime("20");
-      setVisibility("group");
-    } catch (error) {
-      console.error("Upload failed:", error);
+    } catch (err) {
+      console.error("업로드 실패:", err);
       alert("업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div style={layoutStyle}>
@@ -86,26 +94,27 @@ function Verify() {
         </div>
 
         <div className="metadata-form">
-          <div className="description-wrapper">
-            <div className="form-section">
-              <div className="form-title">Title</div>
-              <input
-                type="text"
-                className="title-input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="제목을 입력하세요"
-              />
-            </div>
-            <div className="form-section">
-              <div className="form-title">Description</div>
-              <textarea
-                className="description-input"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="운동 설명을 입력하세요"
-              />
-            </div>
+          <div className="floating-input-wrapper">
+            <input
+              type="text"
+              className="title-input"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              placeholder=" "
+            />
+            <label htmlFor="postTitle">Title</label>
+          </div>
+
+          <div className="floating-input-wrapper">
+            <textarea
+              className="description-input"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              placeholder=" "
+            />
+            <label htmlFor="postDescription">Description</label>
           </div>
 
           <div className="visibility-selector">
@@ -132,11 +141,11 @@ function Verify() {
 
           <div className="exercise-detail-wrapper">
             <div className="exercise-part-selector">
-              <div className="form-section">
-                <div className="form-title">Exercise Parts</div>
+              <div className="floating-select-wrapper">
                 <select
-                  className="form-select"
-                  value=""
+                  id="parts"
+                  value={selectedParts[selectedParts.length - 1] || ""}
+                  data-hasvalue={selectedParts.length > 0}
                   onChange={(e) => {
                     const value = e.target.value;
                     if (value && !selectedParts.includes(value)) {
@@ -144,22 +153,24 @@ function Verify() {
                     }
                   }}
                 >
-                  <option value="">운동 부위 선택</option>
+                  <option value="" disabled hidden />
                   <option value="chest">가슴</option>
                   <option value="back">등</option>
                   <option value="shoulders_arms">어깨/팔</option>
                   <option value="legs">하체</option>
                   <option value="abs">복근</option>
                 </select>
+                <label htmlFor="parts">운동 부위</label>
               </div>
             </div>
 
             <div className="exercise-time-selector">
-              <div className="form-section">
-                <div className="form-title">Exercise Time</div>
+              <div className="floating-select-wrapper">
                 <select
+                  id="time"
                   className="form-select"
                   value={selectedTime}
+                  data-hasvalue={!!selectedTime}
                   onChange={(e) => setSelectedTime(e.target.value)}
                 >
                   {Array.from({ length: 12 }, (_, i) => {
@@ -171,6 +182,7 @@ function Verify() {
                     );
                   })}
                 </select>
+                <label htmlFor="time">운동 시간</label>
               </div>
             </div>
           </div>
@@ -277,6 +289,72 @@ const responsiveCSS = `
     align-items: center;
     cursor: pointer;
   }
+
+  .floating-input-wrapper,
+  .floating-select-wrapper {
+    position: relative;
+  }
+
+  .floating-input-wrapper input,
+  .floating-input-wrapper textarea,
+  .floating-select-wrapper select {
+    width: 100%;
+    padding: 16px 14px 12px;
+    font-size: 15px;
+    border: none;
+    border-radius: 12px;
+    background-color: #f1f2f6;
+    color: #111;
+    outline: none;
+  }
+
+  .floating-input-wrapper textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+
+  .floating-input-wrapper label,
+  .floating-select-wrapper label {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    color: #888;
+    font-size: 14px;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    background: transparent;
+  }
+
+  /* Floating label active 상태 */
+  .floating-input-wrapper input:focus + label,
+  .floating-input-wrapper input:not(:placeholder-shown) + label,
+  .floating-input-wrapper textarea:focus + label,
+  .floating-input-wrapper textarea:not(:placeholder-shown) + label,
+  .floating-select-wrapper select:focus + label{
+    top: -8px;
+    left: 10px;
+    font-size: 13px;
+    color: #333;
+    background: transparent;
+    padding: 0 4px;
+  }
+
+  .floating-select-wrapper select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px 18px;
+  }
+
+  .floating-select-wrapper select[data-hasvalue="true"] + label {
+  top: -8px;
+  left: 10px;
+  font-size: 13px;
+  color: #333;
+  padding: 0 4px;
+  z-index: 2;
+}
 
   .metadata-form {
     display: flex;

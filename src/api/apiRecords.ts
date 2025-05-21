@@ -1,6 +1,42 @@
 import { apiClient } from './apiClient';
 import { RecordCreateRequest, RecordData } from '../types/RecordTypes.ts';
 
+function base64ToBlob(base64: string): Blob {
+  const parts = base64.split(",");
+  const mime = parts[0].match(/:(.*?);/)?.[1] || "";
+  const binary = atob(parts[1]);
+  const array = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    array[i] = binary.charCodeAt(i);
+  }
+  return new Blob([array], { type: mime });
+}
+
+// 사진 업로드
+export const uploadImage = async (base64Image: string) => {
+  const blob = base64ToBlob(base64Image);
+  const formData = new FormData();
+  formData.append("image", blob, "photo.jpg");
+  console.log("📸 업로드할 Blob:", blob);
+  console.log("📦 FormData:", formData.get("image"));
+  try {
+    const response = await apiClient.post('/upload/image', formData);
+    return response.data.imageUrl;
+  } catch (error) {
+    console.error("Error uploading image: ", error);
+    throw error;
+  };
+}
+
+export const deleteImage = async (url: string) => {
+  try {
+    const response = await apiClient.delete(`/upload/image/${url}`);
+    return response;
+  } catch (error) {
+    console.error("Error Deleting image: ", error);
+    throw error;
+  };
+}
 
 // 게시글 생성
 export const createRecord = async (recordData: RecordCreateRequest) => {
