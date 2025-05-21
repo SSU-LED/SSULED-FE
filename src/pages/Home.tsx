@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import MediumTitle from "../components/title/MediumTitle";
 import LargeCard from "../components/card/LargeCard";
 import MoveRightTitle from "../components/title/MoveRightTitle";
-import Tabsbar from "../components/Tabsbar";
 import SmallCard from "../components/card/SmallCard";
 import { CardProps } from "../types/CardProps.ts";
 import { fetchAllRecords, fetchPopularRecords } from "../api/apiRecords";
@@ -15,7 +14,6 @@ function Home() {
   const [loadingRecords, setLoadingRecords] = React.useState(true);
   const [loadingPopular, setLoadingPopular] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-
   const loading = loadingRecords || loadingPopular;
 
   const handleCardClick = (id: number) => {
@@ -94,9 +92,7 @@ function Home() {
             ))}
           </div>
         </div>
-
-        <Tabsbar />
-
+        <MediumTitle>인기 게시물</MediumTitle>
         <div className="small-card-list">
           {popularRecords.map((item, index) => (
             <SmallCard

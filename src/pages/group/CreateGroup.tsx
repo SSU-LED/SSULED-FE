@@ -1,29 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { createGroup } from "../../api/apiGroup";
+import { CreateGroupRequest } from "../../types/GroupTypes";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 
 function CreateGroup() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("");
   const [maximum, setMaximum] = useState("1");
   const [visibility, setVisibility] = useState("public");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  useEffect(() => {
+    if (visibility === "public") {
+      setPassword("");
+    }
+  }, [visibility]);
 
-  const handleCreate = () => {
-    const newGroup = {
-      name,
-      content: description,
-      capacity: parseInt(maximum, 10),
-      visibility,
+  const handleCreate = async () => {
+    const newGroup: CreateGroupRequest = {
+      title,
       password: visibility === "private" ? password : "",
+      isAccessible: visibility === "public",
+      maxMember: parseInt(maximum, 10),
     };
 
-    navigate("/group", { state: { group: newGroup } });
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await createGroup(newGroup);
+      navigate("/group", { state: { group: newGroup } });
+    } catch (error) {
+      console.error("Error creating group:", error);
+      setError("Failed to create group. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div style={layoutStyle}>
@@ -35,15 +54,15 @@ function CreateGroup() {
           <input
             type="text"
             id="groupName"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             required
-            placeholder=" " // ← floating label 작동 조건
+            placeholder=" "
           />
           <label htmlFor="groupName">Group Name</label>
         </div>
       </div>
-
+      {/* 
       <div className="group-info-wrapper">
         <div className="floating-input-wrapper">
           <textarea
@@ -56,7 +75,7 @@ function CreateGroup() {
           />
           <label htmlFor="description">Description</label>
         </div>
-      </div>
+      </div> */}
 
       <div className="group-info-wrapper">
         <div className="floating-select-wrapper">
@@ -205,7 +224,6 @@ const responsiveCSS = `
     background-size: 18px 18px;
   }
 
-  /* Password toggle 버튼 */
   .password-input-with-icon {
     position: relative;
   }
@@ -224,6 +242,15 @@ const responsiveCSS = `
     cursor: pointer;
     color: #888;
     padding: 4px;
+  }
+  
+  /* Chrome, Edge */
+  input[type="password"]::-webkit-credentials-auto-fill-button,
+  input[type="password"]::-webkit-textfield-decoration-container,
+  input[type="password"]::-ms-reveal {
+    display: none !important;
+    pointer-events: none;
+    opacity: 0;
   }
 
   .create-wrapper {
