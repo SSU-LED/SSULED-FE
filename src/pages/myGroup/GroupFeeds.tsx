@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CardProps } from "../../types/CardProps";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import SmallCard from "../../components/card/SmallCard";
-import rawData from "../../assets/tempData.json";
 import Tabsbar from "../../components/Tabsbar";
 import GroupTabsbar from "../../components/GroupTabsbar";
 import { Settings } from "lucide-react";
@@ -41,32 +39,49 @@ function GroupFeeds() {
   const navigate = useNavigate();
 
   const [_isJoined, setIsJoined] = useState(true); // 초기값: 가입된 상태
-  const [group, setGroup] = useState<MyGroup[]>([]);
+  const [group, setGroup] = useState<MyGroup | null>(null);
   const [post, setPost] = useState<MyGroupPost[]>([]);
+  const [_activeTab, setActiveTab] = useState("Recents");
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
 
-  const handleButtonClick = () => {
-    const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
-      if (confirmLeave) {
-        // 탈퇴 처리 로직 (예: API 호출 등)
-        setIsJoined(false);
-        alert("그룹에서 탈퇴했습니다.");
-        navigate("/newgroup/{$id}")
-      }
+  const handleTabChange = (tab: string) => {
+    console.log("현재 탭:", tab);
+    setActiveTab(tab);
   };
 
-  useEffect(() => {
-    const getMyGroup = async() => {
-      const response = await apiClient.get("group/user");
-      console.group(response.data);
-
-      setGroup(response.data);
+  const handleButtonClick = (id: number) => {
+  const deleteMyGroup = async () => {
+    const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
+    if (confirmLeave) {
+      try {
+        await apiClient.delete(`/group/${id}/leave`);
+        setIsJoined(false);
+        alert("그룹에서 탈퇴했습니다.");
+        navigate(`/newgroup/${id}`);
+      } catch (error) {
+        console.error("그룹 탈퇴 실패:", error);
+        alert("그룹 탈퇴 중 오류가 발생했습니다.");
+      }
     }
+  };
+
+  deleteMyGroup();
+};
+
+  useEffect(() => {
+    const getMyGroup = async () => {
+      const response = await apiClient.get("/group/user");
+      console.log("MyGroup data:", response.data);
+      if (response.data) {
+        setGroup(response.data);
+      }
+    };
     getMyGroup();
-  }, [])
+  }, []);
+
 
   useEffect(() => {
   const getGroupPost = async () => {
@@ -127,7 +142,7 @@ function GroupFeeds() {
 
       <div style={barStyle}>
         <GroupTabsbar />
-        <Tabsbar />
+        <Tabsbar onTabChange={handleTabChange}/>
       </div>
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
@@ -143,7 +158,11 @@ function GroupFeeds() {
           ))}
         </div>
       </div>
-      <button style={buttonStyle} onClick={handleButtonClick}>탈퇴하기</button>
+      {group && (
+        <button style={buttonStyle} onClick={() => handleButtonClick(group.id)}>
+          탈퇴하기
+        </button>
+      )}
     </div>
   );
 }
