@@ -2,24 +2,21 @@ import React from "react";
 import { CardProps } from "../types/CardProps";
 
 interface RankingCardProps extends CardProps {
-  rank?: number; // 등수는 선택적으로 받을 수 있음
+  rank?: number;
 }
 
-function RankingCard({ imageUrl, title, rank }: RankingCardProps) {
+function RankingCard({ title, rank }: RankingCardProps) {
   const renderRank = () => {
     if (rank === 1) return "👑 1등";
     if (rank === 2) return "🥈 2등";
     if (rank === 3) return "🥉 3등";
     return null;
   };
-  
+
   return (
     <div style={containerStyle}>
-      <div style={imageStyleWrapper}>
-        <img src={imageUrl} alt={title} style={imageStyle} />
-      </div>
+      <div style={rankTextStyle}>{renderRank()}</div>
       <div style={textStyle}>{title}</div>
-      {rank && <div style={rankTextStyle}>{renderRank()}</div>}
     </div>
   );
 }
@@ -27,36 +24,26 @@ function RankingCard({ imageUrl, title, rank }: RankingCardProps) {
 export default RankingCard;
 
 const containerStyle: React.CSSProperties = {
-  width: "280px",
+  width: "160px",
+  height: "100px",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  boxSizing: "border-box",
-  padding: "8px"
-};
-
-const imageStyleWrapper: React.CSSProperties = {
-  width: "100%",
-  height: "188px",
+  justifyContent: "center",
   borderRadius: "12px",
-  overflow: "hidden",
-};
-
-const imageStyle: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
+  backgroundColor: "#f4f4f4",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+  padding: "12px",
 };
 
 const textStyle: React.CSSProperties = {
-  marginTop: "8px",
   fontSize: "16px",
   fontWeight: "bold",
+  marginTop: "8px",
 };
 
 const rankTextStyle: React.CSSProperties = {
-  marginTop: "4px",
-  fontSize: "14px",
-  color: "#555",
-  fontWeight: "500",
+  fontSize: "18px",
+  fontWeight: 600,
+  color: "#444",
 };
