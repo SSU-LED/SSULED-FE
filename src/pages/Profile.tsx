@@ -18,18 +18,38 @@ const Profile = () => {
   const handleLogoutAccount = async () => {
     const confirmLogout = window.confirm("로그아웃 하시겠습니까?");
     if (!confirmLogout) return;
-  
+
     try {
-      const response = await apiClient.post("/user/logout");
+      const accessToken = localStorage.getItem("accessToken"); 
+      if (!accessToken) {
+        alert("로그인 상태가 아닙니다.");
+        return;
+      }
+
+      const response = await apiClient.post(
+        "/user/logout",
+        {}, 
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, 
+          },
+        }
+      );
+
       console.log(response);
-  
-      if (response.status >= 200 && response.status < 300) {
+
+      if (response.status === 201 && response.data.message === "로그아웃 성공") {
+        localStorage.removeItem("accessToken"); // 클라이언트 토큰도 제거
         navigate("/login");
+      } else {
+        alert("로그아웃에 실패했습니다.");
       }
     } catch (error) {
-      console.error(error);
+      console.error("로그아웃 에러:", error);
+      alert("로그아웃 중 문제가 발생했습니다.");
     }
   };
+
   
 
   const handleDeleteAccount = async() => {
