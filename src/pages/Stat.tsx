@@ -313,7 +313,7 @@ const pageStyle: React.CSSProperties = {
   flexDirection: "column",
   width: "100%",
   height: "100vh",
-  overflow: "hidden",
+  overflowY: "scroll",
 };
 
 const scrollAreaStyle: React.CSSProperties = {
