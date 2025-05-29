@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import MediumTitle from "../components/title/MediumTitle";
 import { ResponsivePie } from "@nivo/pie";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { subDays, addDays } from "date-fns";
+import { apiClient } from "../api/apiClient";
 
 interface HeatmapValue {
   date: string;
@@ -129,10 +129,10 @@ const Stat = () => {
     const { year, quarter } = getCurrentYearAndQuarter();
     const getStatistics = async () => {
       try {
-        const res = await axios.get("/api/statistics/user/stats", {
+        const res = await apiClient.get("/statistics/user/stats", {
           params: { year, quarter },
         });
-        console.log(res.data);
+        console.log(res);
         setWorkoutData(res.data);
       } catch (error) {
         console.error(error);
