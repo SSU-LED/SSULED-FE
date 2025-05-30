@@ -1,7 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import GroupTabsbar from "../../components/GroupTabsbar";
+import { apiClient } from "../../api/apiClient";
+
+interface MyGroup {
+  id: number;
+  ownerUuid: string;
+  memberUuid: string[];
+  title: string;
+  isAccessible: boolean;
+  maxMember: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface Member {
   id: number;
@@ -12,52 +24,58 @@ interface Member {
   status: "참여완료"|"미참여";
 }
 
-const dummyMembers: Member[] = [
-  {
-    id: 1,
-    name: "배졍",
-    role: "Leader",
-    profileImage: "https://via.placeholder.com/80",
-    bio: "안녕하세요? 주디에요 ^!^",
-    status: "미참여",
-  },
-  {
-    id: 2,
-    name: "말하는 고구마",
-    role: "Member",
-    profileImage: "https://via.placeholder.com/80",
-    bio: "장래희망 : 감자",
-    status: "참여완료",
-  },
-  {
-    id: 3,
-    name: "숭실대벤치프레스",
-    role: "Member",
-    profileImage: "https://via.placeholder.com/80",
-    bio: "3대 50",
-    status: "미참여",
-  },
-  {
-    id: 4,
-    name: "포켓몬 마스터",
-    role: "Member",
-    profileImage: "https://via.placeholder.com/80",
-    bio: "내 피카츄 어디갔어!?",
-    status: "참여완료",
-  },
-];
-
 function GroupPeople() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
+  const [group, setGroup] = useState<MyGroup | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
 
-  const filteredMembers = dummyMembers.filter((member) =>
+  const filteredMembers = members.filter((member) =>
     member.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const handleClick = (id: number) => {
     navigate(`/peopleinfo/${id}`);
   };
+
+  useEffect(() => {
+    const getMyGroup = async () => {
+      const response = await apiClient.get("/group/user");
+      console.log("MyGroup data:", response.data);
+      if (response.data) {
+        setGroup(response.data);
+      }
+    };
+    getMyGroup();
+  }, []);
+
+  useEffect(() => {
+  const getMember = async () => {
+    if (!group) return;
+
+    try {
+      const response = await apiClient.get(`/group/${group.id}`);
+      console.log("Group Members:", response.data);
+
+      const fetchedMembers: Member[] = response.data.members.map((m: any) => ({
+        id: m.id,
+        name: m.userName,
+        role: m.isOwner ? "Leader" : "Member",
+        profileImage: m.userImage,
+        bio: m.userIntroduction,
+        status: m.status || "미참여", // status 정보가 있으면 사용, 없으면 기본값
+      }));
+
+      setMembers(fetchedMembers);
+    } catch (error) {
+      console.error("Error fetching group members:", error);
+    }
+  };
+
+  getMember();
+}, [group]);
+
+
 
   return (
     <div style={pageStyle}>
@@ -72,7 +90,12 @@ function GroupPeople() {
           }
         `}
       </style>
-      <MoveLeftTitle title="My Group" page="/group" />
+      <div style={headerWrapperStyle}>
+        <MoveLeftTitle title="My Group" page="/group" />
+        {group && (
+          <div style={centerTitleStyle}>{group.title}</div>
+        )}
+      </div>
       <div style={barStyle}>
         <div>
           <GroupTabsbar />
@@ -119,8 +142,6 @@ function GroupPeople() {
 }
 
 export default GroupPeople;
-
-// --- 스타일 정의 ---
 
 const pageStyle: React.CSSProperties = {
   display: "flex",
@@ -202,3 +223,24 @@ const statusStyle = (status: string): React.CSSProperties => ({
   fontWeight: "normal",
   color: status === "참여완료" ? "#888" : "#FFB6C1", 
 });
+
+const headerWrapperStyle: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "0 16px",
+  marginBottom: "8px",
+  height: "50px",
+};
+
+const centerTitleStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  transform: "translateX(-50%)",
+  fontWeight: "bold",
+  fontSize: "18px",
+  whiteSpace: "nowrap",
+  color: "#000", 
+  zIndex: 101, 
+};

@@ -1,38 +1,81 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { CardProps } from "../../types/CardProps";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import SmallCard from "../../components/card/SmallCard";
-import rawData from "../../assets/tempData.json";
-import Tabsbar from "../../components/Tabsbar";
+import { apiClient } from "../../api/apiClient";
 
-function newGroup() {
-  const tempData: CardProps[] = rawData;
+export interface IFGroup {
+  createdAt: string;
+  id: number;
+  isAccessible: boolean;
+  maxMember: number;
+  memberUuid: string[];
+  ownerUuid: string;
+  password: string | null;
+  title: string;
+  updatedAt: string;
+  imageUrl?: string; 
+  content?: string; 
+}
+
+function NewGroup() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
 
-  const [isJoined, setIsJoined] = useState(false); // 초기값: 가입된 상태
-  const [isPublic] = useState(false); // true: 공, false: 비공
-  const [password, setPassword] = useState(""); // 비밀번호 상태
-  const [passwordError, setPasswordError] = useState(""); // 비밀번호 오류 상태
-  const [showPasswordInput, setShowPasswordInput] = useState(false); // 비밀번호 입력 창 표시 여부
-  
+  const [isJoined, setIsJoined] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [groupData, setGroupData] = useState<IFGroup | null>(null);
+
+  useEffect(() => {
+    const fetchGroupData = async () => {
+      try {
+        if (!id) return;
+        const res = await apiClient.get(`/group/${id}`);
+        setGroupData(res.data);
+        console.log("그룹 상세 정보:", res.data);
+      } catch (error) {
+        console.error("그룹 정보를 불러오는 데 실패했습니다", error);
+      }
+    };
+
+    fetchGroupData();
+  }, [id]);
+
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
 
   const handleButtonClick = () => {
-    setShowPasswordInput(true); // 버튼 클릭 시 비밀번호 입력 창 표시
+    setShowPasswordInput(true);
   };
 
-  const handlePasswordSubmit = () => {
-    if (!isPublic && password !== "ssuled") { // 비공개일 때 비밀번호 체크
-      setPasswordError("비밀번호가 틀렸습니다!");
+  const handlePasswordSubmit = async () => {
+    const isPublic = groupData?.isAccessible;
+
+    if (!isPublic && !password) {
+      setPasswordError("비밀번호를 입력하세요.");
       return;
     }
 
-    alert("그룹에 등록되었습니다!");
-    setIsJoined(true); // 버튼을 누르면 가입된 상태로 변경
-    navigate("/groupfeeds");
+    try {
+      const response = await apiClient.post(
+        `/group/${id}/join`,
+        isPublic ? {} : { password }
+      );
+      console.log("참여 성공:", response.data);
+      alert("그룹에 등록되었습니다!");
+      setIsJoined(true);
+      navigate("/groupfeeds");
+    } catch (error: any) {
+      console.error("그룹 참여 실패", error.response?.data || error.message);
+      if (error.response?.status === 401 || error.response?.status === 400) {
+        setPasswordError("비밀번호가 틀렸습니다!");
+      } else {
+        alert("그룹 참여 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   return (
@@ -40,31 +83,32 @@ function newGroup() {
       <style>
         {`
           .no-scrollbar {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
           }
           .no-scrollbar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
+            display: none;
           }
         `}
       </style>
       <MoveLeftTitle title="My Group" page="/group" />
-      <div style={barStyle}>
-        <Tabsbar />
-      </div>
+
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
-          {tempData.map((item, index) => (
+          {groupData ? (
             <SmallCard
-              key={index}
-              imageUrl={item.imageUrl}
-              title={item.title}
-              id={item.id}
+              key={groupData.id}
+              imageUrl={groupData.imageUrl ?? ""}
+              title={groupData.title}
+              id={groupData.id}
               onClick={handleCardClick}
             />
-          ))}
+          ) : (
+            <p>그룹 정보를 불러오는 중입니다...</p>
+          )}
         </div>
       </div>
+
       {!isJoined && !showPasswordInput && (
         <button style={buttonStyle} onClick={handleButtonClick}>
           등록하기
@@ -78,7 +122,10 @@ function newGroup() {
             type="password"
             placeholder="비밀번호를 입력하세요"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError("");
+            }}
             style={inputStyle}
           />
           {passwordError && <p style={errorStyle}>{passwordError}</p>}
@@ -91,7 +138,7 @@ function newGroup() {
   );
 }
 
-export default newGroup;
+export default NewGroup;
 
 const pageStyle: React.CSSProperties = {
   display: "flex",
@@ -105,10 +152,6 @@ const scrollAreaStyle: React.CSSProperties = {
   flex: 1,
   overflowY: "auto",
   padding: "16px",
-};
-
-const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
 };
 
 const listStyle: React.CSSProperties = {
@@ -130,50 +173,50 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const passwordContainerStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "12px",
-    backgroundColor: "#fff",
-    padding: "24px",
-    borderRadius: "8px",
-    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-    maxWidth: "400px",
-    maxHeight: "400px",
-  };
-  
-  const titleStyle: React.CSSProperties = {
-    fontSize: "18px",
-    fontWeight: 600,
-    color: "#333",
-    textAlign: "center",
-    marginBottom: "12px",
-  };
-  
-  const inputStyle: React.CSSProperties = {
-    padding: "10px",
-    fontSize: "16px",
-    width: "100%",
-    maxWidth: "320px",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
-    marginBottom: "16px",
-  };
-  
-  const errorStyle: React.CSSProperties = {
-    color: "red",
-    fontSize: "12px",
-    marginBottom: "12px",
-  };
-  
-  const submitButtonStyle: React.CSSProperties = {
-    padding: "12px 20px",
-    border: "none",
-    backgroundColor: "#FFB6C1",
-    color: "white",
-    fontSize: "16px",
-    fontWeight: "500",
-    borderRadius: "12px",
-    cursor: "pointer",
-  };
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "12px",
+  backgroundColor: "#fff",
+  padding: "24px",
+  borderRadius: "8px",
+  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+  maxWidth: "400px",
+  maxHeight: "400px",
+};
+
+const titleStyle: React.CSSProperties = {
+  fontSize: "18px",
+  fontWeight: 600,
+  color: "#333",
+  textAlign: "center",
+  marginBottom: "12px",
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: "10px",
+  fontSize: "16px",
+  width: "100%",
+  maxWidth: "320px",
+  borderRadius: "8px",
+  border: "1px solid #ddd",
+  marginBottom: "16px",
+};
+
+const errorStyle: React.CSSProperties = {
+  color: "red",
+  fontSize: "12px",
+  marginBottom: "12px",
+};
+
+const submitButtonStyle: React.CSSProperties = {
+  padding: "12px 20px",
+  border: "none",
+  backgroundColor: "#FFB6C1",
+  color: "white",
+  fontSize: "16px",
+  fontWeight: "500",
+  borderRadius: "12px",
+  cursor: "pointer",
+};

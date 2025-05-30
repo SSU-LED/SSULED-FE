@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
 import MediumTitle from "../components/title/MediumTitle";
 import Top3Ranking from "../components/Top3Ranking";
-import rawData from "../assets/tempData.json";
-import { CardProps } from "../types/CardProps";
+import SmallGroupCard from "../components/card/SmallGroupCard";
 import MoveRightTitle from "../components/title/MoveRightTitle";
 import PeriodTabsbar from "../components/PeriodTabsbar";
-import SmallGroupCard from "../components/card/SmallGroupCard";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../api/apiClient";
+import { CardProps } from "../types/CardProps";
+import { AxiosError } from "axios";
 
-const tempData: CardProps[] = rawData.map((item) => ({
-  ...item,
-}));
-
-const rankingData: CardProps[] = rawData.slice(0, 3).map((item, index) => ({
-  ...item,
-  rank: index + 1, // 순위 부여 (1, 2, 3)
-}));
-
-interface IFGroup{
+interface IFGroup {
   createdAt: string;
   id: number;
   isAccessible: boolean;
@@ -30,41 +21,70 @@ interface IFGroup{
   updatedAt: string;
 }
 
+function getCurrentQuarter(): number {
+  const month = new Date().getMonth();
+  return Math.floor(month / 3) + 1;
+}
+
+function getQuarterFromTab(tab: string) {
+  switch (tab) {
+    case "이번 분기":
+      return getCurrentQuarter();
+    case "지난 분기":
+      return getCurrentQuarter() === 1 ? 4 : getCurrentQuarter() - 1;
+    default:
+      return getCurrentQuarter();
+  }
+}
+
 function Group() {
   const navigate = useNavigate();
   const [isJoined] = useState(true);
   const [group, setGroup] = useState<IFGroup[]>([]);
-  const [myGroup, setMyGroup] =useState<IFGroup[]>([]);
-  
-  const handleCardClick = (id: number) => {
-    navigate(`/newGroup/${id}`);
-  };
+  const [rankingData, setRankingData] = useState<CardProps[]>([]);
+  const [activeTab, setActiveTab] = useState("이번 분기");
 
   useEffect(() => {
-    const getAllGroup = async() => {
-      const response = await apiClient.get("/group", {
-        params: {
-          page: 1,
-          limit: 10
-        }
-      })
-      console.group(response.data.data);
-      setGroup(response.data.data);
+    const fetchGroups = async () => {
+      const res = await apiClient.get("/group", {
+        params: { page: 1, limit: 10 },
+      });
+      setGroup(res.data.data);
+    };
+    fetchGroups();
+  }, []);
+
+  useEffect(() => {
+    const quarter = getQuarterFromTab(activeTab);
+    const year = new Date().getFullYear();
+
+    const fetchTop3 = async () => {
+      try {
+        const res = await apiClient.get("/statistics/group/ranking", {
+          params: { quarter, year },
+        });
+        const top3Raw = res.data.top3;
+        const formattedTop3: CardProps[] = top3Raw.map((item: any) => ({
+          id: item.groupId,
+          title: item.groupName,
+          rank: item.rank,
+          score: item.score,
+          commits: item.commits,
+        }));
+        setRankingData(formattedTop3);
+        console.log(res);
+      } catch (err) {
+        const e = err as AxiosError;
+        console.error("Top3 랭킹 불러오기 실패", e);
+        console.error("에러 응답:", e?.response?.data);
     }
-    getAllGroup();
-  }, [])
-
-  const getMyGroup = async () => {
-    const response = await apiClient.get("group/user");
-    console.group(response.data);
-
-    setMyGroup(response.data);
-  }
+  };
+    fetchTop3();
+  }, [activeTab]);
 
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
-
       <div className="header-wrapper">
         <MediumTitle>Group</MediumTitle>
         <MoveRightTitle
@@ -73,20 +93,18 @@ function Group() {
           to="/groupfeeds"
           onClick={(e) => {
             if (!isJoined) {
-              e.preventDefault(); // 링크 이동 막기
+              e.preventDefault();
               alert("가입한 그룹이 없습니다 🥲");
             }
           }}
         />
-
-
       </div>
-      <PeriodTabsbar /> 
+
+      <PeriodTabsbar activeTab={activeTab} onTabChange={setActiveTab} />
+
       <div className="scrollable-content">
         <h3>🏆명예의 전당🏆</h3>
-        <div>
-          <Top3Ranking data={rankingData} />
-        </div>
+        <Top3Ranking data={rankingData} />
 
         <div className="small-card-list">
           {group.map((item, index) => (
@@ -94,13 +112,17 @@ function Group() {
               key={index}
               id={item.id}
               title={item.title}
-              onClick={handleCardClick}
+              onClick={() => navigate(`/newgroup/${item.id}`)}
             />
           ))}
         </div>
       </div>
-      <div className = "buttonPosition">
-        <button className = "floatingButtonStyle" onClick={() => navigate("/create-group")}>
+
+      <div className="buttonPosition">
+        <button
+          className="floatingButtonStyle"
+          onClick={() => navigate("/create-group")}
+        >
           +
         </button>
       </div>
@@ -127,75 +149,32 @@ const responsiveCSS = `
     padding: 16px 16px 8px 16px;
     border-bottom: 1px solid #eee;
   }
-  
   .scrollable-content {
     flex: 1;
     overflow-y: auto;
     padding: 0 16px 50px 16px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
   }
-
-  .scrollable-content::-webkit-scrollbar {
-    display: none;                  /* Chrome, Safari */
-  }
-  
-  .image-scroll-container {
-    overflow-x: auto;
-    padding: 12px 0;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE 10+ */
-  }
-  .image-scroll-container::-webkit-scrollbar {
-    display: none;
-  }
-  .image-scroll-container::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-  }
-  .image-scroll-container::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .image-card-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 12px;
-  }
-  .image-card-grid > * {
-    flex-shrink: 0;
-    min-width: 220px;
-  }
-  
   .small-card-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-top: 16px;
   }
-
   .buttonPosition {
-  position: fixed; 
-  bottom: 68px;   
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: 100%;
-  z-index: 1000;
-  background-color: transparent;
+    position: fixed;
+    bottom: 68px;
+    right: 16px;
+    z-index: 1000;
   }
-
   .floatingButtonStyle {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #FFB6C1;
-  color: white;
-  font-size: 32px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #FFB6C1;
+    color: white;
+    font-size: 32px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
 `;

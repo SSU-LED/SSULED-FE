@@ -17,22 +17,39 @@ function ChangeNickname() {
     }
   };
 
-  const changenickname = async() => {
-    try{
-      const response = await apiClient.post('/user/nickname',{
-        newNickname: nickname
-      });
+  const changenickname = async () => {
+  try {
+    const requestBody: any = {};
+    if (nickname.trim() !== "") requestBody.newNickname = nickname;
+    if (bio.trim() !== "") requestBody.newIntroduction = bio;
+    if (profileImage.trim() !== "") requestBody.newProfileImg = profileImage;
 
-      console.log(response);
-
-      if (response.status >= 200 && response.status < 300) {
-        navigate("/profile");
-      }
-      
-    }catch(error){
-      console.error(error);
+    if (Object.keys(requestBody).length === 0) {
+      alert("변경할 내용을 입력하세요.");
+      return;
     }
+
+    const response = await apiClient.post("/user/profile", requestBody);
+    const { message } = response.data;
+
+    if (response.status >= 200 && response.status < 300) {
+      if (message === "프로필이 수정되었습니다.") {
+        alert("프로필이 성공적으로 수정되었습니다.");
+        navigate("/profile");
+      } else {
+        alert(message);
+      }
+    }
+  } catch (error: any) {
+    if (error.response?.data?.message === "사용자를 찾을 수 없습니다.") {
+      alert("사용자를 찾을 수 없습니다.");
+    } else {
+      alert("프로필 수정 중 오류가 발생했습니다.");
+    }
+    console.error("Profile update error:", error);
   }
+};
+
 
   return (
     <div style={pageStyle}>
