@@ -11,6 +11,10 @@ interface HeatmapValue {
   count: number;
 }
 
+interface Props {
+  values: HeatmapValue[];
+}
+
 interface StreakInfo {
   currentStreak: number;
   longestStreak: number;
@@ -42,75 +46,50 @@ interface WorkoutData {
   };
 }
 
-// const totalCommits = rawTimeRangeData.reduce((sum, item) => sum + item.commits, 0);
+export function ThreeMonthHeatmap({ values }: Props) {
+  const [startDate, setStartDate] = useState(subDays(new Date(), 89));
+  const [endDate, setEndDate] = useState(new Date());
 
-// const timeRangeData = rawTimeRangeData.map((item) => ({
-//   ...item,
-//   emoji: emojiMap[item.label] || "❓",
-//   percent: totalCommits > 0 ? ((item.commits / totalCommits) * 100).toFixed(1) : "0",
-// }));
+  const goToPrevQuarter = () => {
+    const newEnd = subDays(startDate, 1);
+    const newStart = subDays(newEnd, 89);
+    setStartDate(newStart);
+    setEndDate(newEnd);
+  };
 
-// const generateThreeMonthData = (startDate: Date, endDate: Date) => {
-//   const data = [];
+  const goToNextQuarter = () => {
+    const newStart = addDays(endDate, 1);
+    const newEnd = addDays(newStart, 89);
+    setStartDate(newStart);
+    setEndDate(newEnd);
+  };
 
-//   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-//     data.push({
-//       date: new Date(d).toISOString().split('T')[0],
-//       count: Math.floor(Math.random() * 5),
-//     });
-//   }
+  return (
+    <div style={{ marginTop: 20, width: "100%" }}>
+      <div style={navStyle}>
+        <button onClick={goToPrevQuarter} style={arrowBtnStyle}>←</button>
+        <span style={{ fontWeight: 500 }}>
+          {startDate.toISOString().slice(0, 10)} ~ {endDate.toISOString().slice(0, 10)}
+        </span>
+        <button onClick={goToNextQuarter} style={arrowBtnStyle}>→</button>
+      </div>
 
-//   return data;
-// };
-
-// export function ThreeMonthHeatmap() {
-//   const [startDate, setStartDate] = useState(subDays(new Date(), 89));
-//   const [endDate, setEndDate] = useState(new Date());
-//   const [values, setValues] = useState<{ date: string; count: number }[]>([]);
-
-//   useEffect(() => {
-//     setValues(generateThreeMonthData(startDate, endDate));
-//   }, [startDate, endDate]);
-
-//   const goToPrevQuarter = () => {
-//     const newEnd = subDays(startDate, 1);
-//     const newStart = subDays(newEnd, 89);
-//     setStartDate(newStart);
-//     setEndDate(newEnd);
-//   };
-
-//   const goToNextQuarter = () => {
-//     const newStart = addDays(endDate, 1);
-//     const newEnd = addDays(newStart, 89);
-//     setStartDate(newStart);
-//     setEndDate(newEnd);
-//   };
-//   return (
-//     <div style={{ marginTop: 20, width: '100%' }}>
-//       <div style={navStyle}>
-//         <button onClick={goToPrevQuarter} style={arrowBtnStyle}>←</button>
-//         <span style={{ fontWeight: 500 }}>{startDate.toISOString().slice(0,10)} ~ {endDate.toISOString().slice(0,10)}</span>
-//         <button onClick={goToNextQuarter} style={arrowBtnStyle}>→</button>
-//       </div>
-
-//       <div style={{ marginTop: 10 }}>
-//         <CalendarHeatmap
-//           startDate={startDate}
-//           endDate={endDate}
-//           values={values}
-//           classForValue={(value) => {
-//             if (!value || value.count === 0) return 'color-empty';
-//             return `color-github-${value.count}`;
-//           }}
-//           showWeekdayLabels
-//           tooltipDataAttrs={(value: any) => ({
-//             'data-tip': `${value.date} - 활동: ${value.count}`,
-//           })}
-//         />
-//       </div>
-//     </div>
-//   );
-// }
+      <CalendarHeatmap
+        startDate={startDate}
+        endDate={endDate}
+        values={values}
+        classForValue={(value) => {
+          if (!value || value.count === 0) return "color-empty";
+          return `color-github-${value.count}`;
+        }}
+        showWeekdayLabels
+        tooltipDataAttrs={(value: any) => ({
+          "data-tip": `${value.date} - 활동: ${value.count}`,
+        })}
+      />
+    </div>
+  );
+}
 
 function getCurrentYearAndQuarter(): { year: number; quarter: number } {
   const now = new Date();
@@ -149,30 +128,29 @@ const Stat = () => {
       count: d.didWorkout ? 1 : 0,
     })) ?? [];
 
-  const streak = workoutData.streakInfo;
   const rawTimeRangeData = [
     { id: 1, label: "dawn", commits: workoutData.day?.dawn ?? 0 },
     { id: 2, label: "morning", commits: workoutData.day?.morning ?? 0 },
-    { id: 3, label: "afternoom", commits: workoutData.day?.afternoon ?? 0 },
+    { id: 3, label: "afternoon", commits: workoutData.day?.afternoon ?? 0 },
     { id: 4, label: "night", commits: workoutData.day?.night ?? 0 },
   ];
 
   const rawPartData = [
-    { name: "가슴", value: workoutData.exercise?.chest ?? 0 },
-    { name: "등", value: workoutData.exercise?.back ?? 0 },
-    { name: "하체", value: workoutData.exercise?.legs ?? 0 },
-    { name: "코어", value: workoutData.exercise?.core ?? 0 },
-    { name: "스포츠", value: workoutData.exercise?.sports ?? 0 },
-    { name: "어깨/팔", value: workoutData.exercise?.shoulders_arms ?? 0 },
-    { name: "유산소", value: workoutData.exercise?.cardio ?? 0 },
-    { name: "기타", value: workoutData.exercise?.other ?? 0 },
+    { id: "가슴", value: workoutData.exercise?.chest ?? 0 },
+    { id: "등", value: workoutData.exercise?.back ?? 0 },
+    { id: "하체", value: workoutData.exercise?.legs ?? 0 },
+    { id: "코어", value: workoutData.exercise?.core ?? 0 },
+    { id: "스포츠", value: workoutData.exercise?.sports ?? 0 },
+    { id: "어깨/팔", value: workoutData.exercise?.shoulders_arms ?? 0 },
+    { id: "유산소", value: workoutData.exercise?.cardio ?? 0 },
+    { id: "기타", value: workoutData.exercise?.other ?? 0 },
   ];
 
   const emojiMap: { [key: string]: string } = {
-    Morning: "🌅",
-    Daytime: "🌞",
-    Evening: "🌇",
-    Night: "🌙",
+    dawn: "🌅",
+    morning: "🌞",
+    afternoon: "🌇",
+    night: "🌙",
   };
 
   const totalCommits = rawTimeRangeData.reduce(
@@ -196,34 +174,19 @@ const Stat = () => {
 
       <div className="no-scrollbar" style={scrollAreaStyle}></div>
       <div>
-        <section>
-          <h3>📅 출석 히트맵</h3>
-          {heatmapValues.map((val, index) => (
-            <div key={index}>
-              {val.date}: {val.count > 0 ? "✅" : "❌"}
-            </div>
-          ))}
-        </section>
-
-        <section>
-          {/* <h3>⏳ 스트릭</h3>
-            <p>현재 스트릭: {streak?.currentStreak ?? 0}일</p>
-            <p>최고 스트릭: {streak?.longestStreak ?? 0}일</p>
-            <p>
-              시작일: {streak?.startDate ?? '-'} ~ 종료일: {streak?.endDate ?? '-'}
-            </p> */}
-          {/* <h2 style={{marginTop: "10px"}}>Streak 🎖️</h2>
+        <div>
+          <h2 style={{marginTop: "0px"}}>Streak 🎖️</h2>
             <div style={{ height: 200 }}>
-              <ThreeMonthHeatmap />
-            </div> */}
-        </section>
+              <ThreeMonthHeatmap values={heatmapValues} />
+            </div>
+        </div>
 
-        <section>
-          <h3 style={{ marginTop: "80px" }}>선호도 분석 💗</h3>
+        <div>
+          <h3 style={{ marginTop: "100px" }}>선호도 분석 💗</h3>
           <div style={{ height: 250 }}>
             <ResponsivePie
               data={rawPartData}
-              margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+              margin={{ top: 30, right: 100, bottom: 30, left: 100 }}
               innerRadius={0.5}
               padAngle={1}
               cornerRadius={2}
@@ -242,15 +205,7 @@ const Stat = () => {
               ]}
             />
           </div>
-        </section>
-        {/* <section>
-            <h3>🏋️ 부위별 운동</h3>
-            {rawPartData.map((d, idx) => (
-              <div key={idx}>
-                {d.name}: {d.value}회
-              </div>
-            ))}
-          </section> */}
+        </div>
 
         <div style={{ marginBottom: 80 }}>
           <h3>시간대 분석 🕐</h3>
@@ -292,15 +247,6 @@ const Stat = () => {
             ))}
           </div>
         </div>
-
-        {/* <section>
-          <h3>🕒 시간대별 운동</h3>
-          {rawTimeRangeData.map((d, idx) => (
-            <div key={idx}>
-              {d.name}: {d.value}회
-            </div>
-          ))}
-        </section> */}
       </div>
     </div>
   );
@@ -381,3 +327,4 @@ const arrowBtnStyle: React.CSSProperties = {
   fontSize: "16px",
   transition: "background 0.2s",
 };
+
