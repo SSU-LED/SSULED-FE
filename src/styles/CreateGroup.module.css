@@ -98,7 +98,7 @@ input[type="password"]::-ms-reveal {
 
 .createWrapper {
   position: fixed;
-  bottom: 0.5rem;
+  bottom: 3.5rem;
   left: 0;
   right: 0;
   padding: 0 1rem 1rem;
