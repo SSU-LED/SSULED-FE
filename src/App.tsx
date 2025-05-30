@@ -1,10 +1,14 @@
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Outlet,
   useLocation,
+  Navigate,
 } from "react-router-dom";
+import { useAuth } from "./contexts/AuthStore";
+
 import Home from "./pages/Home";
 import Records from "./pages/records/Records";
 import Navbar from "./components/Navbar";
@@ -32,43 +36,51 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/stat" element={<Stat />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/group" element={<Group />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/callback" element={<LoginCallback />} />
-          <Route path="/records" element={<Records />} />
-          <Route path="/records/:id" element={<RecordDetail />} />
-          <Route path="/records/:id/edit" element={<RecordEdit />} />
-          <Route path="/changenickname" element={<ChangeNickname />} />
-          <Route path="/newgroup/:id" element={<NewGroup />} />
-          <Route path="/groupfeeds" element={<GroupFeeds />} />
-          <Route path="/grouppeople" element={<GroupPeople />} />
-          <Route path="/groupstatistics" element={<GroupStatistics />} />
-          <Route path="/peopleinfo/:id" element={<PeopleInfo />} />
-          <Route path="/create-group" element={<CreateGroup />} />
-          <Route path="/edit-group" element={<EditGroup />} />
+
+          <Route path="/verify" element={<ProtectedRoute><Verify /></ProtectedRoute>} />
+          <Route path="/group" element={<ProtectedRoute><Group /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/records" element={<ProtectedRoute><Records /></ProtectedRoute>} />
+          <Route path="/records/:id" element={<ProtectedRoute><RecordDetail /></ProtectedRoute>} />
+          <Route path="/records/:id/edit" element={<ProtectedRoute><RecordEdit /></ProtectedRoute>} />
+          <Route path="/changenickname" element={<ProtectedRoute><ChangeNickname /></ProtectedRoute>} />
+          <Route path="/newgroup/:id" element={<ProtectedRoute><NewGroup /></ProtectedRoute>} />
+          <Route path="/groupfeeds" element={<ProtectedRoute><GroupFeeds /></ProtectedRoute>} />
+          <Route path="/grouppeople" element={<ProtectedRoute><GroupPeople /></ProtectedRoute>} />
+          <Route path="/groupstatistics" element={<ProtectedRoute><GroupStatistics /></ProtectedRoute>} />
+          <Route path="/peopleinfo/:id" element={<ProtectedRoute><PeopleInfo /></ProtectedRoute>} />
+          <Route path="/create-group" element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
+          <Route path="/edit-group" element={<ProtectedRoute><EditGroup /></ProtectedRoute>} />
         </Route>
       </Routes>
     </Router>
   );
-}
-
-function MainLayout() {
-  const location = useLocation();
-  const NavbarRoutes = ["/", "/stat", "/verify", "/group", "/profile"];
-  const showNavbar = NavbarRoutes.includes(location.pathname);
-
-  return (
-    <div style={pageStyle}>
-      <Outlet />
-      {showNavbar && <Navbar />}
-    </div>
-  );
-}
+};
 
 export default App;
 
-const pageStyle: React.CSSProperties = {
-  backgroundColor: "white",
+const MainLayout: React.FC = () => {
+  const location = useLocation();
+  const hideNavbarRoutes = ["/login", "/login/callback"];
+  const showNavbar = !hideNavbarRoutes.includes(location.pathname);
+
+  return (
+    <>
+      <Outlet />
+      {showNavbar && <Navbar />}
+    </>
+  );
+};
+
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isLoggedIn } = useAuth();
+  const location = useLocation();
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 };

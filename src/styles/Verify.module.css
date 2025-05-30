@@ -1,0 +1,304 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.headerWrapper {
+  padding: 1rem 1.2rem 0.5rem;
+  background-color: white;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-weight: bolder;
+  font-size: x-large;
+}
+
+.scrollableContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  padding-bottom: 7.5rem; /* 120px */
+  display: flex;
+  flex-direction: column;
+}
+
+.recordPreview {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  align-items: center;
+}
+
+.recordImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.05);
+}
+
+.photoPreviewContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cameraContainer {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  position: relative; /* 중요!! */
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: black;
+}
+
+.captureButton {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: black;
+  color: white;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.placeholderContainer {
+  width: 100%;
+  height: 17.5rem;
+  background-color: #f1f2f6;
+  border-radius: 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.floatingInputWrapper,
+.floatingSelectWrapper {
+  position: relative;
+}
+
+.floatingInputWrapper input,
+.floatingInputWrapper textarea,
+.floatingSelectWrapper select {
+  width: 100%;
+  padding: 1rem 0.875rem 0.75rem;
+  font-size: 0.9375rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #f1f2f6;
+  color: #111;
+  outline: none;
+}
+
+.floatingInputWrapper textarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.floatingInputWrapper label,
+.floatingSelectWrapper label {
+  position: absolute;
+  top: 0.875rem;
+  left: 0.875rem;
+  color: #888;
+  font-size: 0.875rem;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.floatingInputWrapper input:focus + label,
+.floatingInputWrapper input:not(:placeholder-shown) + label,
+.floatingInputWrapper textarea:focus + label,
+.floatingInputWrapper textarea:not(:placeholder-shown) + label,
+.floatingSelectWrapper select:focus + label,
+.floatingSelectWrapper select[data-hasvalue="true"] + label {
+  top: -0.5rem;
+  left: 0.625rem;
+  font-size: 0.8125rem;
+  color: #333;
+  background: transparent;
+  padding: 0 0.25rem;
+  z-index: 2;
+}
+
+.floatingSelectWrapper select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1.125rem 1.125rem;
+}
+
+.metadataForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.formTitle {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #111;
+  margin-bottom: 0.375rem;
+}
+
+.descriptionInput {
+  width: 100%;
+  min-height: 6.25rem;
+  font-size: 0.9375rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #f1f2f6;
+  color: #111;
+  resize: vertical;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formSelect {
+  padding: 0.875rem;
+  font-size: 0.9375rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #f1f2f6;
+  color: #111;
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='18' viewBox='0 0 24 24' width='18' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.125rem 1.125rem;
+}
+
+.exerciseDetailWrapper {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.exerciseDetailWrapper > div {
+  flex: 1;
+}
+
+.selectedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.tag {
+  background-color: #e8e8e8;
+  color: #333;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.08);
+}
+
+.tagRemove {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: #aaa;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem;
+}
+
+.tagRemove:hover {
+  color: #000;
+}
+
+.segmentedControl {
+  display: flex;
+  background-color: #f1f2f6;
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+
+.segmentButton {
+  flex: 1;
+  padding: 0.625rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.active {
+  background-color: #fff;
+  color: #111;
+  font-weight: 600;
+  box-shadow: inset 0 0 0.25rem rgba(0, 0, 0, 0.06);
+}
+
+.floatingButtonWrapper {
+  position: fixed;
+  bottom: 3.5rem; /* 56px */
+  left: 0;
+  right: 0;
+  padding: 0 1rem 1rem;
+  background-color: transparent;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+}
+
+.saveButton {
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  background-color: #111;
+  color: white;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.saveButton:active {
+  background-color: #333;
+}
+
+@media (max-width: 30rem) {
+  .formTitle {
+    font-size: 0.875rem;
+  }
+
+  .formSelect,
+  .descriptionInput {
+    font-size: 0.875rem;
+    padding: 0.75rem;
+  }
+
+  .saveButton {
+    font-size: 0.9375rem;
+    padding: 0.875rem;
+  }
+}

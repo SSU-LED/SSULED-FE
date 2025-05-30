@@ -1,0 +1,192 @@
+.groupInfoWrapper {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.floatingInputWrapper,
+.floatingSelectWrapper {
+  position: relative;
+}
+
+.floatingInputWrapper input,
+.floatingInputWrapper textarea,
+.floatingSelectWrapper select {
+  width: 100%;
+  padding: 16px 14px 12px;
+  font-size: 15px;
+  border: none;
+  border-radius: 12px;
+  background-color: #f1f2f6;
+  color: #111;
+  outline: none;
+}
+
+.floatingInputWrapper textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.floatingInputWrapper label,
+.floatingSelectWrapper label {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  color: #888;
+  font-size: 14px;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.floatingInputWrapper input:focus + label,
+.floatingInputWrapper input:not(:placeholder-shown) + label,
+.floatingInputWrapper textarea:focus + label,
+.floatingInputWrapper textarea:not(:placeholder-shown) + label,
+.floatingSelectWrapper select:focus + label,
+.floatingSelectWrapper select:not([value=""]) + label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #333;
+  background: white;
+  padding: 0 4px;
+}
+
+.floatingSelectWrapper select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px 18px;
+}
+
+.passwordInputWithIcon {
+  position: relative;
+}
+.passwordInputWithIcon input {
+  padding-right: 42px;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+}
+
+.createWrapper {
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.deleteButton {
+  width: 100%;
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #e63946;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 12px;
+}
+
+.createButton {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #1c1b1f;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.createButton:active {
+  background-color: #2a292d;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #fff;
+  padding: 24px 20px;
+  border-radius: 16px;
+  width: 80%;
+  max-width: 340px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.modalMessage {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 24px;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modalCancel {
+  flex: 1;
+  background: #e0e0e0;
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.modalConfirm {
+  flex: 1;
+  background: #e63946;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .floatingInputWrapper input,
+  .floatingInputWrapper textarea,
+  .floatingSelectWrapper select {
+    font-size: 14px;
+  }
+
+  .createButton {
+    font-size: 15px;
+    padding: 12px;
+  }
+}

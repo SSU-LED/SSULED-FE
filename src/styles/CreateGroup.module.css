@@ -1,0 +1,139 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.groupInfoWrapper {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.floatingInputWrapper,
+.floatingSelectWrapper {
+  position: relative;
+}
+
+.floatingInputWrapper input,
+.floatingInputWrapper textarea,
+.floatingSelectWrapper select {
+  width: 100%;
+  padding: 16px 14px 12px;
+  font-size: 15px;
+  border: none;
+  border-radius: 12px;
+  background-color: #f1f2f6;
+  color: #111;
+  outline: none;
+}
+
+.floatingInputWrapper textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.floatingInputWrapper label,
+.floatingSelectWrapper label {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  color: #888;
+  font-size: 14px;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.floatingInputWrapper input:focus + label,
+.floatingInputWrapper input:not(:placeholder-shown) + label,
+.floatingInputWrapper textarea:focus + label,
+.floatingInputWrapper textarea:not(:placeholder-shown) + label,
+.floatingSelectWrapper select:focus + label,
+.floatingSelectWrapper select:not([value=""]) + label {
+  top: -8px;
+  left: 10px;
+  font-size: 13px;
+  color: #333;
+  background: transparent;
+  padding: 0 4px;
+}
+
+.floatingSelectWrapper select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px 18px;
+}
+
+.passwordInputWithIcon {
+  position: relative;
+}
+.passwordInputWithIcon input {
+  padding-right: 42px;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+}
+
+/* Chrome/Edge - 숨김 */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="password"]::-ms-reveal {
+  display: none !important;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.createWrapper {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
+  padding: 0 1rem 1rem;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+}
+
+.createButton {
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  background-color: #111;
+  color: white;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.createButton:active {
+  background-color: #2a292d;
+}
+
+@media (max-width: 480px) {
+  .floatingInputWrapper input,
+  .floatingInputWrapper textarea,
+  .floatingSelectWrapper select {
+    font-size: 14px;
+  }
+
+  .createButton {
+    font-size: 15px;
+    padding: 12px;
+  }
+}

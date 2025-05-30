@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import MediumCard from "../../components/card/MediumCard";
-import Tabsbar from "../../components/Tabsbar";
 import { fetchAllRecords } from "../../api/apiRecords";
 import { useEffect, useState } from "react";
 import { RecordData } from "../../types/RecordTypes";
+import styles from "../../styles/Records.module.css";
 
 function Records() {
   const navigate = useNavigate();
@@ -46,24 +46,10 @@ function Records() {
   }
 
   return (
-    <div style={pageStyle}>
-      <style>
-        {`
-          .no-scrollbar {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE */
-          }
-          .no-scrollbar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
-          }
-        `}
-      </style>
+    <div className={styles.page}>
       <MoveLeftTitle title="Records" page="/" />
-      <div style={barStyle}>
-        <Tabsbar />
-      </div>
-      <div className="no-scrollbar" style={scrollAreaStyle}>
-        <div style={listStyle}>
+      <div className={styles.scrollArea}>
+        <div className={styles.list}>
           {records?.map((item, index) => (
             <MediumCard
               key={index}
@@ -80,28 +66,3 @@ function Records() {
 }
 
 export default Records;
-
-const pageStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  height: "100vh",
-  overflow: "hidden",
-};
-
-const scrollAreaStyle: React.CSSProperties = {
-  flex: 1,
-  overflowY: "auto",
-  padding: "16px",
-};
-
-const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
-};
-
-const listStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-  gap: "16px",
-  placeItems: "center",
-};

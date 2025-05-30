@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { apiClient } from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthStore";
 
 export const LoginCallback = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   useEffect(() => {
     const getCode = async () => {
       const params = new URLSearchParams(window.location.search);
@@ -15,20 +18,21 @@ export const LoginCallback = () => {
           const { data } = await apiClient.post(`/auth/${state}`, {
             code,
           });
-          window.localStorage.setItem("accessToken", data.access_token);
+
+          login(data.access_token);
           window.localStorage.setItem("refreshToken", data.refresh_token);
           console.log("로그인 성공");
-
           navigate("/");
         } catch (error) {
           console.error("error: ", error);
-          alert("로그인에 실패했습니다..다시 시도해주세요.");
+          alert("로그인에 실패했습니다. 다시 시도해주세요.");
           navigate("/login");
         }
       }
     };
 
     getCode();
-  }, []);
-  return <div></div>;
+  }, [login, navigate]);
+
+  return <div>로그인 처리 중...</div>;
 };
