@@ -3,15 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import CommentCard from "../../components/card/CommentCard";
 import { FaRegPaperPlane } from "react-icons/fa";
-import { fetchRecordById, deleteRecord as apiDeleteRecord } from "../../api/apiRecords"; // Renaming import
+import { fetchRecordById, deleteRecord as apiDeleteRecord } from "../../api/apiRecords";
 import { RecordData } from "../../types/RecordTypes";
 import { commentCard } from "../../types/CommentTypes";
 import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
 import { addLike, removeLike } from "../../api/apiLike";
-import { createComment } from "../../api/apiComment";
+import { createComment, deleteComment } from "../../api/apiComment";
 import { newComment } from "../../types/CommentTypes";
-import { deleteComment } from "../../api/apiComment";
 
+import layoutStyles from "../../styles/Layout.module.css";
+import styles from "../../styles/RecordDetail.module.css";
 
 function RecordDetail() {
   const { id } = useParams();
@@ -33,7 +34,6 @@ function RecordDetail() {
         const response = await fetchRecordById(id);
         setRecord(response);
         setComments(response.comments);
-        console.log("Fetched record:", response);
       } catch (error) {
         console.error("Error fetching record by ID:", error);
         setError("Failed to fetch record. Please try again later.");
@@ -45,11 +45,9 @@ function RecordDetail() {
     fetchRecord();
   }, [id]);
 
-  if (!record) return <div>Loading or record not found</div>;
+  if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (!record) return <div>Record not found</div>;
 
   const handleOptionClick = () => setShowOptions(true);
   const closeOptions = () => setShowOptions(false);
@@ -58,10 +56,8 @@ function RecordDetail() {
     setCommentInput(e.target.value);
   };
 
-  const handleDeleteRecord = (recordId: number) => { // Renamed function
-    if (!recordId) return;
-
-    apiDeleteRecord(recordId) // Use the renamed API function
+  const handleDeleteRecord = (recordId: number) => {
+    apiDeleteRecord(recordId)
       .then(() => {
         alert("Record deleted successfully.");
         navigate("/records");
@@ -73,9 +69,7 @@ function RecordDetail() {
   };
 
   const handleDeleteClick = () => {
-    if (record) {
-      handleDeleteRecord(Number(id)); // Corrected ID passing here
-    }
+    if (record) handleDeleteRecord(Number(id));
   };
 
   const handleSendClick = () => {
@@ -88,8 +82,8 @@ function RecordDetail() {
 
     createComment(newCommentData.postId, newCommentData.content)
       .then((response) => {
-        setComments((prevComments) => [
-          ...prevComments,
+        setComments((prev) => [
+          ...prev,
           {
             ...response,
             isMine: true,
@@ -104,52 +98,6 @@ function RecordDetail() {
       });
   };
 
-  const renderOptionSheet = () => (
-    <div className="blur-overlay" onClick={closeOptions}>
-      <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="button-wrapper">
-          <button
-            className="edit-button"
-            onClick={() => {
-              closeOptions();
-              navigate(`/records/${id}/edit`, {
-                state: { updatedData: record }
-              });
-            }}
-          >
-            Edit
-          </button>
-          <button 
-            className="delete-button"
-            onClick={handleDeleteClick} // Corrected to call handleDeleteClick without arguments
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderCommentOptionSheet = () => (
-    <div className="blur-overlay" onClick={() => setSelectedCommentId(null)}>
-      <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="button-wrapper">
-          <button
-            className="delete-button"
-            onClick={() => {
-              if (selectedCommentId !== null) {
-                handleCommentDelete(selectedCommentId);
-                setSelectedCommentId(null);
-              }
-            }}
-          >
-            삭제
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   const handleCommentDelete = async (commentId: number) => {
     try {
       await deleteComment(commentId);
@@ -163,7 +111,6 @@ function RecordDetail() {
 
   const handleLikeToggle = async () => {
     if (!record) return;
-
     try {
       if (record.userLiked) {
         await removeLike(record.id);
@@ -186,13 +133,40 @@ function RecordDetail() {
   };
 
   return (
-    <div style={layoutStyle}>
-      <style>{responsiveCSS}</style>
+    <div className={layoutStyles.layout}>
+      {showOptions && (
+        <div className={styles.blurOverlay} onClick={closeOptions}>
+          <div className={styles.bottomSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.buttonWrapper}>
+              <button className={styles.editButton} onClick={() => {
+                closeOptions();
+                navigate(`/records/${id}/edit`, { state: { updatedData: record } });
+              }}>Edit</button>
+              <button className={styles.deleteButton} onClick={handleDeleteClick}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {showOptions && renderOptionSheet()}
-      {selectedCommentId !== null && renderCommentOptionSheet()}
+      {selectedCommentId !== null && (
+        <div className={styles.blurOverlay} onClick={() => setSelectedCommentId(null)}>
+          <div className={styles.bottomSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.buttonWrapper}>
+              <button
+                className={styles.deleteButton}
+                onClick={() => {
+                  handleCommentDelete(selectedCommentId);
+                  setSelectedCommentId(null);
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <div className="header-wrapper">
+      <div className={styles.headerWrapper}>
         <MoveLeftTitle
           title={`${record.id}: ${record.title}`}
           showOptionButton={record.isMine}
@@ -200,23 +174,15 @@ function RecordDetail() {
         />
       </div>
 
-      <div className="scroll-area">
-        <div className="content-wrapper">
-          <div className="record-preview">
-            <img
-              src={record.imageUrl[0]}
-              alt={record.title}
-              className="record-image"
-            />
-            <div className="record-title">{record.title}</div>
-            <div className="record-description">
-              <div className="record-description record-content">
-                {record.content}
-              </div>
-              <div className="record-description record-date">
-                {record.createdAt}
-              </div>
-              <div className="record-description record-likes" onClick={handleLikeToggle}>
+      <div className={styles.scrollArea}>
+        <div className={styles.contentWrapper}>
+          <div className={styles.recordPreview}>
+            <img src={record.imageUrl[0]} alt={record.title} className={styles.recordImage} />
+            <div className={styles.recordTitle}>{record.title}</div>
+            <div className={styles.recordDescription}>
+              <div className={styles.recordContent}>{record.content}</div>
+              <div className={styles.recordDate}>{record.createdAt}</div>
+              <div className={styles.recordLikes} onClick={handleLikeToggle}>
                 {record.userLiked ? (
                   <IoIosHeart style={{ color: "red", fontSize: "24px" }} />
                 ) : (
@@ -224,20 +190,18 @@ function RecordDetail() {
                 )}
                 <span>{record.likeCount}</span>
               </div>
-              <div className="record-description user">
+              <div className={styles.recordUser}>
                 <img
                   src={record.user.profileImage}
                   alt={record.user.nickname}
-                  className="record-description user-profile"
+                  className={styles.userProfile}
                 />
-                <div className="record-description user-nickname">
-                  {record.user.nickname}
-                </div>
+                <div className={styles.userNickname}>{record.user.nickname}</div>
               </div>
             </div>
           </div>
 
-          <div className="comments-wrapper">
+          <div className={styles.commentsWrapper}>
             {comments.map((comment) => (
               <CommentCard
                 key={comment.id}
@@ -254,14 +218,14 @@ function RecordDetail() {
         </div>
       </div>
 
-      <div className="upload-comment">
+      <div className={styles.uploadComment}>
         <input
-          className="input-comment"
+          className={styles.inputComment}
           placeholder="Leave a comment..."
           value={commentInput}
           onChange={handleInputChange}
         />
-        <div className="upload-icon-wrapper" onClick={handleSendClick}>
+        <div className={styles.uploadIconWrapper} onClick={handleSendClick}>
           <FaRegPaperPlane />
         </div>
       </div>
@@ -270,208 +234,3 @@ function RecordDetail() {
 }
 
 export default RecordDetail;
-
-const layoutStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  height: "100vh",
-  position: "relative",
-};
-
-const responsiveCSS = `
-  .header-wrapper {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: white;
-    border-bottom: 1px solid #eee;
-  }
-
-  .scroll-area {
-    flex: 1;
-    overflow-y: auto;
-    box-sizing: border-box;
-
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .scroll-area::-webkit-scrollbar {
-    display: none;
-  }
-
-  .content-wrapper {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .record-preview {
-    display: flex;
-    flex-direction: column;
-    align-records: center;
-    text-align: left;
-    gap: 12px;
-  }
-
-  .record-image {
-    width: 100%;
-    max-width: 480px;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-
-  .record-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
-  }
-
-  .record-description {
-    font-size: 14px;
-    color: #555;
-    gap: 0.5rem;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .record-description.record-likes {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .record-description.user {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    display: flex;
-    flex-direction: row;
-  }
-
-  .record-description.user-profile {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-  }
-
-  .comments-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .upload-comment {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-    background-color: white;
-    padding: 0.75rem 1rem;
-    display: flex;
-    gap: 0.5rem;
-    border-top: 1px solid #ddd;
-    align-items: center;
-  }
-
-  .input-comment {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: transparent;
-    color: #000;
-  }
-
-  .upload-icon-wrapper {
-    font-size: 1.4rem;
-    color: #333;
-    cursor: pointer;
-    transition: color 0.2s ease;
-  }
-
-  .upload-icon-wrapper:hover {
-    color: #000;
-  }
-
-  .blur-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(6px);
-    background-color: rgba(0, 0, 0, 0.2);
-    z-index: 999;
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .bottom-sheet {
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    padding: 0 1.25rem 2rem;
-    animation: slideUp 0.2s ease-out forwards;
-  }
-
-  .button-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 430px;
-  }
-
-  @media (min-width: 480px) {
-    .button-wrapper {
-      flex-direction: row;
-    }
-  }
-
-  .edit-button,
-  .delete-button {
-    padding: 0.9rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    background-color: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: background-color 0.2s ease;
-    flex: 1;
-  }
-
-  .edit-button {
-    color: #000;
-    background-color: #e8f7fa;
-  }
-
-  .edit-button:hover {
-    background-color: #d6f0f5;
-  }
-
-  .delete-button {
-    color: #d00;
-    background-color: #ffecec;
-  }
-
-  .delete-button:hover {
-    background-color: #ffd8d8;
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-`;

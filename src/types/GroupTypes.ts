@@ -5,15 +5,19 @@ export interface CreateGroupRequest {
     maxMember: number;
 }
 
-export interface Group {
-    id: number;
-    ownerUuid: string;
-    memberUuid: string[];
-    title: string;
-    password: null | string;
-    isAccessible: boolean;
-    maxMember: number;
-    createdAt: string;
-    updatedAt: string;
-    // isMine: boolean;
+interface GroupMember {
+  userName: string;
+  userImage: string;
+  userIntroduction: string;
+}
+
+export interface GroupInfo {
+  id: number;
+  title: string;
+  isAccessible: boolean;
+  maxMember: number;
+  createdAt: string; // ISO 8601 날짜 문자열
+  updatedAt: string; // ISO 8601 날짜 문자열
+  isOwner: boolean;
+  members: GroupMember[];
 }

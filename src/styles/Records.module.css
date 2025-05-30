@@ -1,0 +1,25 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
+}
+
+.scrollArea::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  place-items: center;
+}
