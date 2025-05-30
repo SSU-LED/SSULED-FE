@@ -112,7 +112,7 @@ function Group() {
               key={index}
               id={item.id}
               title={item.title}
-              onClick={() => navigate(`/newGroup/${item.id}`)}
+              onClick={() => navigate(`/newgroup/${item.id}`)}
             />
           ))}
         </div>

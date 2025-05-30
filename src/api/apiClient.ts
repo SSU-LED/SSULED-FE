@@ -86,9 +86,9 @@ apiClient.interceptors.response.use(
           return data.access_token;
         })()
           .catch((error) => {
-            // window.localStorage.removeItem("accessToken");
-            // window.localStorage.removeItem("refreshToken");
-            // window.location.href = "/login";
+            window.localStorage.removeItem("accessToken");
+            window.localStorage.removeItem("refreshToken");
+            window.location.href = "/login";
             console.log(error);
             return Promise.reject(error);
           })

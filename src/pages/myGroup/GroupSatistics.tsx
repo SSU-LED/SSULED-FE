@@ -4,6 +4,7 @@ import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import { subDays, addDays } from 'date-fns';
 import { useEffect, useState } from 'react';
+import { apiClient } from "../../api/apiClient";
 
 // 그룹 등수 정보를 받아오는 예시 함수 (API 호출)
 const fetchGroupRanking = async () => {
@@ -13,6 +14,17 @@ const fetchGroupRanking = async () => {
     groupName: "SSULED", // 그룹 이름
   };
 };
+
+interface MyGroup {
+  id: number;
+  ownerUuid: string;
+  memberUuid: string[];
+  title: string;
+  isAccessible: boolean;
+  maxMember: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const generateThreeMonthData = (startDate: Date, endDate: Date) => {
   const data = [];
@@ -27,7 +39,11 @@ const generateThreeMonthData = (startDate: Date, endDate: Date) => {
   return data;
 };
 
-export function ThreeMonthHeatmap() {
+interface ThreeMonthHeatmapProps {
+  groupId: number;
+}
+
+export function ThreeMonthHeatmap({groupId}: ThreeMonthHeatmapProps) {
   const [startDate, setStartDate] = useState(subDays(new Date(), 89));
   const [endDate, setEndDate] = useState(new Date());
   const [values, setValues] = useState<{ date: string; count: number }[]>([]);
@@ -49,6 +65,40 @@ export function ThreeMonthHeatmap() {
     setStartDate(newStart);
     setEndDate(newEnd);
   };
+
+  useEffect(() => {
+    console.log("CalendarHeatmap values:", values);
+  }, [values]);
+
+
+  useEffect(() => {
+      const getGroupStreaks = async () => {
+        try {
+          const response = await apiClient.get(`/statistics/group/streaks`, {
+            params: {
+              groupId: groupId,
+              year: startDate.getFullYear(),
+              quarter: Math.floor(startDate.getMonth() / 3) + 1,
+            },
+          });
+
+          const apiData = response.data.data;
+  
+          const converted = apiData.map((item: { day: string; value: number }) => ({
+            date: item.day,
+            count: item.value,
+          }));
+          
+          setValues(converted);
+        } catch (error) {
+          console.error("그룹 게시물 불러오기 실패:", error);
+        }
+      };
+  
+      if (groupId) {
+        getGroupStreaks();
+      }
+    }, [groupId, startDate]);
 
   return (
     <div style={{ marginTop: 20, width: '100%' }}>
@@ -79,6 +129,7 @@ export function ThreeMonthHeatmap() {
 
 function GroupFeeds() {
   const [ranking, setRanking] = useState<{ rank: number; groupName: string } | null>(null);
+  const [group, setGroup] = useState<MyGroup | null>(null);
 
   // 그룹 등수 정보 가져오기
   useEffect(() => {
@@ -88,6 +139,17 @@ function GroupFeeds() {
     };
 
     getRanking();
+  }, []);
+
+  useEffect(() => {
+    const getMyGroup = async () => {
+      const response = await apiClient.get("/group/user");
+      console.log("MyGroup data:", response.data);
+      if (response.data) {
+        setGroup(response.data);
+      }
+    };
+    getMyGroup();
   }, []);
 
   return (
@@ -103,7 +165,13 @@ function GroupFeeds() {
           }
         `}
       </style>
-      <MoveLeftTitle title="My Group" page="/group" />
+      <div style={headerWrapperStyle}>
+        <MoveLeftTitle title="My Group" page="/group" />
+        {group && (
+          <div style={centerTitleStyle}>{group.title}</div>
+        )}
+      </div>
+
       <div style={barStyle}>
         <GroupTabsbar />
       </div>
@@ -122,7 +190,7 @@ function GroupFeeds() {
 
           <h2 style={{marginTop: "50px"}}>Streak 🎖️</h2>
           <div style={{ height: 200 }}>
-            <ThreeMonthHeatmap />
+            {group && <ThreeMonthHeatmap groupId={group.id} />}
           </div>
         </div>
       </div>
@@ -173,4 +241,25 @@ const arrowBtnStyle: React.CSSProperties = {
   cursor: 'pointer',
   fontSize: '16px',
   transition: 'background 0.2s',
+};
+
+const headerWrapperStyle: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "0 16px",
+  marginBottom: "8px",
+  height: "50px",
+};
+
+const centerTitleStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  transform: "translateX(-50%)",
+  fontWeight: "bold",
+  fontSize: "18px",
+  whiteSpace: "nowrap",
+  color: "#000", 
+  zIndex: 101, 
 };
