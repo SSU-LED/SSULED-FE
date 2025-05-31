@@ -161,8 +161,9 @@ const responsiveCSS = `
     margin-top: 16px;
   }
   .buttonPosition {
-    position: fixed;
+    position: relative;
     bottom: 68px;
+    align-self: flex-end;
     right: 16px;
     z-index: 1000;
   }
