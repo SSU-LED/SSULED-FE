@@ -34,11 +34,10 @@ function App() {
     <Router>
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/stat" element={<Stat />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/callback" element={<LoginCallback />} />
-
+          <Route path="/" element={<ProtectedRoute><Home/></ProtectedRoute>} />
+          <Route path="/stat" element={<ProtectedRoute><Stat/></ProtectedRoute>} />
           <Route path="/verify" element={<ProtectedRoute><Verify /></ProtectedRoute>} />
           <Route path="/group" element={<ProtectedRoute><Group /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
