@@ -75,13 +75,17 @@ function GroupFeeds() {
 
   useEffect(() => {
     const getGroupPost = async () => {
+      if (!group) return;
+
       try {
-        const response = await apiClient.get(`/post/group/${1}`, {
+        const response = await apiClient.get(`/post/group/${group.id}`, {
           params: {
             page: 1,
             limit: 24,
           },
         });
+
+        console.log("Group Posts:", response.data.data);
 
         console.log(response.data.data);
         setPost(
@@ -107,7 +111,7 @@ function GroupFeeds() {
     };
 
     getGroupPost();
-  }, []);
+  }, [group]);
 
   return (
     <div style={pageStyle}>
