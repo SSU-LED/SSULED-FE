@@ -16,12 +16,12 @@ interface MyGroup {
 }
 
 interface Member {
-  id: number;
-  name: string;
-  role: "Leader" | "Member";
-  profileImage: string;
-  bio: string;
-  status: "참여완료"|"미참여";
+  userName: string;
+  userImage?: string;
+  userIntroduction: string;
+  userUuid: string;
+  isOwner: boolean;
+  isCertificated: boolean;
 }
 
 function GroupPeople() {
@@ -31,11 +31,11 @@ function GroupPeople() {
   const [members, setMembers] = useState<Member[]>([]);
 
   const filteredMembers = members.filter((member) =>
-    member.name.toLowerCase().includes(searchText.toLowerCase())
+    member.userName.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const handleClick = (id: number) => {
-    navigate(`/peopleinfo/${id}`);
+  const handleClick = (nickname: string) => {
+    navigate(`/peopleinfo/${nickname}`);
   };
 
   useEffect(() => {
@@ -58,13 +58,14 @@ function GroupPeople() {
       console.log("Group Members:", response.data);
 
       const fetchedMembers: Member[] = response.data.members.map((m: any) => ({
-        id: m.id,
-        name: m.userName,
-        role: m.isOwner ? "Leader" : "Member",
-        profileImage: m.userImage,
-        bio: m.userIntroduction,
-        status: m.status || "미참여", // status 정보가 있으면 사용, 없으면 기본값
+        userName: m.userName,
+        userImage: m.userImage,
+        userIntroduction: m.userIntroduction,
+        userUuid: m.userUuid,
+        isOwner: m.isOwner,
+        isCertificated: m.isCertificated,
       }));
+
 
       setMembers(fetchedMembers);
     } catch (error) {
@@ -112,26 +113,26 @@ function GroupPeople() {
         <div style={memberListStyle}>
           {filteredMembers.map((member) => (
             <div
-              key={member.id}
+              key={member.userUuid}
               style={memberCardStyle}
-              onClick={() => handleClick(member.id)}
+              onClick={() => handleClick(member.userName)}
             >
               <img
-                src={member.profileImage}
-                alt={member.name}
+                src={member.userImage}
+                alt={member.userName}
                 style={profileImageStyle}
               />
               <div style={infoStyle}>
                 <div style={nameStyle}>
-                  {member.name}{" "}
+                  {member.userName}{" "}
                   <span style={roleStyle}>
-                    {member.role === "Leader" ? "👑 Leader" : "🙋 Member"}
+                    {member.isOwner ? "👑 Leader" : "🙋 Member"}
                   </span>
-                  <span style={statusStyle(member.status)}>
-                    {member.status === "참여완료" ? "참여완료" : "미참여"}
+                  <span style={statusStyle(member.isCertificated ? "참여완료" : "미참여")}>
+                    {member.isCertificated ? "참여완료" : "미참여"}
                   </span>
                 </div>
-                <div style={bioStyle}>{member.bio}</div>
+                <div style={bioStyle}>{member.userIntroduction}</div>
               </div>
             </div>
           ))}

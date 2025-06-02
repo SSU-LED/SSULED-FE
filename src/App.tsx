@@ -157,7 +157,7 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/peopleinfo/:id"
+          path="/peopleinfo/:nickname"
           element={
             <ProtectedRoute>
               <PeopleInfo />
@@ -182,6 +182,7 @@ const AppRoutes = () => {
         />
       </Route>
     </Routes>
+
   );
 };
 
