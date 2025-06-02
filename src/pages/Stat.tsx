@@ -67,11 +67,16 @@ export function ThreeMonthHeatmap({ values }: Props) {
   return (
     <div style={{ marginTop: 20, width: "100%" }}>
       <div style={navStyle}>
-        <button onClick={goToPrevQuarter} style={arrowBtnStyle}>←</button>
+        <button onClick={goToPrevQuarter} style={arrowBtnStyle}>
+          ←
+        </button>
         <span style={{ fontWeight: 500 }}>
-          {startDate.toISOString().slice(0, 10)} ~ {endDate.toISOString().slice(0, 10)}
+          {startDate.toISOString().slice(0, 10)} ~{" "}
+          {endDate.toISOString().slice(0, 10)}
         </span>
-        <button onClick={goToNextQuarter} style={arrowBtnStyle}>→</button>
+        <button onClick={goToNextQuarter} style={arrowBtnStyle}>
+          →
+        </button>
       </div>
 
       <CalendarHeatmap
@@ -175,10 +180,10 @@ const Stat = () => {
       <div className="no-scrollbar" style={scrollAreaStyle}></div>
       <div>
         <div>
-          <h2 style={{marginTop: "0px"}}>Streak 🎖️</h2>
-            <div style={{ height: 200 }}>
-              <ThreeMonthHeatmap values={heatmapValues} />
-            </div>
+          <h2 style={{ marginTop: "0px" }}>Streak 🎖️</h2>
+          <div style={{ height: 200 }}>
+            <ThreeMonthHeatmap values={heatmapValues} />
+          </div>
         </div>
 
         <div>
@@ -260,6 +265,7 @@ const pageStyle: React.CSSProperties = {
   width: "100%",
   height: "100vh",
   overflowY: "scroll",
+  padding: "0px 25px",
 };
 
 const scrollAreaStyle: React.CSSProperties = {
@@ -327,4 +333,3 @@ const arrowBtnStyle: React.CSSProperties = {
   fontSize: "16px",
   transition: "background 0.2s",
 };
-
