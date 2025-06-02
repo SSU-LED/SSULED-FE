@@ -109,12 +109,13 @@ jobs:
             # 디렉토리 이동
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # serve 패키지 설치 확인
-            echo '📦 Installing serve globally...'
-            npm install -g serve
+            # serve 패키지 전역 설치 (sudo 사용)
+            echo '📦 Installing serve globally with sudo...'
+            sudo npm install -g serve
             
             # serve 설치 확인
             which serve || (echo '❌ serve not found' && exit 1)
+            echo '✅ serve installed successfully'
             
             # 기존 프로세스 정리
             echo '🛑 Stopping existing frontend process...'
@@ -123,11 +124,32 @@ jobs:
             
             # 포트 사용 확인 및 정리
             echo '🔍 Checking port 3000...'
-            lsof -ti :3000 | xargs -r kill -9 || true
+            sudo lsof -ti :3000 | xargs -r sudo kill -9 || true
             sleep 2
             
-            # PM2 ecosystem 파일 생성 (한 줄로 작성)
-            echo 'module.exports = {apps: [{name: \"ssuled-client\", script: \"serve\", args: [\"-s\", \"dist\", \"-l\", \"3000\"], cwd: \"/home/${{ secrets.EC2_USERNAME }}/apps/frontend\", instances: 1, autorestart: true, watch: false, max_memory_restart: \"200M\", env: {PORT: 3000}, error_file: \"./logs/client-err.log\", out_file: \"./logs/client-out.log\", log_file: \"./logs/client-combined.log\", time: true}]};' > ecosystem.config.js
+            # PM2 ecosystem 파일 생성
+            echo '📝 Creating PM2 ecosystem configuration...'
+            cat > ecosystem.config.js << 'EOF'
+module.exports = {
+  apps: [{
+    name: 'ssuled-client',
+    script: 'serve',
+    args: ['-s', 'dist', '-l', '3000'],
+    cwd: '/home/${{ secrets.EC2_USERNAME }}/apps/frontend',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '200M',
+    env: {
+      PORT: 3000
+    },
+    error_file: './logs/client-err.log',
+    out_file: './logs/client-out.log',
+    log_file: './logs/client-combined.log',
+    time: true
+  }]
+};
+EOF
             
             # 로그 디렉토리 생성
             mkdir -p logs
@@ -140,7 +162,13 @@ jobs:
             
             # 프로세스 상태 확인
             echo '🔍 Checking process status...'
-            pm2 list | grep ssuled-client
+            if pm2 list | grep -q ssuled-client; then
+              echo '✅ PM2 process found'
+            else
+              echo '❌ PM2 process not found'
+              pm2 list
+              exit 1
+            fi
             
             # 프로세스가 online 상태인지 확인
             if pm2 show ssuled-client | grep -q 'online'; then
@@ -159,16 +187,22 @@ jobs:
               echo '✅ Port 3000 is listening'
             else
               echo '❌ Port 3000 is not listening'
+              echo 'Checking what processes are running:'
+              netstat -tlnp
               exit 1
             fi
             
             # 로컬 HTTP 테스트
             echo '🌐 Testing local HTTP response...'
+            sleep 2  # 서버 완전 시작 대기
             if curl -f -s http://localhost:3000 > /dev/null; then
               echo '✅ Local HTTP test passed'
             else
               echo '❌ Local HTTP test failed'
+              echo 'Detailed curl test:'
               curl -I http://localhost:3000 || true
+              echo 'PM2 logs:'
+              pm2 logs ssuled-client --lines 10
               exit 1
             fi
             
@@ -204,6 +238,9 @@ jobs:
             
             echo '5. HTTP Test:'
             curl -I http://localhost:3000
+            
+            echo '6. Nginx Test:'
+            sudo nginx -t
             
             echo '✅ Verification completed!'
             echo '🌐 Frontend should be available at: https://ounwan.site'
