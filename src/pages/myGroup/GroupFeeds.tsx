@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import SmallCard from "../../components/card/SmallCard";
 import GroupTabsbar from "../../components/GroupTabsbar";
 import { Settings } from "lucide-react";
 import { apiClient } from "../../api/apiClient";
@@ -82,14 +81,14 @@ function GroupFeeds() {
     deleteMyGroup();
   };
 
-  // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
-  const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}.${month}.${day}`;
-  };
+  // // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
+  // const getTodayDate = () => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   const month = String(today.getMonth() + 1).padStart(2, "0");
+  //   const day = String(today.getDate()).padStart(2, "0");
+  //   return `${year}.${month}.${day}`;
+  // };
 
   useEffect(() => {
     const getMyGroup = async () => {
@@ -198,16 +197,6 @@ function GroupFeeds() {
                       {new Date(item.createAt).toLocaleDateString()}
                     </span>
                   </div>
-
-                  {/* <SmallCard
-                    imageUrl={item.imageUrl}
-                    title={item.title ? item.title : getTodayDate()}
-                    content={item.content}
-                    id={item.id}
-                    likeCount={item.likeCount}
-                    commentCount={item.commentCount}
-                    onClick={handleCardClick}
-                  /> */}
 
                   <div
                     style={{
@@ -424,10 +413,4 @@ const interactionBarStyle: React.CSSProperties = {
   justifyContent: "flex-end",
   alignItems: "center",
   padding: "12px",
-};
-
-const statStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
 };
