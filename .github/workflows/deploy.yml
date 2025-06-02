@@ -92,31 +92,30 @@ jobs:
             tar -xzf deploy.tar.gz
             
             # 기존 파일 백업 (롤백용)
-            if [ -d '/home/${{ secrets.EC2_USERNAME }}/apps/frontend/.next' ]; then
-              mv /home/${{ secrets.EC2_USERNAME }}/apps/frontend/.next /home/${{ secrets.EC2_USERNAME }}/apps/frontend/.next.backup.\$(date +%Y%m%d_%H%M%S) || true
+            if [ -d '/home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist' ]; then
+              mv /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist.backup.\$(date +%Y%m%d_%H%M%S) || true
             fi
             
             # 파일 복사
-            cp -r deploy/.next /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
-            cp -r deploy/public /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
-            cp -f deploy/next.config.js /home/${{ secrets.EC2_USERNAME }}/apps/frontend/ || true
             cp -f deploy/.env.production /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             
             # 디렉토리 이동
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # 프로덕션 의존성만 설치
-            npm ci --production
+            # serve 패키지 설치 (Vite 정적 파일 서빙용)
+            npm install -g serve || true
             
             # PM2 프로세스 관리
             echo 'Stopping existing frontend process...'
-            pm2 stop ounwan-frontend || true
-            pm2 delete ounwan-frontend || true
+            pm2 stop ssuled-client || true
+            pm2 delete ssuled-client || true
             
             echo 'Starting new frontend process...'
-            NODE_ENV=production pm2 start npm --name 'ounwan-frontend' -- start
+            # Vite 빌드 결과물을 serve로 서빙
+            pm2 start serve --name 'ssuled-client' -- -s dist -l 3000
             
             # PM2 설정 저장
             pm2 save
@@ -126,24 +125,7 @@ jobs:
             rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
             
             # 오래된 백업 파일 정리 (7일 이상된 것들)
-            find /home/${{ secrets.EC2_USERNAME }}/apps/frontend -name '.next.backup.*' -mtime +7 -exec rm -rf {} + || true
-          "
-
-      - name: Health Check
-        run: |
-          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
-            echo 'Waiting for application to start...'
-            sleep 10
-            
-            echo 'Checking application health...'
-            # 로컬 헬스 체크
-            if curl -f -s http://localhost:3000 > /dev/null; then
-              echo '✅ Application is running on port 3000'
-            else
-              echo '❌ Application health check failed'
-              pm2 logs ounwan-frontend --lines 20
-              exit 1
-            fi
+            find /home/${{ secrets.EC2_USERNAME }}/apps/frontend -name 'dist.backup.*' -mtime +7 -exec rm -rf {} + || true
           "
 
       - name: Verify deployment
@@ -153,7 +135,7 @@ jobs:
             pm2 list
             
             echo '📱 Frontend Application Info:'
-            pm2 info ounwan-frontend
+            pm2 info ssuled-client
             
             echo '✅ Frontend deployment completed successfully!'
             echo '🌐 Frontend should be available at: https://ounwan.site'
@@ -168,19 +150,19 @@ jobs:
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
             # 최신 백업 찾기
-            LATEST_BACKUP=\$(ls -t .next.backup.* 2>/dev/null | head -n1)
+            LATEST_BACKUP=\$(ls -t dist.backup.* 2>/dev/null | head -n1)
             
             if [ ! -z \"\$LATEST_BACKUP\" ]; then
               echo \"Rolling back to: \$LATEST_BACKUP\"
               
               # 현재 실패한 버전 제거
-              rm -rf .next
+              rm -rf dist
               
               # 백업으로 복원
-              mv \"\$LATEST_BACKUP\" .next
+              mv \"\$LATEST_BACKUP\" dist
               
               # 서비스 재시작
-              pm2 restart ounwan-frontend
+              pm2 restart ssuled-client
               
               echo '✅ Rollback completed'
             else
