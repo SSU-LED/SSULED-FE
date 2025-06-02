@@ -28,22 +28,40 @@ jobs:
           # 환경 변수 설정
           echo "${{ secrets.FRONTEND_ENV }}" > .env.production
 
-          # Next.js 빌드
+          # React 빌드
           npm run build
+
+          # 빌드 결과 확인
+          echo "Checking build output..."
+          ls -la
+          if [ -d "build" ]; then
+            echo "✅ build directory found"
+            ls -la build
+          else
+            echo "❌ build directory not found"
+            echo "Available directories:"
+            find . -maxdepth 2 -type d
+            exit 1
+          fi
 
       - name: Prepare deployment files
         run: |
           mkdir -p deploy
 
-          # Next.js 빌드 결과물 복사
-          cp -r .next deploy/
-          cp -r public deploy/
+          # React 빌드 결과물 복사
+          echo "Copying build directory..."
+          cp -r build deploy/
+
+          # 필수 파일들 복사
           cp package.json deploy/
           cp package-lock.json deploy/
-          cp next.config.js deploy/ || true
 
           # 환경 변수 파일 복사
           cp .env.production deploy/
+
+          # 배포 내용 확인
+          echo "Deployment package contents:"
+          ls -la deploy/
 
           # 압축
           tar -czf deploy.tar.gz deploy
@@ -94,11 +112,11 @@ jobs:
             
             # PM2 프로세스 관리
             echo 'Stopping existing frontend process...'
-            pm2 stop ssuled-client || true
-            pm2 delete ssuled-client || true
+            pm2 stop ounwan-frontend || true
+            pm2 delete ounwan-frontend || true
             
             echo 'Starting new frontend process...'
-            NODE_ENV=production pm2 start npm --name 'ssuled-client' -- start
+            NODE_ENV=production pm2 start npm --name 'ounwan-frontend' -- start
             
             # PM2 설정 저장
             pm2 save
@@ -123,7 +141,7 @@ jobs:
               echo '✅ Application is running on port 3000'
             else
               echo '❌ Application health check failed'
-              pm2 logs ssuled-client --lines 20
+              pm2 logs ounwan-frontend --lines 20
               exit 1
             fi
           "
@@ -135,7 +153,7 @@ jobs:
             pm2 list
             
             echo '📱 Frontend Application Info:'
-            pm2 info ssuled-client
+            pm2 info ounwan-frontend
             
             echo '✅ Frontend deployment completed successfully!'
             echo '🌐 Frontend should be available at: https://ounwan.site'
@@ -162,7 +180,7 @@ jobs:
               mv \"\$LATEST_BACKUP\" .next
               
               # 서비스 재시작
-              pm2 restart ssuled-client
+              pm2 restart ounwan-frontend
               
               echo '✅ Rollback completed'
             else
