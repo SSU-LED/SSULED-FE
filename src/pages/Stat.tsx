@@ -165,6 +165,17 @@ const Stat = () => {
       totalCommits > 0 ? ((item.commits / totalCommits) * 100).toFixed(1) : "0",
   }));
 
+  const topTimeRange = [...rawTimeRangeData].sort((a, b) => b.commits - a.commits)[0];
+
+  const timeMessageMap: { [key: string]: string } = {
+  dawn: "당신은 새벽을 깨우는 닭! 누구보다 빠르게 하루를 시작하네요! 🐓",
+  morning: "당신은 부지런한 다람쥐! 아침 햇살과 함께 움직이네요! 🐿️",
+  afternoon: "당신은 낮의 호랑이, 집중력이 아주 좋아요! 🐻",
+  night: "당신은 밤의 사냥꾼 올빼미! 고요한 밤, 최고의 컨디션을 발휘하네요! 🦉",
+};
+
+  const topTimeMessage = timeMessageMap[topTimeRange.label] || "당신의 활동 패턴을 분석할 수 없어요.";
+
   return (
     <div style={pageStyle}>
       <style>{responsiveCSS}</style>
@@ -209,6 +220,10 @@ const Stat = () => {
 
         <div style={{ marginBottom: 80 }}>
           <h3>시간대 분석 🕐</h3>
+          <p style={{ fontSize: "16px", marginTop: 8, marginBottom: 24, fontWeight: 500 }}>
+            {topTimeMessage}
+          </p>
+
           <div style={{ marginTop: 20 }}>
             {timeRangeData.map((item) => (
               <div

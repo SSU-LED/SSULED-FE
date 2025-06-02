@@ -207,6 +207,7 @@ const buttonStyle: React.CSSProperties = {
   color: "black",
   cursor: "pointer",
   borderRadius: "12px",
+  marginBottom: "60px",
 };
 
 const headerWrapperStyle: React.CSSProperties = {
