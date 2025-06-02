@@ -1,0 +1,171 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: |
+          # 환경 변수 설정
+          echo "${{ secrets.FRONTEND_ENV }}" > .env.production
+
+          # Next.js 빌드
+          npm run build
+
+      - name: Prepare deployment files
+        run: |
+          mkdir -p deploy
+
+          # Next.js 빌드 결과물 복사
+          cp -r .next deploy/
+          cp -r public deploy/
+          cp package.json deploy/
+          cp package-lock.json deploy/
+          cp next.config.js deploy/ || true
+
+          # 환경 변수 파일 복사
+          cp .env.production deploy/
+
+          # 압축
+          tar -czf deploy.tar.gz deploy
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "Host *
+            ServerAliveInterval 60
+            ServerAliveCountMax 30" > ~/.ssh/config
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Transfer files to EC2
+        run: scp deploy.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
+
+      - name: Deploy application
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            # 배포 디렉토리 생성
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/frontend
+            
+            # 압축 해제
+            tar -xzf deploy.tar.gz
+            
+            # 기존 파일 백업 (롤백용)
+            if [ -d '/home/${{ secrets.EC2_USERNAME }}/apps/frontend/.next' ]; then
+              mv /home/${{ secrets.EC2_USERNAME }}/apps/frontend/.next /home/${{ secrets.EC2_USERNAME }}/apps/frontend/.next.backup.\$(date +%Y%m%d_%H%M%S) || true
+            fi
+            
+            # 파일 복사
+            cp -r deploy/.next /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -r deploy/public /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -f deploy/next.config.js /home/${{ secrets.EC2_USERNAME }}/apps/frontend/ || true
+            cp -f deploy/.env.production /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            
+            # 디렉토리 이동
+            cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
+            
+            # 프로덕션 의존성만 설치
+            npm ci --production
+            
+            # PM2 프로세스 관리
+            echo 'Stopping existing frontend process...'
+            pm2 stop ssuled-client || true
+            pm2 delete ssuled-client || true
+            
+            echo 'Starting new frontend process...'
+            NODE_ENV=production pm2 start npm --name 'ssuled-client' -- start
+            
+            # PM2 설정 저장
+            pm2 save
+            
+            # 임시 파일 정리
+            rm -rf /home/${{ secrets.EC2_USERNAME }}/deploy
+            rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
+            
+            # 오래된 백업 파일 정리 (7일 이상된 것들)
+            find /home/${{ secrets.EC2_USERNAME }}/apps/frontend -name '.next.backup.*' -mtime +7 -exec rm -rf {} + || true
+          "
+
+      - name: Health Check
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            echo 'Waiting for application to start...'
+            sleep 10
+            
+            echo 'Checking application health...'
+            # 로컬 헬스 체크
+            if curl -f -s http://localhost:3000 > /dev/null; then
+              echo '✅ Application is running on port 3000'
+            else
+              echo '❌ Application health check failed'
+              pm2 logs ssuled-client --lines 20
+              exit 1
+            fi
+          "
+
+      - name: Verify deployment
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            echo '📊 PM2 Process Status:'
+            pm2 list
+            
+            echo '📱 Frontend Application Info:'
+            pm2 info ssuled-client
+            
+            echo '✅ Frontend deployment completed successfully!'
+            echo '🌐 Frontend should be available at: https://ounwan.site'
+          "
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            echo '❌ Deployment failed. Attempting rollback...'
+            
+            cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
+            
+            # 최신 백업 찾기
+            LATEST_BACKUP=\$(ls -t .next.backup.* 2>/dev/null | head -n1)
+            
+            if [ ! -z \"\$LATEST_BACKUP\" ]; then
+              echo \"Rolling back to: \$LATEST_BACKUP\"
+              
+              # 현재 실패한 버전 제거
+              rm -rf .next
+              
+              # 백업으로 복원
+              mv \"\$LATEST_BACKUP\" .next
+              
+              # 서비스 재시작
+              pm2 restart ssuled-client
+              
+              echo '✅ Rollback completed'
+            else
+              echo '⚠️  No backup found for rollback'
+            fi
+          " || true
