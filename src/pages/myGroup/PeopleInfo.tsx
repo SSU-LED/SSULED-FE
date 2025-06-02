@@ -17,15 +17,16 @@ export interface IFMember {
   user: {
     nickname: string;
     profileImage?: string; 
-  }
-}[];
+  };
+}
 
 function GroupFeeds() {
   // const tempData: CardProps[] = rawData;
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { nickname } = useParams<{ nickname: string }>();
 
-  const [memberData, setMemberData] = useState<IFMember | null>(null);
+  const [memberData, setMemberData] = useState<IFMember[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
@@ -34,17 +35,19 @@ function GroupFeeds() {
   useEffect(() => {
     const fetchMemberData = async () => {
         try {
-          if (!id) return;
-          const res = await apiClient.get(`/post/${id}`);
-          setMemberData(res.data);
-          console.log("멤머 상세 정보:", res.data);
+          if (!nickname) return;
+          const res = await apiClient.get(`/post/user/${nickname}`);
+          setMemberData(res.data.data);
+          console.log("멤버 상세 정보:", res.data);
         } catch (error) {
           console.error("멤버 정보를 불러오는 데 실패했습니다.", error);
+        } finally {
+          setLoading(false);
         }
     };
 
     fetchMemberData();
-  }, [id]);
+  }, [nickname]);
 
   return (
     <div style={pageStyle}>
@@ -59,19 +62,30 @@ function GroupFeeds() {
           }
         `}
       </style>
-      <MoveLeftTitle title="{id}의 모든 기록" page="/grouppeople" />
+  
+      <div style={headerWrapperStyle}>
+        <MoveLeftTitle title={`${nickname}의 모든 기록`} page="/grouppeople" />
+      {memberData?.[0]?.user?.nickname && (
+        <div style={centerTitleStyle}>{memberData[0].user.nickname}의 기록</div>
+      )}
+      </div>
+      
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
-          {memberData ? (
-            <SmallCard
-              key={memberData.id}
-              imageUrl={memberData.imageUrl ?? ""}
-              title={memberData.title}
-              id={memberData.id}
-              onClick={handleCardClick}
-            />
-          ) : (
+          {loading ? (
             <p>멤버 정보를 불러오는 중입니다...</p>
+          ) : memberData.length > 0 ? (
+            memberData.map((post) => (
+              <SmallCard
+                key={post.id}
+                imageUrl={post.imageUrl ?? ""}
+                title={post.title}
+                id={post.id}
+                onClick={handleCardClick}
+              />
+            ))
+          ) : (
+            <p>기록이 없습니다.</p>
           )}
         </div>
       </div>
@@ -97,7 +111,27 @@ const scrollAreaStyle: React.CSSProperties = {
 
 const listStyle: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-  gap: "16px",
-  placeItems: "center",
+  gap: "12px",
+  placeItems: "flex-start",
+};
+
+const centerTitleStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  transform: "translateX(-50%)",
+  fontWeight: "bold",
+  fontSize: "18px",
+  whiteSpace: "nowrap",
+  color: "#000", 
+  zIndex: 101, 
+};
+
+const headerWrapperStyle: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "0 16px",
+  marginBottom: "8px",
+  height: "50px",
 };

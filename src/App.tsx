@@ -50,7 +50,7 @@ function App() {
           <Route path="/groupfeeds" element={<ProtectedRoute><GroupFeeds /></ProtectedRoute>} />
           <Route path="/grouppeople" element={<ProtectedRoute><GroupPeople /></ProtectedRoute>} />
           <Route path="/groupstatistics" element={<ProtectedRoute><GroupStatistics /></ProtectedRoute>} />
-          <Route path="/peopleinfo/:id" element={<ProtectedRoute><PeopleInfo /></ProtectedRoute>} />
+          <Route path="/peopleinfo/:nickname" element={<ProtectedRoute><PeopleInfo /></ProtectedRoute>} />
           <Route path="/create-group" element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
           <Route path="/edit-group" element={<ProtectedRoute><EditGroup /></ProtectedRoute>} />
         </Route>

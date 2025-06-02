@@ -91,7 +91,12 @@ function NewGroup() {
           }
         `}
       </style>
-      <MoveLeftTitle title="My Group" page="/group" />
+      <div style={headerWrapperStyle}>
+        <MoveLeftTitle title="My Group" page="/group" />
+        {groupData && (
+          <div style={centerTitleStyle}>{groupData.title}</div>
+        )}
+      </div>
 
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
@@ -156,9 +161,18 @@ const scrollAreaStyle: React.CSSProperties = {
 
 const listStyle: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-  gap: "16px",
-  placeItems: "center",
+  gap: "12px",
+  placeItems: "flex-start",
+};
+
+const headerWrapperStyle: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "0 16px",
+  marginBottom: "8px",
+  height: "50px",
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -221,4 +235,15 @@ const submitButtonStyle: React.CSSProperties = {
   fontWeight: "500",
   borderRadius: "12px",
   cursor: "pointer",
+};
+
+const centerTitleStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  transform: "translateX(-50%)",
+  fontWeight: "bold",
+  fontSize: "18px",
+  whiteSpace: "nowrap",
+  color: "#000", 
+  zIndex: 101, 
 };
