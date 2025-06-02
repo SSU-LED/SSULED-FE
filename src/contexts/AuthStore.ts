@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 export interface AuthContextType {
   isLoggedIn: boolean;
   token: string | null;
+  isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -20,6 +21,7 @@ export const useAuth = (): AuthContextType => {
 
 export const useAuthProvider = (): AuthContextType => {
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const login = useCallback((newToken: string) => {
@@ -46,8 +48,11 @@ export const useAuthProvider = (): AuthContextType => {
 
   useEffect(() => {
     const savedToken = localStorage.getItem("accessToken");
-    if (savedToken) login(savedToken);
+    if (savedToken) {
+      login(savedToken);
+    }
+    setIsLoading(false); // 로딩 완료
   }, [login]);
 
-  return { isLoggedIn, token: authToken, login, logout };
+  return { isLoggedIn, token: authToken, isLoading, login, logout };
 };

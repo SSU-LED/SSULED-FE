@@ -76,16 +76,22 @@ body {
   border-color: lightgray;
 }
 
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+  width: none;
+}
+
 #root {
   display: flex;
   justify-content: center;
-  /* background-color: lightgray; */
+  background-color: lightgray;
 }
 
 .app-container {
   width: 100%;
   max-width: 450px;
   min-height: 100vh;
+  background-color: white;
 }
 
 a {
