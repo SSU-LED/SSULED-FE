@@ -60,7 +60,11 @@ function Home() {
     <div className={layoutStyles.layout}>
       <div className={styles.headerWrapper}>
         <MediumTitle>Home</MediumTitle>
-        <MoveRightTitle title="Records" subtitle="Show all Records" to="/records" />
+        <MoveRightTitle
+          title="Records"
+          subtitle="Show all Records"
+          to="/records"
+        />
       </div>
 
       <div className={styles.scrollableContent}>
@@ -72,6 +76,8 @@ function Home() {
                 id={item.id}
                 imageUrl={item.imageUrl}
                 title={item.title}
+                likeCount={item.likeCount}
+                commentCount={item.commentCount}
                 onClick={handleCardClick}
               />
             ))}
@@ -88,6 +94,8 @@ function Home() {
               imageUrl={item.imageUrl}
               title={item.title}
               content={item.content || ""}
+              likeCount={item.likeCount}
+              commentCount={item.commentCount}
               onClick={handleCardClick}
             />
           ))}

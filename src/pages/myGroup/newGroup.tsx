@@ -1,21 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import SmallCard from "../../components/card/SmallCard";
 import { apiClient } from "../../api/apiClient";
+import { FaUsers } from "react-icons/fa";
+import SmallCard from "../../components/card/SmallCard";
+import GroupTabsbar from "../../components/GroupTabsbar";
 
 export interface IFGroup {
   createdAt: string;
   id: number;
   isAccessible: boolean;
   maxMember: number;
-  memberUuid: string[];
-  ownerUuid: string;
-  password: string | null;
+  memberCount: number;
+  memberUuid?: string[];
+  ownerUuid?: string;
+  password?: string | null;
   title: string;
   updatedAt: string;
-  imageUrl?: string; 
-  content?: string; 
+  imageUrl?: string;
+  content?: string;
+}
+
+interface GroupPostItem {
+  id: number;
+  title: string | null;
+  userUuid: string;
+  content: string;
+  imageUrl: string[];
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+  likeCount: number;
+  commentCount: number;
+  isMine: boolean;
+  user: {
+    nickname: string;
+    profileImage: string;
+  };
 }
 
 function NewGroup() {
@@ -27,25 +48,77 @@ function NewGroup() {
   const [passwordError, setPasswordError] = useState("");
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [groupData, setGroupData] = useState<IFGroup | null>(null);
+  const [posts, setPosts] = useState<GroupPostItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
+  const handleCardClick = (id: number) => {
+    navigate(`/records/${id}`);
+  };
 
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
         if (!id) return;
         const res = await apiClient.get(`/group/${id}`);
-        setGroupData(res.data);
+        console.log("API 응답 데이터:", JSON.stringify(res.data, null, 2));
+        console.log("멤버 수 데이터 타입:", typeof res.data.memberCount);
+        console.log("멤버 수 값:", res.data.memberCount);
+
+        // memberCount가 없거나 undefined인 경우, members 배열의 길이를 사용
+        const memberCount =
+          res.data.memberCount !== undefined
+            ? res.data.memberCount
+            : res.data.members
+            ? res.data.members.length
+            : 0;
+
+        setGroupData({
+          ...res.data,
+          memberCount: memberCount,
+        });
+
+        console.log("그룹 데이터 로드 중...");
         console.log("그룹 상세 정보:", res.data);
+
+        // 사용자가 그룹에 이미 가입되어 있는지 확인
+        try {
+          const userGroupRes = await apiClient.get("/group/user");
+          if (userGroupRes.data && userGroupRes.data.id === Number(id)) {
+            setIsJoined(true);
+          }
+        } catch (error) {
+          console.error("사용자 그룹 정보 확인 실패:", error);
+        }
+
+        // 그룹 게시글 불러오기 (가입 여부와 상관없이)
+        try {
+          const postsRes = await apiClient.get(`/post/group/${id}`, {
+            params: { page: 1, limit: 24 },
+          });
+          setPosts(postsRes.data.data || []);
+          console.log("그룹 게시글:", postsRes.data.data);
+        } catch (error) {
+          console.error("그룹 게시글 불러오기 실패:", error);
+        }
+
+        setLoading(false);
       } catch (error) {
         console.error("그룹 정보를 불러오는 데 실패했습니다", error);
+        setLoading(false);
       }
     };
 
     fetchGroupData();
   }, [id]);
-
-  const handleCardClick = (id: number) => {
-    navigate(`/records/${id}`);
-  };
 
   const handleButtonClick = () => {
     setShowPasswordInput(true);
@@ -68,9 +141,13 @@ function NewGroup() {
       alert("그룹에 등록되었습니다!");
       setIsJoined(true);
       navigate("/groupfeeds");
-    } catch (error: any) {
-      console.error("그룹 참여 실패", error.response?.data || error.message);
-      if (error.response?.status === 401 || error.response?.status === 400) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { status?: number; data?: unknown };
+        message?: string;
+      };
+      console.error("그룹 참여 실패", err.response?.data || err.message);
+      if (err.response?.status === 401 || err.response?.status === 400) {
         setPasswordError("비밀번호가 틀렸습니다!");
       } else {
         alert("그룹 참여 중 오류가 발생했습니다.");
@@ -91,27 +168,70 @@ function NewGroup() {
           }
         `}
       </style>
+
       <div style={headerWrapperStyle}>
         <MoveLeftTitle title="My Group" page="/group" />
-        {groupData && (
-          <div style={centerTitleStyle}>{groupData.title}</div>
-        )}
+        {groupData && <div style={centerTitleStyle}>{groupData.title}</div>}
       </div>
 
-      <div className="no-scrollbar" style={scrollAreaStyle}>
-        <div style={listStyle}>
-          {groupData ? (
-            <SmallCard
-              key={groupData.id}
-              imageUrl={groupData.imageUrl ?? ""}
-              title={groupData.title}
-              id={groupData.id}
-              onClick={handleCardClick}
-            />
-          ) : (
-            <p>그룹 정보를 불러오는 중입니다...</p>
-          )}
+      {groupData && (
+        <div style={groupInfoHeaderStyle}>
+          <div style={memberCountStyle}>
+            <FaUsers style={{ marginRight: "8px" }} />
+            <span>
+              {groupData.memberCount !== undefined
+                ? groupData.memberCount
+                : "0"}
+              /{groupData.maxMember} 멤버
+            </span>
+          </div>
+          <div style={accessInfoStyle}>
+            {groupData.isAccessible ? (
+              <span style={{ color: "green" }}>공개 그룹</span>
+            ) : (
+              <span style={{ color: "orange" }}>비공개 그룹</span>
+            )}
+          </div>
         </div>
+      )}
+
+      {isJoined && groupData && (
+        <div style={barStyle}>
+          <GroupTabsbar />
+        </div>
+      )}
+
+      <div className="no-scrollbar" style={scrollAreaStyle}>
+        {loading ? (
+          <div style={loadingStyle}>로딩 중...</div>
+        ) : (
+          <div>
+            {!isJoined && (
+              <div style={notJoinedMessageStyle}>
+                <p>이 그룹에 가입하고 다양한 활동을 즐겨보세요!</p>
+              </div>
+            )}
+
+            <div style={listStyle}>
+              {posts.length === 0 ? (
+                <div style={noPostMessageStyle}>아직 게시글이 없습니다.</div>
+              ) : (
+                posts.map((item, index) => (
+                  <SmallCard
+                    key={index}
+                    imageUrl={item.imageUrl[0]}
+                    title={item.title ? item.title : getTodayDate()}
+                    content={item.content}
+                    id={item.id}
+                    likeCount={item.likeCount}
+                    commentCount={item.commentCount}
+                    onClick={handleCardClick}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {!isJoined && !showPasswordInput && (
@@ -153,18 +273,6 @@ const pageStyle: React.CSSProperties = {
   overflow: "hidden",
 };
 
-const scrollAreaStyle: React.CSSProperties = {
-  flex: 1,
-  overflowY: "auto",
-  padding: "16px",
-};
-
-const listStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "12px",
-  placeItems: "flex-start",
-};
-
 const headerWrapperStyle: React.CSSProperties = {
   position: "relative",
   display: "flex",
@@ -173,6 +281,74 @@ const headerWrapperStyle: React.CSSProperties = {
   padding: "0 16px",
   marginBottom: "8px",
   height: "50px",
+};
+
+const groupInfoHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  padding: "0 16px 8px 16px",
+  borderBottom: "1px solid #eee",
+};
+
+const scrollAreaStyle: React.CSSProperties = {
+  flex: 1,
+  overflowY: "auto",
+  padding: "16px",
+};
+
+const loadingStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "100%",
+  fontSize: "16px",
+  color: "#666",
+};
+
+const barStyle: React.CSSProperties = {
+  padding: "0 16px 16px 16px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+};
+
+const listStyle: React.CSSProperties = {
+  display: "grid",
+  gap: "12px",
+  placeItems: "flex-start",
+};
+
+const noPostMessageStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "40px 0",
+  fontSize: "16px",
+  color: "#666",
+  textAlign: "center",
+  width: "100%",
+  marginLeft: "auto",
+  marginRight: "auto",
+};
+
+const notJoinedMessageStyle: React.CSSProperties = {
+  backgroundColor: "#f8f9fa",
+  padding: "16px",
+  borderRadius: "8px",
+  marginBottom: "20px",
+  textAlign: "center",
+  color: "#555",
+};
+
+const memberCountStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  fontSize: "16px",
+  color: "#444",
+};
+
+const accessInfoStyle: React.CSSProperties = {
+  fontSize: "14px",
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -236,7 +412,6 @@ const submitButtonStyle: React.CSSProperties = {
   borderRadius: "12px",
   cursor: "pointer",
 };
-
 const centerTitleStyle: React.CSSProperties = {
   position: "absolute",
   left: "50%",
@@ -244,6 +419,6 @@ const centerTitleStyle: React.CSSProperties = {
   fontWeight: "bold",
   fontSize: "18px",
   whiteSpace: "nowrap",
-  color: "#000", 
-  zIndex: 101, 
+  color: "#000",
+  zIndex: 101,
 };
