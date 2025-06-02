@@ -8,6 +8,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useAuth } from "./contexts/AuthStore";
+import { AuthProvider } from "./contexts/AuthContext";
 
 import Home from "./pages/Home";
 import Records from "./pages/records/Records";
@@ -31,30 +32,44 @@ import { LoginCallback } from "./pages/auth/LoginCallback";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/login/callback" element={<LoginCallback />} />
-          <Route path="/" element={<ProtectedRoute><Home/></ProtectedRoute>} />
-          <Route path="/stat" element={<ProtectedRoute><Stat/></ProtectedRoute>} />
-          <Route path="/verify" element={<ProtectedRoute><Verify /></ProtectedRoute>} />
-          <Route path="/group" element={<ProtectedRoute><Group /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/records" element={<ProtectedRoute><Records /></ProtectedRoute>} />
-          <Route path="/records/:id" element={<ProtectedRoute><RecordDetail /></ProtectedRoute>} />
-          <Route path="/records/:id/edit" element={<ProtectedRoute><RecordEdit /></ProtectedRoute>} />
-          <Route path="/changenickname" element={<ProtectedRoute><ChangeNickname /></ProtectedRoute>} />
-          <Route path="/newgroup/:id" element={<ProtectedRoute><NewGroup /></ProtectedRoute>} />
-          <Route path="/groupfeeds" element={<ProtectedRoute><GroupFeeds /></ProtectedRoute>} />
-          <Route path="/grouppeople" element={<ProtectedRoute><GroupPeople /></ProtectedRoute>} />
-          <Route path="/groupstatistics" element={<ProtectedRoute><GroupStatistics /></ProtectedRoute>} />
-          <Route path="/peopleinfo/:id" element={<ProtectedRoute><PeopleInfo /></ProtectedRoute>} />
-          <Route path="/create-group" element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
-          <Route path="/edit-group" element={<ProtectedRoute><EditGroup /></ProtectedRoute>} />
-        </Route>
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppRoutes />
+      </Router>
+    </AuthProvider>
+  );
+}
+
+const AppRoutes = () => {
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading app...</div>;
+  }
+
+  return (
+    <Routes>
+      <Route element={<MainLayout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/login/callback" element={<LoginCallback />} />
+        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/stat" element={<ProtectedRoute><Stat /></ProtectedRoute>} />
+        <Route path="/verify" element={<ProtectedRoute><Verify /></ProtectedRoute>} />
+        <Route path="/group" element={<ProtectedRoute><Group /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/records" element={<ProtectedRoute><Records /></ProtectedRoute>} />
+        <Route path="/records/:id" element={<ProtectedRoute><RecordDetail /></ProtectedRoute>} />
+        <Route path="/records/:id/edit" element={<ProtectedRoute><RecordEdit /></ProtectedRoute>} />
+        <Route path="/changenickname" element={<ProtectedRoute><ChangeNickname /></ProtectedRoute>} />
+        <Route path="/newgroup/:id" element={<ProtectedRoute><NewGroup /></ProtectedRoute>} />
+        <Route path="/groupfeeds" element={<ProtectedRoute><GroupFeeds /></ProtectedRoute>} />
+        <Route path="/grouppeople" element={<ProtectedRoute><GroupPeople /></ProtectedRoute>} />
+        <Route path="/groupstatistics" element={<ProtectedRoute><GroupStatistics /></ProtectedRoute>} />
+        <Route path="/peopleinfo/:id" element={<ProtectedRoute><PeopleInfo /></ProtectedRoute>} />
+        <Route path="/create-group" element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
+        <Route path="/edit-group" element={<ProtectedRoute><EditGroup /></ProtectedRoute>} />
+      </Route>
+    </Routes>
   );
 };
 
@@ -74,12 +89,16 @@ const MainLayout: React.FC = () => {
 };
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const location = useLocation();
+
+  if (isLoading) {
+    return <div>Loading protected page...</div>;
+  }
 
   if (!isLoggedIn) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };
