@@ -5,6 +5,8 @@ import SmallCard from "../../components/card/SmallCard";
 import GroupTabsbar from "../../components/GroupTabsbar";
 import { Settings } from "lucide-react";
 import { apiClient } from "../../api/apiClient";
+import { FaHeart } from "react-icons/fa6";
+import { IoChatboxEllipsesOutline } from "react-icons/io5";
 
 interface MyGroup {
   id: number;
@@ -197,7 +199,7 @@ function GroupFeeds() {
                     </span>
                   </div>
 
-                  <SmallCard
+                  {/* <SmallCard
                     imageUrl={item.imageUrl}
                     title={item.title ? item.title : getTodayDate()}
                     content={item.content}
@@ -205,22 +207,61 @@ function GroupFeeds() {
                     likeCount={item.likeCount}
                     commentCount={item.commentCount}
                     onClick={handleCardClick}
-                  />
+                  /> */}
 
-                  <div style={interactionBarStyle}>
-                    <div style={statStyle}>
-                      <span role="img" aria-label="heart">
-                        ❤️
-                      </span>{" "}
-                      {item.likeCount || 0}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleCardClick(item.id)}
+                  >
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        marginBottom: "5px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {item.title}
                     </div>
-                    <div style={statStyle}>
-                      <span role="img" aria-label="comment">
-                        💬
-                      </span>{" "}
-                      {item.commentCount || 0}
+                    <img src={item.imageUrl} />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginRight: "15px",
+                        marginTop: "10px",
+                        gap: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "flex",
+                          marginTop: "auto",
+                          fontSize: "14px",
+                          color: "#666",
+                          gap: "2px",
+                        }}
+                      >
+                        <FaHeart /> {item.likeCount || 0}
+                      </span>
+                      <span
+                        style={{
+                          display: "flex",
+                          marginTop: "auto",
+                          fontSize: "15px",
+                          color: "#666",
+                          gap: "2px",
+                        }}
+                      >
+                        <IoChatboxEllipsesOutline /> {item.commentCount || 0}
+                      </span>
                     </div>
                   </div>
+
+                  <div style={interactionBarStyle}></div>
                 </div>
               ))
             )}
