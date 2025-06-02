@@ -28,17 +28,17 @@ jobs:
           # 환경 변수 설정
           echo "${{ secrets.FRONTEND_ENV }}" > .env.production
 
-          # React 빌드
+          # Vite 빌드
           npm run build
 
           # 빌드 결과 확인
           echo "Checking build output..."
           ls -la
-          if [ -d "build" ]; then
-            echo "✅ build directory found"
-            ls -la build
+          if [ -d "dist" ]; then
+            echo "✅ dist directory found"
+            ls -la dist
           else
-            echo "❌ build directory not found"
+            echo "❌ dist directory not found"
             echo "Available directories:"
             find . -maxdepth 2 -type d
             exit 1
@@ -48,9 +48,9 @@ jobs:
         run: |
           mkdir -p deploy
 
-          # React 빌드 결과물 복사
-          echo "Copying build directory..."
-          cp -r build deploy/
+          # Vite 빌드 결과물 복사
+          echo "Copying dist directory..."
+          cp -r dist deploy/
 
           # 필수 파일들 복사
           cp package.json deploy/
