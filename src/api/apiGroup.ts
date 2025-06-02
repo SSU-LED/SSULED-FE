@@ -15,7 +15,7 @@ export const createGroup = async (groupData: CreateGroupRequest) => {
 // 사용자가 속한 그룹 조회
 export const fetchMyGroup = async () => {
     try {
-        const response = await apiClient.post('/group/user');
+        const response = await apiClient.get('/group/user');
         return response.data;
     } catch (error) {
         console.error('Error fetching my group:', error);
