@@ -85,6 +85,10 @@ jobs:
       - name: Deploy application
         run: |
           ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            set -e  # 에러 발생시 스크립트 중단
+            
+            echo '🚀 Starting frontend deployment...'
+            
             # 배포 디렉토리 생성
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
@@ -105,17 +109,68 @@ jobs:
             # 디렉토리 이동
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # serve 패키지 설치 (Vite 정적 파일 서빙용)
-            npm install -g serve || true
+            # serve 패키지 설치 확인
+            echo '📦 Installing serve globally...'
+            npm install -g serve
             
-            # PM2 프로세스 관리
-            echo 'Stopping existing frontend process...'
+            # serve 설치 확인
+            which serve || (echo '❌ serve not found' && exit 1)
+            
+            # 기존 프로세스 정리
+            echo '🛑 Stopping existing frontend process...'
             pm2 stop ssuled-client || true
             pm2 delete ssuled-client || true
             
-            echo 'Starting new frontend process...'
-            # Vite 빌드 결과물을 serve로 서빙
-            pm2 start serve --name 'ssuled-client' -- -s dist -l 3000
+            # 포트 사용 확인 및 정리
+            echo '🔍 Checking port 3000...'
+            lsof -ti :3000 | xargs -r kill -9 || true
+            sleep 2
+            
+            # PM2 ecosystem 파일 생성 (한 줄로 작성)
+            echo 'module.exports = {apps: [{name: \"ssuled-client\", script: \"serve\", args: [\"-s\", \"dist\", \"-l\", \"3000\"], cwd: \"/home/${{ secrets.EC2_USERNAME }}/apps/frontend\", instances: 1, autorestart: true, watch: false, max_memory_restart: \"200M\", env: {PORT: 3000}, error_file: \"./logs/client-err.log\", out_file: \"./logs/client-out.log\", log_file: \"./logs/client-combined.log\", time: true}]};' > ecosystem.config.js
+            
+            # 로그 디렉토리 생성
+            mkdir -p logs
+            
+            echo '🚀 Starting new frontend process with ecosystem...'
+            pm2 start ecosystem.config.js
+            
+            # 프로세스 시작 대기
+            sleep 5
+            
+            # 프로세스 상태 확인
+            echo '🔍 Checking process status...'
+            pm2 list | grep ssuled-client
+            
+            # 프로세스가 online 상태인지 확인
+            if pm2 show ssuled-client | grep -q 'online'; then
+              echo '✅ Frontend process is online'
+            else
+              echo '❌ Frontend process failed to start'
+              echo 'PM2 status:'
+              pm2 list
+              echo 'PM2 logs:'
+              pm2 logs ssuled-client --lines 20
+              exit 1
+            fi
+            
+            # 포트 확인
+            if netstat -tlnp | grep :3000; then
+              echo '✅ Port 3000 is listening'
+            else
+              echo '❌ Port 3000 is not listening'
+              exit 1
+            fi
+            
+            # 로컬 HTTP 테스트
+            echo '🌐 Testing local HTTP response...'
+            if curl -f -s http://localhost:3000 > /dev/null; then
+              echo '✅ Local HTTP test passed'
+            else
+              echo '❌ Local HTTP test failed'
+              curl -I http://localhost:3000 || true
+              exit 1
+            fi
             
             # PM2 설정 저장
             pm2 save
@@ -126,18 +181,31 @@ jobs:
             
             # 오래된 백업 파일 정리 (7일 이상된 것들)
             find /home/${{ secrets.EC2_USERNAME }}/apps/frontend -name 'dist.backup.*' -mtime +7 -exec rm -rf {} + || true
+            
+            echo '🎉 Frontend deployment completed successfully!'
           "
 
       - name: Verify deployment
         run: |
           ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
-            echo '📊 PM2 Process Status:'
+            echo '📊 Final Verification:'
+            
+            echo '1. PM2 Process Status:'
             pm2 list
             
-            echo '📱 Frontend Application Info:'
+            echo '2. Frontend Application Info:'
             pm2 info ssuled-client
             
-            echo '✅ Frontend deployment completed successfully!'
+            echo '3. Port Status:'
+            netstat -tlnp | grep :3000
+            
+            echo '4. Process Logs (last 10 lines):'
+            pm2 logs ssuled-client --lines 10
+            
+            echo '5. HTTP Test:'
+            curl -I http://localhost:3000
+            
+            echo '✅ Verification completed!'
             echo '🌐 Frontend should be available at: https://ounwan.site'
           "
 
