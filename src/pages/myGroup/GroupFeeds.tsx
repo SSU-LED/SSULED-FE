@@ -15,6 +15,7 @@ interface MyGroup {
   maxMember: number;
   createdAt: string;
   updatedAt: string;
+  isOwner: boolean;
 }
 
 interface MyGroupPost {
@@ -132,9 +133,12 @@ function GroupFeeds() {
         {group && (
           <div style={centerTitleStyle}>{group.title}</div>
         )}
-        <button style={iconButtonStyle} onClick={() => navigate("/edit-group")}>
-          <Settings size={20} color="#555" />
-        </button>
+        {group?.isOwner && (
+          <button style={iconButtonStyle} onClick={() => navigate(`/edit-group`)}>
+            <Settings size={20} color="#555" />
+          </button>
+        )}
+
       </div>
 
       <div style={barStyle}>

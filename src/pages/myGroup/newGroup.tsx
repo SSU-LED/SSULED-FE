@@ -4,30 +4,46 @@ import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import SmallCard from "../../components/card/SmallCard";
 import { apiClient } from "../../api/apiClient";
 
-export interface IFGroup {
-  createdAt: string;
+interface MyGroup {
   id: number;
+  ownerUuid: string;
+  memberUuid: string[];
+  title: string;
   isAccessible: boolean;
   maxMember: number;
-  memberUuid: string[];
-  ownerUuid: string;
-  password: string | null;
-  title: string;
+  createdAt: string;
   updatedAt: string;
-  imageUrl?: string; 
-  content?: string; 
+  isOwner: boolean;
+}
+
+export interface IFGroup {
+  id: number;
+  title: string;
+  isAccessible: boolean;
+  createdAt: string;
+  updatedAt: string;
+  members: {
+    userName: string;
+    userImage: string;
+    userIntroduction: string;
+    userUuid: string;
+    isOwner: boolean;
+    isCertificated: boolean;
+  }[];
 }
 
 function NewGroup() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const [isJoined, setIsJoined] = useState(false);
+  const [_isJoined, setIsJoined] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [groupData, setGroupData] = useState<IFGroup | null>(null);
-
+  const [_myGroupIds, setMyGroupIds] = useState<number[]>([]);
+  const [isMyGroup, setIsMyGroup] = useState(false);
+  
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
@@ -43,13 +59,45 @@ function NewGroup() {
     fetchGroupData();
   }, [id]);
 
+  useEffect(() => {
+  const getMyGroup = async () => {
+    try {
+      const response = await apiClient.get("/group/user");
+      console.log("MyGroup data:", response.data);
+      const ids = response.data.map((g: MyGroup) => g.id);
+      setMyGroupIds(ids);
+
+      // 현재 그룹 ID가 내 그룹 목록에 있는지 확인
+      if (id && ids.includes(Number(id))) {
+        setIsMyGroup(true);
+      } else {
+        setIsMyGroup(false);
+      }
+    } catch (error: any) {
+      console.error("내 그룹 정보 조회 실패", error.response?.data || error.message);
+      if (error.response?.status === 404) {
+        // 그룹이 하나도 없을 경우
+        setIsMyGroup(false);
+      }
+    }
+  };
+  getMyGroup();
+}, [id]);
+
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
 
   const handleButtonClick = () => {
+  if (groupData?.isAccessible) {
+    // 공개 그룹이면 바로 등록 시도
+    handlePasswordSubmit();
+  } else {
+    // 비공개 그룹이면 비밀번호 입력창 보여줌
     setShowPasswordInput(true);
-  };
+  }
+};
+
 
   const handlePasswordSubmit = async () => {
     const isPublic = groupData?.isAccessible;
@@ -100,10 +148,12 @@ function NewGroup() {
 
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div style={listStyle}>
-          {groupData ? (
+          {groupData && groupData.members.length > 0 ? (
             <SmallCard
               key={groupData.id}
-              imageUrl={groupData.imageUrl ?? ""}
+              imageUrl={
+                groupData.members.find((m) => m.isOwner)?.userImage ?? ""
+              }
               title={groupData.title}
               id={groupData.id}
               onClick={handleCardClick}
@@ -114,11 +164,14 @@ function NewGroup() {
         </div>
       </div>
 
-      {!isJoined && !showPasswordInput && (
+
+      {isMyGroup && (
         <button style={buttonStyle} onClick={handleButtonClick}>
           등록하기
         </button>
       )}
+
+
 
       {showPasswordInput && (
         <div style={passwordContainerStyle}>
