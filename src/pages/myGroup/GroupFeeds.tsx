@@ -18,9 +18,27 @@ interface MyGroup {
   isOwner: boolean;
 }
 
+interface GroupPostItem {
+  id: number;
+  title: string | null;
+  userUuid: string;
+  content: string;
+  imageUrl: string[];
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+  likeCount: number;
+  commentCount: number;
+  isMine: boolean;
+  user: {
+    nickname: string;
+    profileImage: string;
+  };
+}
+
 interface MyGroupPost {
   id: number;
-  title: string;
+  title: string | null;
   userUuid: string;
   content: string;
   imageUrl: string;
@@ -37,7 +55,7 @@ interface MyGroupPost {
 function GroupFeeds() {
   const navigate = useNavigate();
 
-  const [_isJoined, setIsJoined] = useState(true);
+  const [isJoined, setIsJoined] = useState(true);
   const [group, setGroup] = useState<MyGroup | null>(null);
   const [post, setPost] = useState<MyGroupPost[]>([]);
 
@@ -61,6 +79,15 @@ function GroupFeeds() {
       }
     };
     deleteMyGroup();
+  };
+
+  // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
   };
 
   useEffect(() => {
@@ -88,9 +115,9 @@ function GroupFeeds() {
 
         console.log("Group Posts:", response.data.data);
 
-        console.log(response.data.data);
+        const posts = response.data.data as GroupPostItem[];
         setPost(
-          response.data.data.map((item: any) => ({
+          posts.map((item) => ({
             id: item.id,
             title: item.title,
             userUuid: item.userUuid,
@@ -130,6 +157,7 @@ function GroupFeeds() {
 
       <div style={headerWrapperStyle}>
         <MoveLeftTitle title="My Group" page="/group" />
+
         {group && (
           <div style={centerTitleStyle}>{group.title}</div>
         )}
@@ -138,7 +166,6 @@ function GroupFeeds() {
             <Settings size={20} color="#555" />
           </button>
         )}
-
       </div>
 
       <div style={barStyle}>
@@ -148,21 +175,66 @@ function GroupFeeds() {
       </div>
 
       <div className="no-scrollbar" style={scrollAreaStyle}>
-        <div style={listStyle}>
-          {post.map((item, index) => (
-            <SmallCard
-              key={index}
-              imageUrl={item.imageUrl}
-              title={item.title}
-              content={item.content}
-              id={item.id}
-              onClick={handleCardClick}
-            />
-          ))}
-        </div>
+        {!isJoined ? (
+          <div style={noGroupMessageStyle}>그룹에 가입되어 있지 않습니다.</div>
+        ) : (
+          <div style={feedListStyle}>
+            {post.length === 0 ? (
+              <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
+            ) : (
+              post.map((item, index) => (
+                <div key={index} style={feedCardStyle}>
+                  <div style={feedHeaderStyle}>
+                    <div style={userInfoStyle}>
+                      <img
+                        src={item.profileImage}
+                        alt={item.nickname}
+                        style={profileImageStyle}
+                        onError={(e) => {
+                          e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
+                            0
+                          )}`;
+                        }}
+                      />
+                      <span style={usernameStyle}>{item.nickname}</span>
+                    </div>
+                    <span style={dateStyle}>
+                      {new Date(item.createAt).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <SmallCard
+                    imageUrl={item.imageUrl}
+                    title={item.title ? item.title : getTodayDate()}
+                    content={item.content}
+                    id={item.id}
+                    likeCount={item.likeCount}
+                    commentCount={item.commentCount}
+                    onClick={handleCardClick}
+                  />
+
+                  <div style={interactionBarStyle}>
+                    <div style={statStyle}>
+                      <span role="img" aria-label="heart">
+                        ❤️
+                      </span>{" "}
+                      {item.likeCount || 0}
+                    </div>
+                    <div style={statStyle}>
+                      <span role="img" aria-label="comment">
+                        💬
+                      </span>{" "}
+                      {item.commentCount || 0}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
-      {group && (
+      {isJoined && group && (
         <button style={buttonStyle} onClick={() => handleButtonClick(group.id)}>
           탈퇴하기
         </button>
@@ -196,10 +268,33 @@ const barStyle: React.CSSProperties = {
   gap: "12px",
 };
 
-const listStyle: React.CSSProperties = {
+const feedListStyle: React.CSSProperties = {
   display: "grid",
   gap: "12px",
   placeItems: "flex-start",
+};
+
+const noGroupMessageStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "100%",
+  fontSize: "16px",
+  color: "#666",
+  textAlign: "center",
+};
+
+const noPostMessageStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "40px 0",
+  fontSize: "16px",
+  color: "#666",
+  textAlign: "center",
+  width: "100%",
+  marginLeft: "auto",
+  marginRight: "auto",
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -231,8 +326,8 @@ const centerTitleStyle: React.CSSProperties = {
   fontWeight: "bold",
   fontSize: "18px",
   whiteSpace: "nowrap",
-  color: "#000", 
-  zIndex: 101, 
+  color: "#000",
+  zIndex: 101,
 };
 
 const iconButtonStyle: React.CSSProperties = {
@@ -245,4 +340,59 @@ const iconButtonStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   transition: "background 0.2s",
+};
+
+const feedCardStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  overflow: "hidden",
+  border: "1px solid #eee",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+  marginBottom: "16px",
+};
+
+const feedHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  padding: "12px",
+};
+
+const userInfoStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+};
+
+const profileImageStyle: React.CSSProperties = {
+  width: "40px",
+  height: "40px",
+  borderRadius: "50%",
+};
+
+const usernameStyle: React.CSSProperties = {
+  fontWeight: "bold",
+  fontSize: "16px",
+  color: "#000",
+};
+
+const dateStyle: React.CSSProperties = {
+  fontSize: "14px",
+  color: "#666",
+  marginLeft: "auto",
+};
+
+const interactionBarStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  padding: "12px",
+};
+
+const statStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
 };

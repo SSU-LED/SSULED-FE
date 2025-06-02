@@ -14,11 +14,20 @@ interface IFGroup {
   id: number;
   isAccessible: boolean;
   maxMember: number;
+  memberCount: number;
   memberUuid: string[];
   ownerUuid: string;
   password: string | null;
   title: string;
   updatedAt: string;
+}
+
+interface RankingItem {
+  groupId: number;
+  groupName: string;
+  rank: number;
+  score: number;
+  commits: number;
 }
 
 function getCurrentQuarter(): number {
@@ -63,13 +72,14 @@ function Group() {
         const res = await apiClient.get("/statistics/group/ranking", {
           params: { quarter, year },
         });
-        const top3Raw = res.data.top3;
-        const formattedTop3: CardProps[] = top3Raw.map((item: any) => ({
+        const top3Raw = res.data.top3 as RankingItem[];
+        const formattedTop3 = top3Raw.map((item: RankingItem) => ({
           id: item.groupId,
           title: item.groupName,
           rank: item.rank,
           score: item.score,
           commits: item.commits,
+          imageUrl: "",
         }));
         setRankingData(formattedTop3);
         console.log(res);
@@ -106,12 +116,16 @@ function Group() {
         <h3>🏆명예의 전당🏆</h3>
         <Top3Ranking data={rankingData} />
 
-        <div className="small-card-list">
+        <h3 style={sectionTitleStyle}>모든 그룹</h3>
+        <div className="group-card-grid">
           {group.map((item, index) => (
             <SmallGroupCard
               key={index}
               id={item.id}
               title={item.title}
+              isAccessible={item.isAccessible}
+              memberCount={item.memberCount || 0}
+              maxMember={item.maxMember}
               onClick={() => navigate(`/newgroup/${item.id}`)}
             />
           ))}
@@ -141,6 +155,12 @@ const layoutStyle: React.CSSProperties = {
   padding: "0 25px",
 };
 
+const sectionTitleStyle: React.CSSProperties = {
+  fontSize: "18px",
+  fontWeight: "bold",
+  margin: "24px 0 12px 0",
+};
+
 const responsiveCSS = `
   .header-wrapper {
     position: sticky;
@@ -159,6 +179,12 @@ const responsiveCSS = `
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: 16px;
+  }
+  .group-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
     margin-top: 16px;
   }
   .buttonPosition {

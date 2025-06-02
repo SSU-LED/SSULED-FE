@@ -1,0 +1,109 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: |
+          # 환경 변수 설정
+          echo "${{ secrets.FRONTEND_ENV }}" > .env.production
+
+          # Vite 빌드
+          npm run build
+
+      - name: Prepare deployment files
+        run: |
+          mkdir -p deploy
+          cp -r dist deploy/
+          cp package.json deploy/
+          cp package-lock.json deploy/
+          cp .env.production deploy/
+          tar -czf deploy.tar.gz deploy
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "Host *
+            ServerAliveInterval 60
+            ServerAliveCountMax 30" > ~/.ssh/config
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Transfer files to EC2
+        run: scp deploy.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
+
+      - name: Deploy application
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            set -e
+            
+            echo '🚀 프론트엔드 배포 시작...'
+            
+            # 배포 디렉토리 생성
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/frontend
+            
+            # 압축 해제
+            tar -xzf deploy.tar.gz
+            
+            # 기존 dist 디렉토리 삭제
+            if [ -d '/home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist' ]; then
+              rm -rf /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist
+            fi
+            
+            # 파일 복사
+            cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            cp -f deploy/.env.production /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
+            
+            # 디렉토리 이동
+            cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
+            
+            # 기존 프로세스 정리
+            echo '🛑 기존 프론트엔드 프로세스 종료...'
+            pm2 stop ssuled-client || true
+            pm2 delete ssuled-client || true
+            
+            # 포트 정리
+            sudo lsof -ti :3000 | xargs -r sudo kill -9 || true
+            sleep 2
+            
+            # 로그 디렉토리 생성
+            mkdir -p logs
+            
+            echo '🚀 PM2로 프론트엔드 시작...'
+            pm2 start serve --name ssuled-client -- -s dist -l 3000
+            
+            # PM2 설정 저장
+            pm2 save
+            
+            # 임시 파일 정리
+            rm -rf /home/${{ secrets.EC2_USERNAME }}/deploy
+            rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
+            
+            echo '🎉 프론트엔드 배포 완료!'
+          "

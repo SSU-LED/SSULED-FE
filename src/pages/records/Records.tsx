@@ -56,6 +56,8 @@ function Records() {
               imageUrl={item.imageUrl[0]}
               title={item.updatedAt}
               id={item.id}
+              likeCount={item.likeCount}
+              commentCount={item.commentCount}
               onClick={handleCardClick}
             />
           ))}
