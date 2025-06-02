@@ -129,27 +129,7 @@ jobs:
             
             # PM2 ecosystem 파일 생성
             echo '📝 Creating PM2 ecosystem configuration...'
-            cat > ecosystem.config.js << 'EOF'
-module.exports = {
-  apps: [{
-    name: 'ssuled-client',
-    script: 'serve',
-    args: ['-s', 'dist', '-l', '3000'],
-    cwd: '/home/${{ secrets.EC2_USERNAME }}/apps/frontend',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '200M',
-    env: {
-      PORT: 3000
-    },
-    error_file: './logs/client-err.log',
-    out_file: './logs/client-out.log',
-    log_file: './logs/client-combined.log',
-    time: true
-  }]
-};
-EOF
+            echo 'module.exports = {apps: [{name: \"ssuled-client\", script: \"serve\", args: [\"-s\", \"dist\", \"-l\", \"3000\"], cwd: \"/home/${{ secrets.EC2_USERNAME }}/apps/frontend\", instances: 1, autorestart: true, watch: false, max_memory_restart: \"200M\", env: {PORT: 3000}, error_file: \"./logs/client-err.log\", out_file: \"./logs/client-out.log\", log_file: \"./logs/client-combined.log\", time: true}]};' > ecosystem.config.js
             
             # 로그 디렉토리 생성
             mkdir -p logs
