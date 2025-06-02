@@ -77,8 +77,8 @@ function Group() {
         const e = err as AxiosError;
         console.error("Top3 랭킹 불러오기 실패", e);
         console.error("에러 응답:", e?.response?.data);
-    }
-  };
+      }
+    };
     fetchTop3();
   }, [activeTab]);
 
@@ -138,6 +138,7 @@ const layoutStyle: React.CSSProperties = {
   overflow: "hidden",
   width: "100%",
   height: "100vh",
+  padding: "0 25px",
 };
 
 const responsiveCSS = `
