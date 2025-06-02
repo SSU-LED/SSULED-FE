@@ -3,7 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import CommentCard from "../../components/card/CommentCard";
 import { FaRegPaperPlane } from "react-icons/fa";
-import { fetchRecordById, deleteRecord as apiDeleteRecord } from "../../api/apiRecords";
+import {
+  fetchRecordById,
+  deleteRecord as apiDeleteRecord,
+} from "../../api/apiRecords";
 import { RecordData } from "../../types/RecordTypes";
 import { commentCard } from "../../types/CommentTypes";
 import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
@@ -13,6 +16,7 @@ import { newComment } from "../../types/CommentTypes";
 
 import layoutStyles from "../../styles/Layout.module.css";
 import styles from "../../styles/RecordDetail.module.css";
+import { format } from "date-fns";
 
 function RecordDetail() {
   const { id } = useParams();
@@ -24,7 +28,9 @@ function RecordDetail() {
   const [comments, setComments] = useState<commentCard[]>([]);
   const [showOptions, setShowOptions] = useState(false);
   const [commentInput, setCommentInput] = useState("");
-  const [selectedCommentId, setSelectedCommentId] = useState<number | null>(null);
+  const [selectedCommentId, setSelectedCommentId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     if (!id) return;
@@ -132,25 +138,48 @@ function RecordDetail() {
     }
   };
 
+  const date = new Date(record.createdAt);
+
   return (
     <div className={layoutStyles.layout}>
       {showOptions && (
         <div className={styles.blurOverlay} onClick={closeOptions}>
-          <div className={styles.bottomSheet} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.bottomSheet}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.buttonWrapper}>
-              <button className={styles.editButton} onClick={() => {
-                closeOptions();
-                navigate(`/records/${id}/edit`, { state: { updatedData: record } });
-              }}>Edit</button>
-              <button className={styles.deleteButton} onClick={handleDeleteClick}>Delete</button>
+              <button
+                className={styles.editButton}
+                onClick={() => {
+                  closeOptions();
+                  navigate(`/records/${id}/edit`, {
+                    state: { updatedData: record },
+                  });
+                }}
+              >
+                Edit
+              </button>
+              <button
+                className={styles.deleteButton}
+                onClick={handleDeleteClick}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {selectedCommentId !== null && (
-        <div className={styles.blurOverlay} onClick={() => setSelectedCommentId(null)}>
-          <div className={styles.bottomSheet} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.blurOverlay}
+          onClick={() => setSelectedCommentId(null)}
+        >
+          <div
+            className={styles.bottomSheet}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.buttonWrapper}>
               <button
                 className={styles.deleteButton}
@@ -176,12 +205,29 @@ function RecordDetail() {
 
       <div className={styles.scrollArea}>
         <div className={styles.contentWrapper}>
+          <div className={styles.recordUser}>
+            <img
+              src={record.user.profileImage}
+              alt={record.user.nickname}
+              className={styles.userProfile}
+            />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ fontWeight: "bold" }}>{record.user.nickname}</div>
+              <div style={{ fontSize: "11px", color: "gray" }}>
+                {format(date, "MM/dd a hh:mm")}
+              </div>
+            </div>
+          </div>
+          <div className={styles.recordTitle}>{record.title}</div>
           <div className={styles.recordPreview}>
-            <img src={record.imageUrl[0]} alt={record.title} className={styles.recordImage} />
-            <div className={styles.recordTitle}>{record.title}</div>
+            <img
+              src={record.imageUrl[0]}
+              alt={record.title}
+              className={styles.recordImage}
+            />
+
             <div className={styles.recordDescription}>
               <div className={styles.recordContent}>{record.content}</div>
-              <div className={styles.recordDate}>{record.createdAt}</div>
               <div className={styles.recordLikes} onClick={handleLikeToggle}>
                 {record.userLiked ? (
                   <IoIosHeart style={{ color: "red", fontSize: "24px" }} />
@@ -189,14 +235,6 @@ function RecordDetail() {
                   <IoIosHeartEmpty style={{ color: "red", fontSize: "24px" }} />
                 )}
                 <span>{record.likeCount}</span>
-              </div>
-              <div className={styles.recordUser}>
-                <img
-                  src={record.user.profileImage}
-                  alt={record.user.nickname}
-                  className={styles.userProfile}
-                />
-                <div className={styles.userNickname}>{record.user.nickname}</div>
               </div>
             </div>
           </div>

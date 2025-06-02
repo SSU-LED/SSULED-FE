@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import SmallCard from "../../components/card/SmallCard";
 import GroupTabsbar from "../../components/GroupTabsbar";
 import { Settings } from "lucide-react";
 import { apiClient } from "../../api/apiClient";
+import { FaHeart } from "react-icons/fa6";
+import { IoChatboxEllipsesOutline } from "react-icons/io5";
 
 interface MyGroup {
   id: number;
@@ -81,14 +82,14 @@ function GroupFeeds() {
     deleteMyGroup();
   };
 
-  // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
-  const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}.${month}.${day}`;
-  };
+  // // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
+  // const getTodayDate = () => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   const month = String(today.getMonth() + 1).padStart(2, "0");
+  //   const day = String(today.getDate()).padStart(2, "0");
+  //   return `${year}.${month}.${day}`;
+  // };
 
   useEffect(() => {
     const getMyGroup = async () => {
@@ -203,30 +204,59 @@ function GroupFeeds() {
                     </span>
                   </div>
 
-                  <SmallCard
-                    imageUrl={item.imageUrl}
-                    title={item.title ? item.title : getTodayDate()}
-                    content={item.content}
-                    id={item.id}
-                    likeCount={item.likeCount}
-                    commentCount={item.commentCount}
-                    onClick={handleCardClick}
-                  />
-
-                  <div style={interactionBarStyle}>
-                    <div style={statStyle}>
-                      <span role="img" aria-label="heart">
-                        ❤️
-                      </span>{" "}
-                      {item.likeCount || 0}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleCardClick(item.id)}
+                  >
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        marginBottom: "5px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {item.title}
                     </div>
-                    <div style={statStyle}>
-                      <span role="img" aria-label="comment">
-                        💬
-                      </span>{" "}
-                      {item.commentCount || 0}
+                    <img src={item.imageUrl} />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginRight: "15px",
+                        marginTop: "10px",
+                        gap: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "flex",
+                          marginTop: "auto",
+                          fontSize: "14px",
+                          color: "#666",
+                          gap: "2px",
+                        }}
+                      >
+                        <FaHeart /> {item.likeCount || 0}
+                      </span>
+                      <span
+                        style={{
+                          display: "flex",
+                          marginTop: "auto",
+                          fontSize: "15px",
+                          color: "#666",
+                          gap: "2px",
+                        }}
+                      >
+                        <IoChatboxEllipsesOutline /> {item.commentCount || 0}
+                      </span>
                     </div>
                   </div>
+
+                  <div style={interactionBarStyle}></div>
                 </div>
               ))
             )}
@@ -389,10 +419,4 @@ const interactionBarStyle: React.CSSProperties = {
   justifyContent: "flex-end",
   alignItems: "center",
   padding: "12px",
-};
-
-const statStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
 };
