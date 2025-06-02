@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
@@ -31,39 +31,13 @@ jobs:
           # Vite 빌드
           npm run build
 
-          # 빌드 결과 확인
-          echo "Checking build output..."
-          ls -la
-          if [ -d "dist" ]; then
-            echo "✅ dist directory found"
-            ls -la dist
-          else
-            echo "❌ dist directory not found"
-            echo "Available directories:"
-            find . -maxdepth 2 -type d
-            exit 1
-          fi
-
       - name: Prepare deployment files
         run: |
           mkdir -p deploy
-
-          # Vite 빌드 결과물 복사
-          echo "Copying dist directory..."
           cp -r dist deploy/
-
-          # 필수 파일들 복사
           cp package.json deploy/
           cp package-lock.json deploy/
-
-          # 환경 변수 파일 복사
           cp .env.production deploy/
-
-          # 배포 내용 확인
-          echo "Deployment package contents:"
-          ls -la deploy/
-
-          # 압축
           tar -czf deploy.tar.gz deploy
 
       - name: Configure SSH
@@ -85,9 +59,9 @@ jobs:
       - name: Deploy application
         run: |
           ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
-            set -e  # 에러 발생시 스크립트 중단
+            set -e
             
-            echo '🚀 Starting frontend deployment...'
+            echo '🚀 프론트엔드 배포 시작...'
             
             # 배포 디렉토리 생성
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/frontend
@@ -95,9 +69,9 @@ jobs:
             # 압축 해제
             tar -xzf deploy.tar.gz
             
-            # 기존 파일 백업 (롤백용)
+            # 기존 dist 디렉토리 삭제
             if [ -d '/home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist' ]; then
-              mv /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist.backup.\$(date +%Y%m%d_%H%M%S) || true
+              rm -rf /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist
             fi
             
             # 파일 복사
@@ -109,82 +83,20 @@ jobs:
             # 디렉토리 이동
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # serve 패키지 전역 설치 (sudo 사용)
-            echo '📦 Installing serve globally with sudo...'
-            sudo npm install -g serve
-            
-            # serve 설치 확인
-            which serve || (echo '❌ serve not found' && exit 1)
-            echo '✅ serve installed successfully'
-            
             # 기존 프로세스 정리
-            echo '🛑 Stopping existing frontend process...'
+            echo '🛑 기존 프론트엔드 프로세스 종료...'
             pm2 stop ssuled-client || true
             pm2 delete ssuled-client || true
             
-            # 포트 사용 확인 및 정리
-            echo '🔍 Checking port 3000...'
+            # 포트 정리
             sudo lsof -ti :3000 | xargs -r sudo kill -9 || true
             sleep 2
-            
-            # PM2 ecosystem 파일 생성
-            echo '📝 Creating PM2 ecosystem configuration...'
-            echo 'module.exports = {apps: [{name: \"ssuled-client\", script: \"serve\", args: [\"-s\", \"dist\", \"-l\", \"3000\"], cwd: \"/home/${{ secrets.EC2_USERNAME }}/apps/frontend\", instances: 1, autorestart: true, watch: false, max_memory_restart: \"200M\", env: {PORT: 3000}, error_file: \"./logs/client-err.log\", out_file: \"./logs/client-out.log\", log_file: \"./logs/client-combined.log\", time: true}]};' > ecosystem.config.js
             
             # 로그 디렉토리 생성
             mkdir -p logs
             
-            echo '🚀 Starting new frontend process with ecosystem...'
-            pm2 start ecosystem.config.js
-            
-            # 프로세스 시작 대기
-            sleep 5
-            
-            # 프로세스 상태 확인
-            echo '🔍 Checking process status...'
-            if pm2 list | grep -q ssuled-client; then
-              echo '✅ PM2 process found'
-            else
-              echo '❌ PM2 process not found'
-              pm2 list
-              exit 1
-            fi
-            
-            # 프로세스가 online 상태인지 확인
-            if pm2 show ssuled-client | grep -q 'online'; then
-              echo '✅ Frontend process is online'
-            else
-              echo '❌ Frontend process failed to start'
-              echo 'PM2 status:'
-              pm2 list
-              echo 'PM2 logs:'
-              pm2 logs ssuled-client --lines 20
-              exit 1
-            fi
-            
-            # 포트 확인
-            if netstat -tlnp | grep :3000; then
-              echo '✅ Port 3000 is listening'
-            else
-              echo '❌ Port 3000 is not listening'
-              echo 'Checking what processes are running:'
-              netstat -tlnp
-              exit 1
-            fi
-            
-            # 로컬 HTTP 테스트
-            echo '🌐 Testing local HTTP response...'
-            sleep 2  # 서버 완전 시작 대기
-            if curl -f -s http://localhost:3000 > /dev/null; then
-              echo '✅ Local HTTP test passed'
-            else
-              echo '❌ Local HTTP test failed'
-              echo 'Detailed curl test:'
-              curl -I http://localhost:3000 || true
-              echo 'PM2 logs:'
-              pm2 logs ssuled-client --lines 10
-              exit 1
-            fi
+            echo '🚀 PM2로 프론트엔드 시작...'
+            pm2 start serve --name ssuled-client -- -s dist -l 3000
             
             # PM2 설정 저장
             pm2 save
@@ -193,64 +105,5 @@ jobs:
             rm -rf /home/${{ secrets.EC2_USERNAME }}/deploy
             rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
             
-            # 오래된 백업 파일 정리 (7일 이상된 것들)
-            find /home/${{ secrets.EC2_USERNAME }}/apps/frontend -name 'dist.backup.*' -mtime +7 -exec rm -rf {} + || true
-            
-            echo '🎉 Frontend deployment completed successfully!'
+            echo '🎉 프론트엔드 배포 완료!'
           "
-
-      - name: Verify deployment
-        run: |
-          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
-            echo '📊 Final Verification:'
-            
-            echo '1. PM2 Process Status:'
-            pm2 list
-            
-            echo '2. Frontend Application Info:'
-            pm2 info ssuled-client
-            
-            echo '3. Port Status:'
-            netstat -tlnp | grep :3000
-            
-            echo '4. Process Logs (last 10 lines):'
-            pm2 logs ssuled-client --lines 10
-            
-            echo '5. HTTP Test:'
-            curl -I http://localhost:3000
-            
-            echo '6. Nginx Test:'
-            sudo nginx -t
-            
-            echo '✅ Verification completed!'
-            echo '🌐 Frontend should be available at: https://ounwan.site'
-          "
-
-      - name: Rollback on failure
-        if: failure()
-        run: |
-          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
-            echo '❌ Deployment failed. Attempting rollback...'
-            
-            cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
-            
-            # 최신 백업 찾기
-            LATEST_BACKUP=\$(ls -t dist.backup.* 2>/dev/null | head -n1)
-            
-            if [ ! -z \"\$LATEST_BACKUP\" ]; then
-              echo \"Rolling back to: \$LATEST_BACKUP\"
-              
-              # 현재 실패한 버전 제거
-              rm -rf dist
-              
-              # 백업으로 복원
-              mv \"\$LATEST_BACKUP\" dist
-              
-              # 서비스 재시작
-              pm2 restart ssuled-client
-              
-              echo '✅ Rollback completed'
-            else
-              echo '⚠️  No backup found for rollback'
-            fi
-          " || true
