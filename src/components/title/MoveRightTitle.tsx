@@ -16,7 +16,7 @@ function MoveRightTitle({ title, subtitle, to = "#", onClick }: MoveRightTitlePr
   return (
     <div style={containerStyle}>
       <div style={titleWithIconStyle}>
-        {icon && <span style={{ marginRight: "8px" }}>{icon}</span>}
+        {icon && <span style={{ marginRight: "8px"}}>{icon}</span>}
         <span>{title}</span>
       </div>
       <Link 
@@ -27,7 +27,7 @@ function MoveRightTitle({ title, subtitle, to = "#", onClick }: MoveRightTitlePr
         style={linkStyle}
       >
         {subtitle}
-        <IoChevronForward size={16} style={{ marginLeft: "4px", verticalAlign: "middle" }} />
+        <IoChevronForward size={16} style={{ marginLeft: "4px", verticalAlign: "middle"}} />
       </Link>
     </div>
   );
@@ -57,7 +57,7 @@ const titleWithIconStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   fontSize: "16px",
-  fontWeight: 600,
+  fontWeight: 500,
 };
 
 const linkStyle: React.CSSProperties = {

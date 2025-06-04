@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Camera } from "react-camera-pro";
 import { FiCamera } from "react-icons/fi";
 import { createRecord, uploadImage } from "../api/apiRecords";
+import { useNavigate } from "react-router-dom";
 
 import layoutStyles from "../styles/Layout.module.css";
 import styles from "../styles/Verify.module.css";
@@ -16,6 +17,8 @@ function Verify() {
   const [selectedTime, setSelectedTime] = useState("10");
   const [showCamera, setShowCamera] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleCapture = () => {
     const img = cameraRef.current?.takePhoto();
@@ -69,6 +72,8 @@ function Verify() {
       setSelectedParts([]);
       setSelectedTime("10");
       setVisibility("group");
+
+      navigate("/");
 
     } catch (err) {
       console.error("업로드 실패:", err);
@@ -186,6 +191,8 @@ function Verify() {
                   <option value="shoulders_arms">어깨/팔</option>
                   <option value="legs">하체</option>
                   <option value="abs">복근</option>
+                  <option value="cardio">유산소</option>
+                  <option value="full_body">전신</option>
                 </select>
                 <label htmlFor="parts">운동 부위</label>
               </div>
@@ -220,9 +227,6 @@ function Verify() {
                 {part}
                 <button
                   className={styles.tagRemove}
-                  onClick={() =>
-                    setSelectedParts(selectedParts.filter((p) => p !== part))
-                  }
                 >
                   ×
                 </button>

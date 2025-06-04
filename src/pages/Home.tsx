@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MediumTitle from "../components/title/MediumTitle";
 import LargeCard from "../components/card/LargeCard";
 import MoveRightTitle from "../components/title/MoveRightTitle";
 import SmallCard from "../components/card/SmallCard";
@@ -59,7 +58,7 @@ function Home() {
   return (
     <div className={layoutStyles.layout}>
       <div className={styles.headerWrapper}>
-        <MediumTitle>Home</MediumTitle>
+        <div className={styles.mainTitle}>Home</div>
         <MoveRightTitle
           title="Records"
           subtitle="Show all Records"
@@ -84,7 +83,7 @@ function Home() {
           </div>
         </div>
 
-        <MediumTitle>인기 게시물</MediumTitle>
+        <div className={styles.subTitle}>인기 게시물</div>
 
         <div className={styles.smallCardList}>
           {popularRecords.map((item, index) => (

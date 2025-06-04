@@ -48,7 +48,7 @@ function getQuarterFromTab(tab: string) {
 
 function Group() {
   const navigate = useNavigate();
-  const [isJoined] = useState(true);
+  const [_isJoined, setIsJoined] = useState(false); // 기본값 false
   const [group, setGroup] = useState<IFGroup[]>([]);
   const [rankingData, setRankingData] = useState<CardProps[]>([]);
   const [activeTab, setActiveTab] = useState("이번 분기");
@@ -92,6 +92,24 @@ function Group() {
     fetchTop3();
   }, [activeTab]);
 
+  const checkIsJoined = async () => {
+    try {
+      const res = await apiClient.get("/group/user"); // 실제 가입된 그룹 조회
+      if (res.data && res.data.id) {
+        setIsJoined(true);
+        navigate("/groupfeeds");
+      } else {
+        setIsJoined(false);
+        alert("가입한 그룹이 없습니다 🥲");
+        navigate("/group");
+      }
+    } catch (error) {
+      setIsJoined(false);
+      alert("가입한 그룹이 없습니다 🥲");
+      navigate("/group");
+    }
+  };
+
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
@@ -102,10 +120,8 @@ function Group() {
           subtitle=""
           to="/groupfeeds"
           onClick={(e) => {
-            if (!isJoined) {
-              e.preventDefault();
-              alert("가입한 그룹이 없습니다 🥲");
-            }
+            e.preventDefault();
+            checkIsJoined();
           }}
         />
       </div>

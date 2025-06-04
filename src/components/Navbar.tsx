@@ -59,24 +59,23 @@ const navbarStyle: React.CSSProperties = {
   position: "fixed",
   bottom: 0,
   left: "50%",
-  transform: "translateX(-50%)",
-  width: "100%",
-  backgroundColor: "#fff",
-  borderTop: "1px solid #ddd",
-  boxShadow: "0 -2px 5px rgba(0, 0, 0, 0.1)",
-  height: "56px",
   display: "flex",
+  justifyContent: "center",
+  width: "420px",
+  transform: "translateX(-50%)",
+  zIndex: 1000,
+  backgroundColor: "#fff",
+  background: "linear-gradient(to top, rgba(255,255,255,1) 75%, rgba(255,255,255,0) 100%)",
+  height: "3rem",
   alignItems: "center",
-  maxWidth: "450px",
+  padding: "2rem 0",
 };
 
 const ulStyle: React.CSSProperties = {
   display: "flex",
-  justifyContent: "space-around",
   width: "100%",
-  padding: "0",
-  margin: "0",
   listStyle: "none",
+  padding: 0,
 };
 
 const liStyle: React.CSSProperties = {
@@ -87,8 +86,8 @@ const liStyle: React.CSSProperties = {
 const linkStyle: React.CSSProperties = {
   display: "block",
   padding: "8px 0",
-  fontSize: "14px",
-  fontWeight: "bold",
+  fontSize: "12px",
+  fontWeight: "seni-bold",
   color: "#888",
   textDecoration: "none",
   position: "relative",
