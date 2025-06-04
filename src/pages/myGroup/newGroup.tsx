@@ -95,9 +95,12 @@ function NewGroup() {
           const userGroupRes = await apiClient.get("/group/user");
           if (userGroupRes.data && userGroupRes.data.id === Number(id)) {
             setIsJoined(true);
+          } else {
+            setIsJoined(false);
           }
         } catch (error) {
           console.error("사용자 그룹 정보 확인 실패:", error);
+          setIsJoined(false);
         }
 
         // 그룹 게시글 불러오기 (가입 여부와 상관없이)
@@ -122,64 +125,58 @@ function NewGroup() {
   }, [id]);
 
   const handleButtonClick = async () => {
-    if (!groupData) return;
+  if (!groupData) return;
 
-    const isPublic = groupData.isAccessible;
+  // 이미 가입된 그룹인 경우 경고
+  if (isJoined) {
+    alert("이미 가입한 그룹이 있습니다.");
+    return;
+  }
+  
+  const isPublic = groupData.isAccessible;
 
-    if (isPublic) {
-      // 공개 그룹: 바로 가입 시도
-      try {
-        const response = await apiClient.post(`/group/${id}/join`, {
-          // password: null
-        });
-        console.log("참여 성공:", response.data);
-        alert("그룹에 등록되었습니다!");
-        setIsJoined(true);
-        navigate("/groupfeeds");
-      } catch (error: unknown) {
-        const err = error as {
-          response?: { status?: number; data?: unknown };
-          message?: string;
-        };
-        console.error("그룹 참여 실패", err.response?.data || err.message);
-        alert("그룹 참여 중 오류가 발생했습니다.");
-      }
-    } else {
-      // 비공개 그룹: 비밀번호 입력창 보여주기
-      setShowPasswordInput(true);
-    }
-  };
-
-  const handlePasswordSubmit = async () => {
-    const isPublic = groupData?.isAccessible;
-
-    if (!isPublic && !password) {
-      setPasswordError("비밀번호를 입력하세요.");
-      return;
-    }
-
+  if (isPublic) {
+    // 공개 그룹 → 바로 등록
     try {
-      const response = await apiClient.post(
-        `/group/${id}/join`,
-        isPublic ? {} : { password }
-      );
-      console.log("참여 성공:", response.data);
+      await apiClient.post(`/group/${id}/join`);
       alert("그룹에 등록되었습니다!");
       setIsJoined(true);
       navigate("/groupfeeds");
-    } catch (error: unknown) {
-      const err = error as {
-        response?: { status?: number; data?: unknown };
-        message?: string;
-      };
-      console.error("그룹 참여 실패", err.response?.data || err.message);
-      if (err.response?.status === 401 || err.response?.status === 400) {
-        setPasswordError("비밀번호가 틀렸습니다!");
-      } else {
-        alert("그룹 참여 중 오류가 발생했습니다.");
-      }
+    } catch (error: any) {
+      console.error("공개 그룹 등록 실패", error.response?.data || error.message);
+      alert(error.response?.data?.message || "그룹 등록 중 오류가 발생했습니다.");
     }
-  };
+  } else {
+    // 비공개 그룹 → 비밀번호 입력창 열기
+    setShowPasswordInput(true);
+  }
+};
+
+const handlePasswordSubmit = async () => {
+  if (isJoined) {
+    alert("이미 가입한 그룹이 있습니다.");
+    return;
+  }
+
+  if (!password) {
+    setPasswordError("비밀번호를 입력하세요.");
+    return;
+  }
+
+  try {
+    await apiClient.post(`/group/${id}/join`, { password });
+    alert("그룹에 등록되었습니다!");
+    setIsJoined(true);
+    navigate("/groupfeeds");
+  } catch (error: any) {
+    console.error("비공개 그룹 등록 실패", error.response?.data || error.message);
+    if (error.response?.status === 401 || error.response?.status === 400) {
+      setPasswordError("비밀번호가 틀렸습니다!");
+    } else {
+      alert(error.response?.data?.message || "그룹 등록 중 오류가 발생했습니다.");
+    }
+  }
+};
 
   return (
     <div style={pageStyle}>
