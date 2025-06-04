@@ -173,7 +173,7 @@ const Stat = () => {
     { id: "어깨/팔", value: workoutData.exercise?.shoulders_arms ?? 0 },
     { id: "유산소", value: workoutData.exercise?.cardio ?? 0 },
     { id: "기타", value: workoutData.exercise?.other ?? 0 },
-  ];
+  ].filter((item) => item.value > 0);
 
   const emojiMap: { [key: string]: string } = {
     dawn: "🌅",
