@@ -70,8 +70,6 @@ function NewGroup() {
         if (!id) return;
         const res = await apiClient.get(`/group/${id}`);
         console.log("API 응답 데이터:", res.data);
-        console.log("멤버 수 데이터 타입:", typeof res.data.memberCount);
-        console.log("멤버 수 값:", res.data.memberCount);
 
         // memberCount가 없거나 undefined인 경우, members 배열의 길이를 사용
         const memberCount =
@@ -120,12 +118,11 @@ function NewGroup() {
     const getMyGroup = async () => {
       try {
         const res = await apiClient.get("/group/user");
-        console.log("내 그룹 정보: ", res.data);
         if (res.data) {
           setIsJoined(true);
         }
       } catch (error) {
-        console.error("내 그룹 정보: ", error);
+        console.error("내 그룹 정보 불러오기 에러: ", error);
       }
     };
 

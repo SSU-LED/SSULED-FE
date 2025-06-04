@@ -1,9 +1,8 @@
 import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import GroupTabsbar from "../../components/GroupTabsbar";
-import CalendarHeatmap from 'react-calendar-heatmap';
-import 'react-calendar-heatmap/dist/styles.css';
-import { subDays, addDays } from 'date-fns';
-import { useEffect, useState } from 'react';
+import CalendarHeatmap from "react-calendar-heatmap";
+import "react-calendar-heatmap/dist/styles.css";
+import { useEffect, useState } from "react";
 import { apiClient } from "../../api/apiClient";
 
 interface HeatmapValue {
@@ -23,7 +22,7 @@ interface MyGroup {
   isAccessible: boolean;
   maxMember: number;
   createdAt: string;
-  updatedAt: string
+  updatedAt: string;
 }
 
 interface MyGroupStat {
@@ -39,32 +38,64 @@ interface MyGroupRank {
   rank: number;
 }
 
+function getQuarterDateRange(
+  year: number,
+  quarter: number
+): {
+  startDate: Date;
+  endDate: Date;
+} {
+  const startMonth = (quarter - 1) * 3;
+  const rawStart = new Date(year, startMonth, 1);
+  const rawEnd = new Date(year, startMonth + 3, 0);
+
+  // KST 보정: UTC → +9시간
+  const startDate = new Date(rawStart.getTime() + 9 * 60 * 60 * 1000);
+  const endDate = new Date(rawEnd.getTime() + 9 * 60 * 60 * 1000);
+
+  return { startDate, endDate };
+}
+
 export function ThreeMonthHeatmap({ values }: Props) {
-  const [startDate, setStartDate] = useState(subDays(new Date(), 89));
-  const [endDate, setEndDate] = useState(new Date());
+  const now = new Date();
+  const initialYear = now.getFullYear();
+  const initialQuarter = Math.floor(now.getMonth() / 3) + 1;
+
+  const [{ year, quarter }, setQuarterInfo] = useState({
+    year: initialYear,
+    quarter: initialQuarter,
+  });
+
+  const { startDate, endDate } = getQuarterDateRange(year, quarter);
 
   const goToPrevQuarter = () => {
-    const newEnd = subDays(startDate, 1);
-    const newStart = subDays(newEnd, 89);
-    setStartDate(newStart);
-    setEndDate(newEnd);
+    if (quarter === 1) {
+      setQuarterInfo({ year: year - 1, quarter: 4 });
+    } else {
+      setQuarterInfo({ year, quarter: quarter - 1 });
+    }
   };
 
   const goToNextQuarter = () => {
-    const newStart = addDays(endDate, 1);
-    const newEnd = addDays(newStart, 89);
-    setStartDate(newStart);
-    setEndDate(newEnd);
+    if (quarter === 4) {
+      setQuarterInfo({ year: year + 1, quarter: 1 });
+    } else {
+      setQuarterInfo({ year, quarter: quarter + 1 });
+    }
   };
-
   return (
     <div style={{ marginTop: 20, width: "100%" }}>
       <div style={navStyle}>
-        <button onClick={goToPrevQuarter} style={arrowBtnStyle}>←</button>
+        <button onClick={goToPrevQuarter} style={arrowBtnStyle}>
+          ←
+        </button>
         <span style={{ fontWeight: 500 }}>
-          {startDate.toISOString().slice(0, 10)} ~ {endDate.toISOString().slice(0, 10)}
+          {startDate.toISOString().slice(0, 10)} ~{" "}
+          {endDate.toISOString().slice(0, 10)}
         </span>
-        <button onClick={goToNextQuarter} style={arrowBtnStyle}>→</button>
+        <button onClick={goToNextQuarter} style={arrowBtnStyle}>
+          →
+        </button>
       </div>
 
       <CalendarHeatmap
@@ -121,7 +152,7 @@ function GroupStatistics() {
         const response = await apiClient.get(`/group/ranking/${group.id}`, {
           params: { groupId: group.id, year, quarter },
         });
-        console.log(response); 
+        console.log(response);
         setRanking(response.data);
       } catch (error) {
         console.error(error);
@@ -133,7 +164,7 @@ function GroupStatistics() {
   // 그룹 스릭 가져오기
   useEffect(() => {
     const { year, quarter } = getCurrentYearAndQuarter();
-    
+
     const getOurStatistics = async () => {
       if (!group) return;
       try {
@@ -170,9 +201,7 @@ function GroupStatistics() {
       </style>
       <div style={headerWrapperStyle}>
         <MoveLeftTitle title="My Group" page="/group" />
-        {group && (
-          <div style={centerTitleStyle}>{group.title}</div>
-        )}
+        {group && <div style={centerTitleStyle}>{group.title}</div>}
       </div>
 
       <div style={barStyle}>
@@ -185,12 +214,14 @@ function GroupStatistics() {
             <h2>Current Rank 🏆</h2>
             {ranking && group && (
               <p>
-                <strong style={{ color: "#4CAF50" }}>{group.title}</strong>의 현재 등수는{" "}
-                <strong style={{ color: "#FF9800" }}>{ranking.rank}등</strong>입니다.
+                <strong style={{ color: "#4CAF50" }}>{group.title}</strong>의
+                현재 등수는{" "}
+                <strong style={{ color: "#FF9800" }}>{ranking.rank}등</strong>
+                입니다.
               </p>
             )}
           </div>
-          <h2 style={{marginTop: "50px"}}>Streak 🎖️</h2>
+          <h2 style={{ marginTop: "50px" }}>Streak 🎖️</h2>
           <div style={{ height: 200 }}>
             {group && <ThreeMonthHeatmap values={heatmapValues} />}
           </div>
@@ -229,20 +260,20 @@ const rankingStyle: React.CSSProperties = {
 };
 
 const navStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
   marginBottom: 8,
 };
 
 const arrowBtnStyle: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #ccc',
-  borderRadius: '6px',
-  padding: '4px 10px',
-  cursor: 'pointer',
-  fontSize: '16px',
-  transition: 'background 0.2s',
+  background: "white",
+  border: "1px solid #ccc",
+  borderRadius: "6px",
+  padding: "4px 10px",
+  cursor: "pointer",
+  fontSize: "16px",
+  transition: "background 0.2s",
 };
 
 const headerWrapperStyle: React.CSSProperties = {
@@ -262,6 +293,6 @@ const centerTitleStyle: React.CSSProperties = {
   fontWeight: "bold",
   fontSize: "18px",
   whiteSpace: "nowrap",
-  color: "#000", 
-  zIndex: 101, 
+  color: "#000",
+  zIndex: 101,
 };
