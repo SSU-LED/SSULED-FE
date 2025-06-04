@@ -122,35 +122,33 @@ function NewGroup() {
   }, [id]);
 
   const handleButtonClick = async () => {
-  if (!groupData) return;
+    if (!groupData) return;
 
-  const isPublic = groupData.isAccessible;
+    const isPublic = groupData.isAccessible;
 
-  if (isPublic) {
-    // 공개 그룹: 바로 가입 시도
-    try {
-      const response = await apiClient.post(`/group/${id}/join`, {
-        // password: null
-      });
-      console.log("참여 성공:", response.data);
-      alert("그룹에 등록되었습니다!");
-      setIsJoined(true);
-      navigate("/groupfeeds");
-    } catch (error: unknown) {
-      const err = error as {
-        response?: { status?: number; data?: unknown };
-        message?: string;
-      };
-      console.error("그룹 참여 실패", err.response?.data || err.message);
-      alert("그룹 참여 중 오류가 발생했습니다.");
+    if (isPublic) {
+      // 공개 그룹: 바로 가입 시도
+      try {
+        const response = await apiClient.post(`/group/${id}/join`, {
+          // password: null
+        });
+        console.log("참여 성공:", response.data);
+        alert("그룹에 등록되었습니다!");
+        setIsJoined(true);
+        navigate("/groupfeeds");
+      } catch (error: unknown) {
+        const err = error as {
+          response?: { status?: number; data?: unknown };
+          message?: string;
+        };
+        console.error("그룹 참여 실패", err.response?.data || err.message);
+        alert("그룹 참여 중 오류가 발생했습니다.");
+      }
+    } else {
+      // 비공개 그룹: 비밀번호 입력창 보여주기
+      setShowPasswordInput(true);
     }
-  } else {
-    // 비공개 그룹: 비밀번호 입력창 보여주기
-    setShowPasswordInput(true);
-  }
-};
-
-
+  };
 
   const handlePasswordSubmit = async () => {
     const isPublic = groupData?.isAccessible;
@@ -336,6 +334,7 @@ const scrollAreaStyle: React.CSSProperties = {
   flex: 1,
   overflowY: "auto",
   padding: "16px",
+  width: "100%",
 };
 
 const loadingStyle: React.CSSProperties = {

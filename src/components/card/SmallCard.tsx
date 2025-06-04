@@ -69,7 +69,7 @@ function SmallCard({
         )}
       </div>
       <div style={textContainerStyle}>
-        <div style={textStyle}>{title}</div>
+        <div style={textStyle}>{title ? title : content}</div>
         <div style={contentStyle}>{truncateText(content)}</div>
         <div style={{ ...statsStyle, justifyContent: "flex-end" }}>
           <span style={statItemStyle}>
@@ -89,11 +89,11 @@ export default SmallCard;
 const containerStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "left",
-  marginBottom: "8px",
   gap: "8px",
-  padding: "8px 0",
+  padding: "5px 8px",
   width: "100%",
   cursor: "pointer",
+  borderBottom: "1px solid #eee",
 };
 
 const imageContainerStyle: React.CSSProperties = {
