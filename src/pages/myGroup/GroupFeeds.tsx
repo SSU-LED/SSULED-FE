@@ -63,6 +63,25 @@ function GroupFeeds() {
     navigate(`/records/${id}`);
   };
 
+
+  const handleButtonClick = (id: number) => {
+    const deleteMyGroup = async () => {
+      const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
+      if (confirmLeave) {
+        try {
+          await apiClient.delete(`/group/${id}/leave`);
+          setIsJoined(false);
+          alert("그룹에서 탈퇴했습니다.");
+          navigate(`/newgroup/${id}`);
+        } catch (error) {
+          console.error("그룹 탈퇴 실패:", error);
+          alert("그룹 탈퇴 중 오류가 발생했습니다.");
+        }
+      }
+    };
+    deleteMyGroup();
+  }
+    
   useEffect(() => {
     const getMyGroup = async () => {
       const response = await apiClient.get("/group/user");
