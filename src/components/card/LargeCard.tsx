@@ -40,7 +40,8 @@ function LargeCard({
 export default LargeCard;
 
 const containerStyle: React.CSSProperties = {
-  width: "280px",
+  width: "12rem",
+  height: "12rem",
   display: "flex",
   flexDirection: "column",
 };

@@ -111,8 +111,7 @@ const imageStyle: React.CSSProperties = {
 };
 
 const textContainerStyle: React.CSSProperties = {
-  alignItems: "left",
-  alignContent: "center",
+  position: "relative", // 추가
   width: "100%",
   display: "flex",
   flexDirection: "column",
@@ -137,11 +136,16 @@ const contentStyle = {
 } as React.CSSProperties;
 
 const statsStyle: React.CSSProperties = {
+  position: "absolute", // 겹쳐지도록
+  bottom: 0,
+  right: 0,
   display: "flex",
   gap: "10px",
-  marginTop: "auto",
   fontSize: "12px",
   color: "#666",
+  backgroundColor: "rgba(255, 255, 255, 0.8)", // 선택적으로 가독성 보장
+  padding: "2px 0px",
+  borderRadius: "8px 0 0 0",
 };
 
 const statItemStyle: React.CSSProperties = {

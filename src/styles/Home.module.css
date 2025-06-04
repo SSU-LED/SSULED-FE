@@ -7,6 +7,20 @@
   border-bottom: 1px solid #eee;
 }
 
+.mainTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.subTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
 .scrollableContent {
   flex: 1;
   overflow-y: auto;
