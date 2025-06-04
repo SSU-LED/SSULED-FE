@@ -48,7 +48,6 @@ function getQuarterFromTab(tab: string) {
 
 function Group() {
   const navigate = useNavigate();
-  const [_isJoined, setIsJoined] = useState(false); // 기본값 false
   const [group, setGroup] = useState<IFGroup[]>([]);
   const [rankingData, setRankingData] = useState<CardProps[]>([]);
   const [activeTab, setActiveTab] = useState("이번 분기");
@@ -96,15 +95,16 @@ function Group() {
     try {
       const res = await apiClient.get("/group/user"); // 실제 가입된 그룹 조회
       if (res.data && res.data.id) {
-        setIsJoined(true);
+        // setIsJoined(true);
         navigate("/groupfeeds");
       } else {
-        setIsJoined(false);
+        // setIsJoined(false);
         alert("가입한 그룹이 없습니다 🥲");
         navigate("/group");
       }
     } catch (error) {
-      setIsJoined(false);
+      // setIsJoined(false);
+      console.error("가입된 그룹 조회 실패: ", error);
       alert("가입한 그룹이 없습니다 🥲");
       navigate("/group");
     }
