@@ -15,6 +15,12 @@
   font-size: x-large;
 }
 
+.mainTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
 .scrollableContent {
   flex: 1;
   overflow-y: auto;
@@ -28,8 +34,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: auto;
+  max-height: 240px;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
 .recordImage {
@@ -50,6 +57,7 @@
 .cameraContainer {
   width: 100%;
   aspect-ratio: 4 / 3;
+  max-height: 240px;
   position: relative; /* 중요!! */
   border-radius: 0.75rem;
   overflow: hidden;
@@ -75,7 +83,7 @@
 
 .placeholderContainer {
   width: 100%;
-  height: 17.5rem;
+  height: 240px;
   background-color: #f1f2f6;
   border-radius: 0.75rem;
   display: flex;
@@ -148,13 +156,6 @@
   margin-top: 0.5rem;
 }
 
-.formTitle {
-  font-weight: 600;
-  font-size: 0.9375rem;
-  color: #111;
-  margin-bottom: 0.375rem;
-}
-
 .descriptionInput {
   width: 100%;
   min-height: 6.25rem;
@@ -165,12 +166,6 @@
   background-color: #f1f2f6;
   color: #111;
   resize: vertical;
-}
-
-.formSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .formSelect {
@@ -237,18 +232,6 @@
   overflow: hidden;
 }
 
-.segmentButton {
-  flex: 1;
-  padding: 0.625rem 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #666;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
 .active {
   background-color: #fff;
   color: #111;
@@ -259,10 +242,9 @@
 .floatingButtonWrapper {
   position: fixed;
   bottom: 3.5rem; /* 56px */
-  left: 0;
-  right: 0;
   padding: 0 1rem 1rem;
   background-color: transparent;
+  width: 420px;
   z-index: 20;
   display: flex;
   justify-content: center;
@@ -270,7 +252,6 @@
 
 .saveButton {
   width: 100%;
-  max-width: 26.875rem; /* 430px */
   padding: 1rem;
   font-size: 1rem;
   font-weight: 600;
@@ -291,7 +272,6 @@
     font-size: 0.875rem;
   }
 
-  .formSelect,
   .descriptionInput {
     font-size: 0.875rem;
     padding: 0.75rem;
@@ -301,4 +281,49 @@
     font-size: 0.9375rem;
     padding: 0.875rem;
   }
+}
+
+.floatingSegmentedWrapper {
+  position: relative;
+}
+
+.floatingSegmentedWrapper label {
+  position: absolute;
+  top: -0.5rem;
+  left: 0.625rem;
+  font-size: 0.8125rem;
+  color: #333;
+  background: transparent;
+  padding: 0 0.25rem;
+  z-index: 2;
+}
+
+.segmentButton {
+  flex: 1;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-align: center;
+}
+
+.segmentButton:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.segmentButton:active {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.segmentButton.active {
+  background-color: white;
+  color: #111;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px #ccc;
+  z-index: 1;
+  border-radius: 0.75rem;
 }

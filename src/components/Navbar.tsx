@@ -63,7 +63,7 @@ const navbarStyle: React.CSSProperties = {
   justifyContent: "center",
   width: "420px",
   transform: "translateX(-50%)",
-  zIndex: 1000,
+  zIndex: 10,
   backgroundColor: "#fff",
   background: "linear-gradient(to top, rgba(255,255,255,1) 75%, rgba(255,255,255,0) 100%)",
   height: "3rem",

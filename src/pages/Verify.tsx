@@ -18,6 +18,16 @@ function Verify() {
   const [showCamera, setShowCamera] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const partLabelMap: Record<string, string> = {
+    chest: "가슴",
+    back: "등",
+    shoulders_arms: "어깨/팔",
+    legs: "하체",
+    abs: "복근",
+    cardio: "유산소",
+    full_body: "전신",
+  };
+
   const navigate = useNavigate();
 
   const handleCapture = () => {
@@ -88,7 +98,7 @@ function Verify() {
   return (
     <div className={layoutStyles.layout}>
       <div className={styles.headerWrapper}>
-        Verify
+        <div className={styles.mainTitle}>Verify</div>
       </div>
 
       <div className={styles.scrollableContent}>
@@ -151,24 +161,24 @@ function Verify() {
             <label htmlFor="postDescription">Description</label>
           </div>
 
-          <div className={styles.visibilitySelector}>
-            <div className={styles.formSection}>
-              <div className={styles.formTitle}>Visibility</div>
-              <div className={styles.segmentedControl}>
-                <button
-                  className={`${styles.segmentButton} ${visibility === "group" ? styles.active : ""}`}
-                  onClick={() => setVisibility("group")}
-                >
-                  그룹공개
-                </button>
-                <button
-                  className={`${styles.segmentButton} ${visibility === "public" ? styles.active : ""}`}
-                  onClick={() => setVisibility("public")}
-                >
-                  전체공개
-                </button>
-              </div>
+          <div className={styles.floatingSegmentedWrapper}>
+            <div className={styles.segmentedControl} id="visibility">
+              <button
+                type="button"
+                className={`${styles.segmentButton} ${visibility === "group" ? styles.active : ""}`}
+                onClick={() => setVisibility("group")}
+              >
+                그룹공개
+              </button>
+              <button
+                type="button"
+                className={`${styles.segmentButton} ${visibility === "public" ? styles.active : ""}`}
+                onClick={() => setVisibility("public")}
+              >
+                전체공개
+              </button>
             </div>
+            <label htmlFor="visibility">Visibility</label>
           </div>
 
           <div className={styles.exerciseDetailWrapper}>
@@ -224,9 +234,12 @@ function Verify() {
           <div className={styles.selectedTags}>
             {selectedParts.map((part) => (
               <div key={part} className={styles.tag}>
-                {part}
+                {partLabelMap[part] || part}
                 <button
                   className={styles.tagRemove}
+                  onClick={() =>
+                    setSelectedParts(selectedParts.filter((p) => p !== part))
+                  }
                 >
                   ×
                 </button>
