@@ -4,7 +4,6 @@ import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import { apiClient } from "../../api/apiClient";
 import { FaUsers } from "react-icons/fa";
 import SmallCard from "../../components/card/SmallCard";
-import GroupTabsbar from "../../components/GroupTabsbar";
 import { IoClose } from "react-icons/io5";
 
 export interface IFGroup {
@@ -225,12 +224,6 @@ const handlePasswordSubmit = async () => {
         </div>
       )}
 
-      {isJoined && groupData && (
-        <div style={barStyle}>
-          <GroupTabsbar />
-        </div>
-      )}
-
       <div className="no-scrollbar" style={scrollAreaStyle}>
         {loading ? (
           <div style={loadingStyle}>로딩 중...</div>
@@ -348,13 +341,6 @@ const loadingStyle: React.CSSProperties = {
   height: "100%",
   fontSize: "16px",
   color: "#666",
-};
-
-const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "12px",
 };
 
 const listStyle: React.CSSProperties = {
