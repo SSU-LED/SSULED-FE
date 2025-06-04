@@ -199,11 +199,11 @@ const Stat = () => {
     )[0];
 
     const timeMessageMap: { [key: string]: string } = {
-      dawn: "당신은 새벽을 깨우는 닭! 누구보다 빠르게 하루를 시작하네요! 🐓",
-      morning: "당신은 부지런한 다람쥐! 아침 햇살과 함께 움직이네요! 🐿️",
-      afternoon: "당신은 낮의 호랑이, 집중력이 아주 좋아요! 🐯",
+      dawn: "당신은 새벽을 깨우는 닭!\n 누구보다 빠르게 하루를 시작하네요! 🐓",
+      morning: "당신은 부지런한 다람쥐!\n 아침 햇살과 함께 움직이네요! 🐿️",
+      afternoon: "당신은 낮의 호랑이,\n 집중력이 아주 좋아요! 🐯",
       night:
-        "당신은 밤의 사냥꾼 올빼미! 고요한 밤, 최고의 컨디션을 발휘하네요! 🦉",
+        "당신은 밤의 사냥꾼 올빼미!\n 고요한 밤, 최고의 컨디션을 발휘하네요! 🦉",
     };
 
     topTimeMessage = timeMessageMap[topTimeRange.label] || topTimeMessage;
@@ -392,4 +392,5 @@ const noDataStyle: React.CSSProperties = {
   backgroundColor: "#f8f8f8",
   borderRadius: "12px",
   color: "#666",
+  whiteSpace: "pre-line",
 };
