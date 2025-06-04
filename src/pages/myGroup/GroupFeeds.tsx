@@ -131,106 +131,117 @@ function GroupFeeds() {
         <MoveLeftTitle title="My Group" page="/group" />
 
         {group && <div style={centerTitleStyle}>{group.title}</div>}
-
-        <button style={iconButtonStyle} onClick={() => navigate(`/edit-group`)}>
-          <Settings size={20} color="#555" />
-        </button>
+        {group && (
+          <button
+            style={iconButtonStyle}
+            onClick={() => navigate(`/edit-group`)}
+          >
+            <Settings size={20} color="#555" />
+          </button>
+        )}
       </div>
-      <div style={barStyle}>
-        <div>
-          <GroupTabsbar />
-        </div>
-      </div>
-      <div className="no-scrollbar" style={scrollAreaStyle}>
-        <div style={feedListStyle}>
-          {post.length === 0 ? (
-            <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
-          ) : (
-            post.map((item, index) => (
-              <div key={index} style={feedCardStyle}>
-                <div style={feedHeaderStyle}>
-                  <div style={userInfoStyle}>
-                    <img
-                      src={item.profileImage}
-                      alt={item.nickname}
-                      style={profileImageStyle}
-                      onError={(e) => {
-                        e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
-                          0
-                        )}`;
-                      }}
-                    />
-                    <span style={usernameStyle}>{item.nickname}</span>
-                  </div>
-                  <span style={dateStyle}>
-                    {new Date(item.createAt).toLocaleDateString()}
-                  </span>
-                </div>
+      {group ? (
+        <>
+          {" "}
+          <div style={barStyle}>
+            <div>
+              <GroupTabsbar />
+            </div>
+          </div>
+          <div className="no-scrollbar" style={scrollAreaStyle}>
+            <div style={feedListStyle}>
+              {post.length === 0 ? (
+                <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
+              ) : (
+                post.map((item, index) => (
+                  <div key={index} style={feedCardStyle}>
+                    <div style={feedHeaderStyle}>
+                      <div style={userInfoStyle}>
+                        <img
+                          src={item.profileImage}
+                          alt={item.nickname}
+                          style={profileImageStyle}
+                          onError={(e) => {
+                            e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
+                              0
+                            )}`;
+                          }}
+                        />
+                        <span style={usernameStyle}>{item.nickname}</span>
+                      </div>
+                      <span style={dateStyle}>
+                        {new Date(item.createAt).toLocaleDateString()}
+                      </span>
+                    </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleCardClick(item.id)}
-                >
-                  <div
-                    style={{
-                      fontSize: "20px",
-                      marginBottom: "5px",
-                      fontWeight: "bold",
-                      marginLeft: "15px",
-                    }}
-                  >
-                    {item.title}
-                  </div>
-                  <img src={item.imageUrl} />
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      marginRight: "15px",
-                      marginTop: "10px",
-                      gap: "10px",
-                    }}
-                  >
-                    <span
+                    <div
                       style={{
                         display: "flex",
-                        marginTop: "auto",
-                        fontSize: "14px",
-                        color: "#666",
-                        gap: "2px",
+                        flexDirection: "column",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleCardClick(item.id)}
                     >
-                      <FaHeart /> {item.likeCount || 0}
-                    </span>
-                    <span
-                      style={{
-                        display: "flex",
-                        marginTop: "auto",
-                        fontSize: "15px",
-                        color: "#666",
-                        gap: "2px",
-                      }}
-                    >
-                      <IoChatboxEllipsesOutline /> {item.commentCount || 0}
-                    </span>
-                  </div>
-                </div>
+                      <div
+                        style={{
+                          fontSize: "20px",
+                          marginBottom: "5px",
+                          fontWeight: "bold",
+                          marginLeft: "15px",
+                        }}
+                      >
+                        {item.title}
+                      </div>
+                      <img src={item.imageUrl} />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          marginRight: "15px",
+                          marginTop: "10px",
+                          gap: "10px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: "flex",
+                            marginTop: "auto",
+                            fontSize: "14px",
+                            color: "#666",
+                            gap: "2px",
+                          }}
+                        >
+                          <FaHeart /> {item.likeCount || 0}
+                        </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            marginTop: "auto",
+                            fontSize: "15px",
+                            color: "#666",
+                            gap: "2px",
+                          }}
+                        >
+                          <IoChatboxEllipsesOutline /> {item.commentCount || 0}
+                        </span>
+                      </div>
+                    </div>
 
-                <div style={interactionBarStyle}></div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-      {/* {isJoined && group && (
-        <button style={buttonStyle} onClick={() => handleButtonClick(group.id)}>
-          탈퇴하기
-        </button>
-      )} */}
+                    <div style={interactionBarStyle}></div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={noDataStyle}>
+            <p>아직 가입한 그룹이 없습니다.</p>
+            <p>그룹에 가입해서 같이 운동해보세요!</p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -359,4 +370,12 @@ const interactionBarStyle: React.CSSProperties = {
   justifyContent: "flex-end",
   alignItems: "center",
   padding: "12px",
+};
+
+const noDataStyle: React.CSSProperties = {
+  textAlign: "center",
+  padding: "30px 70px",
+  backgroundColor: "#f8f8f8",
+  borderRadius: "12px",
+  color: "#666",
 };
