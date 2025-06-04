@@ -70,7 +70,7 @@ function NewGroup() {
       try {
         if (!id) return;
         const res = await apiClient.get(`/group/${id}`);
-        console.log("API 응답 데이터:", JSON.stringify(res.data, null, 2));
+        console.log("API 응답 데이터:", res.data);
         console.log("멤버 수 데이터 타입:", typeof res.data.memberCount);
         console.log("멤버 수 값:", res.data.memberCount);
 
@@ -118,7 +118,20 @@ function NewGroup() {
       }
     };
 
+    const getMyGroup = async () => {
+      try {
+        const res = await apiClient.get("/group/user");
+        console.log("내 그룹 정보: ", res.data);
+        if (res.data) {
+          setIsJoined(true);
+        }
+      } catch (error) {
+        console.error("내 그룹 정보: ", error);
+      }
+    };
+
     fetchGroupData();
+    getMyGroup();
   }, [id]);
 
   const handleButtonClick = async () => {
