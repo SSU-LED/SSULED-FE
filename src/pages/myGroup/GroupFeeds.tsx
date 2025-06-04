@@ -56,30 +56,11 @@ interface MyGroupPost {
 function GroupFeeds() {
   const navigate = useNavigate();
 
-  const [isJoined, setIsJoined] = useState(true);
   const [group, setGroup] = useState<MyGroup | null>(null);
   const [post, setPost] = useState<MyGroupPost[]>([]);
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
-  };
-
-  const handleButtonClick = (id: number) => {
-    const deleteMyGroup = async () => {
-      const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
-      if (confirmLeave) {
-        try {
-          await apiClient.delete(`/group/${id}/leave`);
-          setIsJoined(false);
-          alert("그룹에서 탈퇴했습니다.");
-          navigate(`/newgroup/${id}`);
-        } catch (error) {
-          console.error("그룹 탈퇴 실패:", error);
-          alert("그룹 탈퇴 중 오류가 발생했습니다.");
-        }
-      }
-    };
-    deleteMyGroup();
   };
 
   useEffect(() => {
@@ -150,14 +131,10 @@ function GroupFeeds() {
         <MoveLeftTitle title="My Group" page="/group" />
 
         {group && <div style={centerTitleStyle}>{group.title}</div>}
-        {group?.isOwner && (
-          <button
-            style={iconButtonStyle}
-            onClick={() => navigate(`/edit-group`)}
-          >
-            <Settings size={20} color="#555" />
-          </button>
-        )}
+
+        <button style={iconButtonStyle} onClick={() => navigate(`/edit-group`)}>
+          <Settings size={20} color="#555" />
+        </button>
       </div>
       <div style={barStyle}>
         <div>
@@ -165,100 +142,95 @@ function GroupFeeds() {
         </div>
       </div>
       <div className="no-scrollbar" style={scrollAreaStyle}>
-        {!isJoined ? (
-          <div style={noGroupMessageStyle}>그룹에 가입되어 있지 않습니다.</div>
-        ) : (
-          <div style={feedListStyle}>
-            {post.length === 0 ? (
-              <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
-            ) : (
-              post.map((item, index) => (
-                <div key={index} style={feedCardStyle}>
-                  <div style={feedHeaderStyle}>
-                    <div style={userInfoStyle}>
-                      <img
-                        src={item.profileImage}
-                        alt={item.nickname}
-                        style={profileImageStyle}
-                        onError={(e) => {
-                          e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
-                            0
-                          )}`;
-                        }}
-                      />
-                      <span style={usernameStyle}>{item.nickname}</span>
-                    </div>
-                    <span style={dateStyle}>
-                      {new Date(item.createAt).toLocaleDateString()}
-                    </span>
+        <div style={feedListStyle}>
+          {post.length === 0 ? (
+            <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
+          ) : (
+            post.map((item, index) => (
+              <div key={index} style={feedCardStyle}>
+                <div style={feedHeaderStyle}>
+                  <div style={userInfoStyle}>
+                    <img
+                      src={item.profileImage}
+                      alt={item.nickname}
+                      style={profileImageStyle}
+                      onError={(e) => {
+                        e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
+                          0
+                        )}`;
+                      }}
+                    />
+                    <span style={usernameStyle}>{item.nickname}</span>
                   </div>
+                  <span style={dateStyle}>
+                    {new Date(item.createAt).toLocaleDateString()}
+                  </span>
+                </div>
 
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleCardClick(item.id)}
+                >
+                  <div
+                    style={{
+                      fontSize: "20px",
+                      marginBottom: "5px",
+                      fontWeight: "bold",
+                      marginLeft: "15px",
+                    }}
+                  >
+                    {item.title}
+                  </div>
+                  <img src={item.imageUrl} />
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      cursor: "pointer",
+                      justifyContent: "flex-end",
+                      marginRight: "15px",
+                      marginTop: "10px",
+                      gap: "10px",
                     }}
-                    onClick={() => handleCardClick(item.id)}
                   >
-                    <div
-                      style={{
-                        fontSize: "20px",
-                        marginBottom: "5px",
-                        fontWeight: "bold",
-                        marginLeft: "15px",
-                      }}
-                    >
-                      {item.title}
-                    </div>
-                    <img src={item.imageUrl} />
-                    <div
+                    <span
                       style={{
                         display: "flex",
-                        justifyContent: "flex-end",
-                        marginRight: "15px",
-                        marginTop: "10px",
-                        gap: "10px",
+                        marginTop: "auto",
+                        fontSize: "14px",
+                        color: "#666",
+                        gap: "2px",
                       }}
                     >
-                      <span
-                        style={{
-                          display: "flex",
-                          marginTop: "auto",
-                          fontSize: "14px",
-                          color: "#666",
-                          gap: "2px",
-                        }}
-                      >
-                        <FaHeart /> {item.likeCount || 0}
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          marginTop: "auto",
-                          fontSize: "15px",
-                          color: "#666",
-                          gap: "2px",
-                        }}
-                      >
-                        <IoChatboxEllipsesOutline /> {item.commentCount || 0}
-                      </span>
-                    </div>
+                      <FaHeart /> {item.likeCount || 0}
+                    </span>
+                    <span
+                      style={{
+                        display: "flex",
+                        marginTop: "auto",
+                        fontSize: "15px",
+                        color: "#666",
+                        gap: "2px",
+                      }}
+                    >
+                      <IoChatboxEllipsesOutline /> {item.commentCount || 0}
+                    </span>
                   </div>
-
-                  <div style={interactionBarStyle}></div>
                 </div>
-              ))
-            )}
-          </div>
-        )}
+
+                <div style={interactionBarStyle}></div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-      {isJoined && group && (
+      {/* {isJoined && group && (
         <button style={buttonStyle} onClick={() => handleButtonClick(group.id)}>
           탈퇴하기
         </button>
-      )}
-      ㅊ
+      )} */}
     </div>
   );
 }
@@ -293,16 +265,6 @@ const feedListStyle: React.CSSProperties = {
   placeItems: "flex-start",
 };
 
-const noGroupMessageStyle: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100%",
-  fontSize: "16px",
-  color: "#666",
-  textAlign: "center",
-};
-
 const noPostMessageStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
@@ -314,19 +276,6 @@ const noPostMessageStyle: React.CSSProperties = {
   width: "100%",
   marginLeft: "auto",
   marginRight: "auto",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "10px 20px",
-  border: "none",
-  fontSize: "16px",
-  fontWeight: 500,
-  backgroundColor: "#FFB6C1",
-  color: "black",
-  cursor: "pointer",
-  borderRadius: "12px",
-  marginBottom: "60px",
-  width: "400px",
 };
 
 const headerWrapperStyle: React.CSSProperties = {
