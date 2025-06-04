@@ -4,7 +4,6 @@ import MoveLeftTitle from "../../components/title/MoveLeftTitle";
 import { apiClient } from "../../api/apiClient";
 import { FaUsers } from "react-icons/fa";
 import SmallCard from "../../components/card/SmallCard";
-import GroupTabsbar from "../../components/GroupTabsbar";
 import { IoClose } from "react-icons/io5";
 
 export interface IFGroup {
@@ -231,12 +230,6 @@ function NewGroup() {
               <span style={{ color: "orange" }}>비공개 그룹</span>
             )}
           </div>
-        </div>
-      )}
-
-      {isJoined && groupData && (
-        <div style={barStyle}>
-          <GroupTabsbar />
         </div>
       )}
 
