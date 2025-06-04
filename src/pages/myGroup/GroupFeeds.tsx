@@ -56,40 +56,12 @@ interface MyGroupPost {
 function GroupFeeds() {
   const navigate = useNavigate();
 
-  const [isJoined, setIsJoined] = useState(true);
   const [group, setGroup] = useState<MyGroup | null>(null);
   const [post, setPost] = useState<MyGroupPost[]>([]);
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
-
-  const handleButtonClick = (id: number) => {
-    const deleteMyGroup = async () => {
-      const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
-      if (confirmLeave) {
-        try {
-          await apiClient.delete(`/group/${id}/leave`);
-          setIsJoined(false);
-          alert("그룹에서 탈퇴했습니다.");
-          navigate(`/newgroup/${id}`);
-        } catch (error) {
-          console.error("그룹 탈퇴 실패:", error);
-          alert("그룹 탈퇴 중 오류가 발생했습니다.");
-        }
-      }
-    };
-    deleteMyGroup();
-  };
-
-  // // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
-  // const getTodayDate = () => {
-  //   const today = new Date();
-  //   const year = today.getFullYear();
-  //   const month = String(today.getMonth() + 1).padStart(2, "0");
-  //   const day = String(today.getDate()).padStart(2, "0");
-  //   return `${year}.${month}.${day}`;
-  // };
 
   useEffect(() => {
     const getMyGroup = async () => {
@@ -155,119 +127,120 @@ function GroupFeeds() {
           }
         `}
       </style>
-
       <div style={headerWrapperStyle}>
         <MoveLeftTitle title="My Group" page="/group" />
 
+        {group && <div style={centerTitleStyle}>{group.title}</div>}
         {group && (
-          <div style={centerTitleStyle}>{group.title}</div>
-        )}
-        {group?.isOwner && (
-          <button style={iconButtonStyle} onClick={() => navigate(`/edit-group`)}>
+          <button
+            style={iconButtonStyle}
+            onClick={() => navigate(`/edit-group`)}
+          >
             <Settings size={20} color="#555" />
           </button>
         )}
       </div>
-
-      <div style={barStyle}>
-        <div>
-          <GroupTabsbar />
-        </div>
-      </div>
-
-      <div className="no-scrollbar" style={scrollAreaStyle}>
-        {!isJoined ? (
-          <div style={noGroupMessageStyle}>그룹에 가입되어 있지 않습니다.</div>
-        ) : (
-          <div style={feedListStyle}>
-            {post.length === 0 ? (
-              <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
-            ) : (
-              post.map((item, index) => (
-                <div key={index} style={feedCardStyle}>
-                  <div style={feedHeaderStyle}>
-                    <div style={userInfoStyle}>
-                      <img
-                        src={item.profileImage}
-                        alt={item.nickname}
-                        style={profileImageStyle}
-                        onError={(e) => {
-                          e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
-                            0
-                          )}`;
-                        }}
-                      />
-                      <span style={usernameStyle}>{item.nickname}</span>
+      {group ? (
+        <>
+          {" "}
+          <div style={barStyle}>
+            <div>
+              <GroupTabsbar />
+            </div>
+          </div>
+          <div className="no-scrollbar" style={scrollAreaStyle}>
+            <div style={feedListStyle}>
+              {post.length === 0 ? (
+                <div style={noPostMessageStyle}>아직 게시물이 없습니다.</div>
+              ) : (
+                post.map((item, index) => (
+                  <div key={index} style={feedCardStyle}>
+                    <div style={feedHeaderStyle}>
+                      <div style={userInfoStyle}>
+                        <img
+                          src={item.profileImage}
+                          alt={item.nickname}
+                          style={profileImageStyle}
+                          onError={(e) => {
+                            e.currentTarget.src = `https://via.placeholder.com/40/FFB6C1/FFFFFF?text=${item.nickname.charAt(
+                              0
+                            )}`;
+                          }}
+                        />
+                        <span style={usernameStyle}>{item.nickname}</span>
+                      </div>
+                      <span style={dateStyle}>
+                        {new Date(item.createAt).toLocaleDateString()}
+                      </span>
                     </div>
-                    <span style={dateStyle}>
-                      {new Date(item.createAt).toLocaleDateString()}
-                    </span>
-                  </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleCardClick(item.id)}
-                  >
-                    <div
-                      style={{
-                        fontSize: "20px",
-                        marginBottom: "5px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {item.title}
-                    </div>
-                    <img src={item.imageUrl} />
                     <div
                       style={{
                         display: "flex",
-                        justifyContent: "flex-end",
-                        marginRight: "15px",
-                        marginTop: "10px",
-                        gap: "10px",
+                        flexDirection: "column",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleCardClick(item.id)}
                     >
-                      <span
+                      <div
                         style={{
-                          display: "flex",
-                          marginTop: "auto",
-                          fontSize: "14px",
-                          color: "#666",
-                          gap: "2px",
+                          fontSize: "20px",
+                          marginBottom: "5px",
+                          fontWeight: "bold",
+                          marginLeft: "15px",
                         }}
                       >
-                        <FaHeart /> {item.likeCount || 0}
-                      </span>
-                      <span
+                        {item.title}
+                      </div>
+                      <img src={item.imageUrl} />
+                      <div
                         style={{
                           display: "flex",
-                          marginTop: "auto",
-                          fontSize: "15px",
-                          color: "#666",
-                          gap: "2px",
+                          justifyContent: "flex-end",
+                          marginRight: "15px",
+                          marginTop: "10px",
+                          gap: "10px",
                         }}
                       >
-                        <IoChatboxEllipsesOutline /> {item.commentCount || 0}
-                      </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            marginTop: "auto",
+                            fontSize: "14px",
+                            color: "#666",
+                            gap: "2px",
+                          }}
+                        >
+                          <FaHeart /> {item.likeCount || 0}
+                        </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            marginTop: "auto",
+                            fontSize: "15px",
+                            color: "#666",
+                            gap: "2px",
+                          }}
+                        >
+                          <IoChatboxEllipsesOutline /> {item.commentCount || 0}
+                        </span>
+                      </div>
                     </div>
+
+                    <div style={interactionBarStyle}></div>
                   </div>
-
-                  <div style={interactionBarStyle}></div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
-        )}
-      </div>
-
-      {isJoined && group && (
-        <button style={buttonStyle} onClick={() => handleButtonClick(group.id)}>
-          탈퇴하기
-        </button>
+        </>
+      ) : (
+        <>
+          <div style={noDataStyle}>
+            <p>아직 가입한 그룹이 없습니다.</p>
+            <p>그룹에 가입해서 같이 운동해보세요!</p>
+          </div>
+        </>
       )}
     </div>
   );
@@ -280,6 +253,7 @@ export default GroupFeeds;
 const pageStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
   width: "100%",
   height: "100vh",
   overflow: "hidden",
@@ -292,26 +266,14 @@ const scrollAreaStyle: React.CSSProperties = {
 };
 
 const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
   display: "flex",
   flexDirection: "column",
-  gap: "12px",
 };
 
 const feedListStyle: React.CSSProperties = {
   display: "grid",
   gap: "12px",
   placeItems: "flex-start",
-};
-
-const noGroupMessageStyle: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100%",
-  fontSize: "16px",
-  color: "#666",
-  textAlign: "center",
 };
 
 const noPostMessageStyle: React.CSSProperties = {
@@ -327,23 +289,12 @@ const noPostMessageStyle: React.CSSProperties = {
   marginRight: "auto",
 };
 
-const buttonStyle: React.CSSProperties = {
-  padding: "10px 20px",
-  border: "none",
-  fontSize: "16px",
-  fontWeight: 500,
-  backgroundColor: "#FFB6C1",
-  color: "black",
-  cursor: "pointer",
-  borderRadius: "12px",
-  marginBottom: "60px",
-};
-
 const headerWrapperStyle: React.CSSProperties = {
   position: "relative",
+  width: "100%",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "space-between",
   padding: "0 16px",
   marginBottom: "8px",
   height: "50px",
@@ -419,4 +370,12 @@ const interactionBarStyle: React.CSSProperties = {
   justifyContent: "flex-end",
   alignItems: "center",
   padding: "12px",
+};
+
+const noDataStyle: React.CSSProperties = {
+  textAlign: "center",
+  padding: "30px 70px",
+  backgroundColor: "#f8f8f8",
+  borderRadius: "12px",
+  color: "#666",
 };
