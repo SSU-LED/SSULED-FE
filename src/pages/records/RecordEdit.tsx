@@ -18,6 +18,16 @@ function RecordEdit() {
   const [selectedParts, setSelectedParts] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState("20");
 
+  const partLabelMap: Record<string, string> = {
+    chest: "가슴",
+    back: "등",
+    shoulders_arms: "어깨/팔",
+    legs: "하체",
+    abs: "복근",
+    cardio: "유산소",
+    full_body: "전신",
+  };
+
   useEffect(() => {
     if (!record) return;
     setTitle(record.title || "");
@@ -46,7 +56,9 @@ function RecordEdit() {
 
   return (
     <div className={layoutStyles.layout}>
-      <div className={styles.headerWrapper}>운동 기록 수정</div>
+      <div className={styles.headerWrapper}>
+        <div className={styles.mainTitle}>운동 기록 수정</div>
+      </div>
 
       <div className={styles.scrollableContent}>
         <div className={styles.recordPreview}>
@@ -81,22 +93,24 @@ function RecordEdit() {
             <label htmlFor="postDescription">Description</label>
           </div>
 
-          <div className={styles.visibilitySelector}>
-            <div className={styles.formTitle}>Visibility</div>
-            <div className={styles.segmentedControl}>
+          <div className={styles.floatingSegmentedWrapper}>
+            <div className={styles.segmentedControl} id="visibility">
               <button
+                type="button"
                 className={`${styles.segmentButton} ${visibility === "group" ? styles.active : ""}`}
                 onClick={() => setVisibility("group")}
               >
                 그룹공개
               </button>
               <button
+                type="button"
                 className={`${styles.segmentButton} ${visibility === "public" ? styles.active : ""}`}
                 onClick={() => setVisibility("public")}
               >
                 전체공개
               </button>
             </div>
+            <label htmlFor="visibility">Visibility</label>
           </div>
 
           <div className={styles.exerciseDetailWrapper}>
@@ -119,6 +133,8 @@ function RecordEdit() {
                   <option value="shoulders_arms">어깨/팔</option>
                   <option value="legs">하체</option>
                   <option value="abs">복근</option>
+                  <option value="cardio">유산소</option>
+                  <option value="full_body">전신</option>
                 </select>
                 <label htmlFor="parts">운동 부위</label>
               </div>
@@ -150,7 +166,7 @@ function RecordEdit() {
           <div className={styles.selectedTags}>
             {selectedParts.map((part) => (
               <div key={part} className={styles.tag}>
-                {part}
+                {partLabelMap[part] || part}
                 <button
                   className={styles.tagRemove}
                   onClick={() =>
@@ -167,7 +183,7 @@ function RecordEdit() {
 
       <div className={styles.floatingButtonWrapper}>
         <button className={styles.saveButton} onClick={handleSave}>
-          save
+          수정 완료
         </button>
       </div>
     </div>
