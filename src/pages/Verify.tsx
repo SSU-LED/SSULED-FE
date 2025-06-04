@@ -191,6 +191,8 @@ function Verify() {
                   <option value="shoulders_arms">어깨/팔</option>
                   <option value="legs">하체</option>
                   <option value="abs">복근</option>
+                  <option value="cardio">유산소</option>
+                  <option value="full_body">전신</option>
                 </select>
                 <label htmlFor="parts">운동 부위</label>
               </div>
