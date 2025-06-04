@@ -268,6 +268,7 @@ export default NewGroup;
 const pageStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
   width: "100%",
   height: "100vh",
   overflow: "hidden",
@@ -281,6 +282,7 @@ const headerWrapperStyle: React.CSSProperties = {
   padding: "0 16px",
   marginBottom: "8px",
   height: "50px",
+  width: "100%",
 };
 
 const groupInfoHeaderStyle: React.CSSProperties = {
@@ -288,6 +290,7 @@ const groupInfoHeaderStyle: React.CSSProperties = {
   justifyContent: "space-between",
   padding: "0 16px 8px 16px",
   borderBottom: "1px solid #eee",
+  width: "100%",
 };
 
 const scrollAreaStyle: React.CSSProperties = {
@@ -352,7 +355,7 @@ const accessInfoStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-  padding: "10px 20px",
+  padding: "10px 5px",
   border: "none",
   fontSize: "16px",
   fontWeight: 500,
@@ -361,6 +364,7 @@ const buttonStyle: React.CSSProperties = {
   cursor: "pointer",
   borderRadius: "12px",
   marginBottom: "60px",
+  width: "400px",
 };
 
 const passwordContainerStyle: React.CSSProperties = {
