@@ -4,9 +4,9 @@ import { apiClient } from "../api/apiClient";
 import { useNavigate } from "react-router-dom";
 
 interface IFUserInfo {
-  userImage: string
+  userImage: string;
   userIntroduction: string | null;
-  userName: string
+  userName: string;
 }
 
 const Profile = () => {
@@ -20,7 +20,7 @@ const Profile = () => {
     if (!confirmLogout) return;
 
     try {
-      const accessToken = localStorage.getItem("accessToken"); 
+      const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         alert("로그인 상태가 아닙니다.");
         return;
@@ -28,17 +28,20 @@ const Profile = () => {
 
       const response = await apiClient.post(
         "/user/logout",
-        {}, 
+        {},
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`, 
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
 
       console.log(response);
 
-      if (response.status === 201 && response.data.message === "로그아웃 성공") {
+      if (
+        response.status === 201 &&
+        response.data.message === "로그아웃 성공"
+      ) {
         localStorage.removeItem("accessToken"); // 클라이언트 토큰도 제거
         navigate("/login");
       } else {
@@ -50,9 +53,7 @@ const Profile = () => {
     }
   };
 
-  
-
-  const handleDeleteAccount = async() => {
+  const handleDeleteAccount = async () => {
     if (
       window.confirm(
         "정말 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
@@ -63,14 +64,15 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    const getProfile = async() => {
+    const getProfile = async () => {
       const response = await apiClient.get("/user/userInfo");
       console.log(response.data);
 
       setUser(response.data);
-    }
+    };
+
     getProfile();
-  },[])
+  }, []);
 
   return (
     <div className="layout">
@@ -82,7 +84,7 @@ const Profile = () => {
         <div className="profile-container">
           <div className="profile-image-container">
             <img
-              src={user?.userImage ? user.userImage:  defaultProfileImage}
+              src={user?.userImage ? user.userImage : defaultProfileImage}
               alt="Profile"
               className="profile-image"
             />
@@ -90,11 +92,16 @@ const Profile = () => {
           <div className="header-wrapper">
             <MoveRightTitle
               title={user?.userName ? user?.userName : "이름없음"}
-              subtitle="닉네임 변경"
+              subtitle="프로필 수정"
               to="/changenickname"
             />
           </div>
-          <div className="bio-box">{user?.userIntroduction ? user.userIntroduction : '안녕하세요'}</div>
+          <div className="bio-box">
+            {user?.userIntroduction
+              ? user.userIntroduction
+              : "한 줄 소개를 입력해주세요!"}
+          </div>
+
           <button className="logout-account" onClick={handleLogoutAccount}>
             logout
           </button>
@@ -125,8 +132,7 @@ const responsiveCSS = `
     top: 0;
     z-index: 100;
     background-color: white;
-    padding: 20px;
-    border-bottom: 1px solid #eee;
+    padding: 20px 20px 0 20px;
     text-align: center;
     width: 100%;
   }

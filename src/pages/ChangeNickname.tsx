@@ -1,13 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MoveLeftTitle from "../components/title/MoveLeftTitle";
 import { apiClient } from "../api/apiClient";
+import { FaRegUserCircle } from "react-icons/fa";
 
 function ChangeNickname() {
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
   const [profileImage, setProfileImage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        const response = await apiClient.get("/user/userInfo");
+        console.log(response.data);
+        setNickname(response.data.userName);
+        setBio(response.data.userIntroduction || "");
+        setProfileImage(response.data.userImage || "");
+      } catch (error) {
+        console.error("사용자 정보 조회 오류: ", error);
+      }
+    };
+    getUserInfo();
+  }, []);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -18,38 +34,37 @@ function ChangeNickname() {
   };
 
   const changenickname = async () => {
-  try {
-    const requestBody: any = {};
-    if (nickname.trim() !== "") requestBody.newNickname = nickname;
-    if (bio.trim() !== "") requestBody.newIntroduction = bio;
-    if (profileImage.trim() !== "") requestBody.newProfileImg = profileImage;
+    try {
+      const requestBody: any = {};
+      if (nickname.trim() !== "") requestBody.newNickname = nickname;
+      if (bio.trim() !== "") requestBody.newIntroduction = bio;
+      if (profileImage.trim() !== "") requestBody.newProfileImg = profileImage;
 
-    if (Object.keys(requestBody).length === 0) {
-      alert("변경할 내용을 입력하세요.");
-      return;
-    }
-
-    const response = await apiClient.post("/user/profile", requestBody);
-    const { message } = response.data;
-
-    if (response.status >= 200 && response.status < 300) {
-      if (message === "프로필이 수정되었습니다.") {
-        alert("프로필이 성공적으로 수정되었습니다.");
-        navigate("/profile");
-      } else {
-        alert(message);
+      if (Object.keys(requestBody).length === 0) {
+        alert("변경할 내용을 입력하세요.");
+        return;
       }
-    }
-  } catch (error: any) {
-    if (error.response?.data?.message === "사용자를 찾을 수 없습니다.") {
-      alert("사용자를 찾을 수 없습니다.");
-    } else {
-      alert("프로필 수정 중 오류가 발생했습니다.");
-    }
-    console.error("Profile update error:", error);
-  }
-};
 
+      const response = await apiClient.post("/user/profile", requestBody);
+      const { message } = response.data;
+
+      if (response.status >= 200 && response.status < 300) {
+        if (message === "프로필이 수정되었습니다.") {
+          alert("프로필이 성공적으로 수정되었습니다.");
+          navigate("/profile");
+        } else {
+          alert(message);
+        }
+      }
+    } catch (error: any) {
+      if (error.response?.data?.message === "사용자를 찾을 수 없습니다.") {
+        alert("사용자를 찾을 수 없습니다.");
+      } else {
+        alert("프로필 수정 중 오류가 발생했습니다.");
+      }
+      console.error("Profile update error:", error);
+    }
+  };
 
   return (
     <div style={pageStyle}>
@@ -57,11 +72,11 @@ function ChangeNickname() {
 
       <div style={profileImageContainerStyle}>
         <label htmlFor="profile-upload">
-          <img
-            src={profileImage || "https://via.placeholder.com/150"}
-            alt="Profile"
-            style={profileImageStyle}
-          />
+          {profileImage ? (
+            <img src={profileImage} alt="Profile" style={profileImageStyle} />
+          ) : (
+            <FaRegUserCircle size={120} />
+          )}
         </label>
         <input
           type="file"
