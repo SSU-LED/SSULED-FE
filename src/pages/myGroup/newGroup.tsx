@@ -65,14 +65,12 @@ function NewGroup() {
     navigate(`/records/${id}`);
   };
 
-  useEffect(() => {
+    useEffect(() => {
     const fetchGroupData = async () => {
       try {
         if (!id) return;
         const res = await apiClient.get(`/group/${id}`);
-        console.log("API 응답 데이터:", JSON.stringify(res.data, null, 2));
-        console.log("멤버 수 데이터 타입:", typeof res.data.memberCount);
-        console.log("멤버 수 값:", res.data.memberCount);
+        console.log("API 응답 데이터:", res.data);
 
         // memberCount가 없거나 undefined인 경우, members 배열의 길이를 사용
         const memberCount =
@@ -95,12 +93,9 @@ function NewGroup() {
           const userGroupRes = await apiClient.get("/group/user");
           if (userGroupRes.data && userGroupRes.data.id === Number(id)) {
             setIsJoined(true);
-          } else {
-            setIsJoined(false);
           }
         } catch (error) {
           console.error("사용자 그룹 정보 확인 실패:", error);
-          setIsJoined(false);
         }
 
         // 그룹 게시글 불러오기 (가입 여부와 상관없이)
@@ -121,7 +116,19 @@ function NewGroup() {
       }
     };
 
+    const getMyGroup = async () => {
+      try {
+        const res = await apiClient.get("/group/user");
+        if (res.data) {
+          setIsJoined(true);
+        }
+      } catch (error) {
+        console.error("내 그룹 정보 불러오기 에러: ", error);
+      }
+    };
+
     fetchGroupData();
+    getMyGroup();
   }, [id]);
 
   const handleButtonClick = async () => {
