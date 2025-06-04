@@ -36,9 +36,8 @@ export default CommentCard;
 const containerStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  marginBottom: "8px",
   gap: "8px",
-  padding: "8px 0",
+  padding: "8px 0 0 0",
 };
 
 const imageContainerStyle: React.CSSProperties = {
