@@ -56,7 +56,6 @@ function getQuarterDateRange(
   const rawStart = new Date(year, startMonth, 1);
   const rawEnd = new Date(year, startMonth + 3, 0);
 
-  // KST 보정: UTC → +9시간
   const startDate = new Date(rawStart.getTime() + 9 * 60 * 60 * 1000);
   const endDate = new Date(rawEnd.getTime() + 9 * 60 * 60 * 1000);
 
@@ -88,6 +87,7 @@ export function ThreeMonthHeatmap({ values }: Props) {
       setQuarter((prev) => prev + 1);
     }
   };
+
   return (
     <div style={{ marginTop: 20, width: "100%" }}>
       <div style={navStyle}>
@@ -123,10 +123,8 @@ export function ThreeMonthHeatmap({ values }: Props) {
 function getCurrentYearAndQuarter(): { year: number; quarter: number } {
   const now = new Date();
   const year = now.getFullYear();
-  const month = now.getMonth(); // 0부터 시작함 (0 = 1월)
-
+  const month = now.getMonth();
   const quarter = Math.floor(month / 3) + 1;
-
   return { year, quarter };
 }
 
@@ -140,7 +138,6 @@ const Stat = () => {
         const res = await apiClient.get("/statistics/user/stats", {
           params: { year, quarter },
         });
-        console.log(res);
         setWorkoutData(res.data);
       } catch (error) {
         console.error(error);
@@ -194,21 +191,23 @@ const Stat = () => {
       totalCommits > 0 ? ((item.commits / totalCommits) * 100).toFixed(1) : "0",
   }));
 
-  const topTimeRange = [...rawTimeRangeData].sort(
-    (a, b) => b.commits - a.commits
-  )[0];
+  let topTimeMessage = "당신의 활동 패턴을 분석할 수 없어요.";
 
-  const timeMessageMap: { [key: string]: string } = {
-    dawn: "당신은 새벽을 깨우는 닭! 누구보다 빠르게 하루를 시작하네요! 🐓",
-    morning: "당신은 부지런한 다람쥐! 아침 햇살과 함께 움직이네요! 🐿️",
-    afternoon: "당신은 낮의 호랑이, 집중력이 아주 좋아요! 🐯",
-    night:
-      "당신은 밤의 사냥꾼 올빼미! 고요한 밤, 최고의 컨디션을 발휘하네요! 🦉",
-  };
+  if (totalCommits > 0) {
+    const topTimeRange = [...rawTimeRangeData].sort(
+      (a, b) => b.commits - a.commits
+    )[0];
 
-  const topTimeMessage =
-    timeMessageMap[topTimeRange.label] ||
-    "당신의 활동 패턴을 분석할 수 없어요.";
+    const timeMessageMap: { [key: string]: string } = {
+      dawn: "당신은 새벽을 깨우는 닭! 누구보다 빠르게 하루를 시작하네요! 🐓",
+      morning: "당신은 부지런한 다람쥐! 아침 햇살과 함께 움직이네요! 🐿️",
+      afternoon: "당신은 낮의 호랑이, 집중력이 아주 좋아요! 🐯",
+      night:
+        "당신은 밤의 사냥꾼 올빼미! 고요한 밤, 최고의 컨디션을 발휘하네요! 🦉",
+    };
+
+    topTimeMessage = timeMessageMap[topTimeRange.label] || topTimeMessage;
+  }
 
   return (
     <div style={pageStyle}>
@@ -228,6 +227,11 @@ const Stat = () => {
 
         <div>
           <h3 style={{ marginTop: "100px" }}>선호도 분석 💗</h3>
+          {rawPartData.length === 0 ? (
+              <p style={noDataStyle}>
+                당신의 선호도를 분석할 수 없어요.
+              </p>
+          ) : (
           <div style={{ height: 250 }}>
             <ResponsivePie
               data={rawPartData}
@@ -250,17 +254,13 @@ const Stat = () => {
               ]}
             />
           </div>
+          )}
         </div>
 
         <div style={{ marginBottom: 80 }}>
           <h3>시간대 분석 🕐</h3>
           <p
-            style={{
-              fontSize: "16px",
-              marginTop: 8,
-              marginBottom: 24,
-              fontWeight: 500,
-            }}
+            style={noDataStyle}
           >
             {topTimeMessage}
           </p>
@@ -368,6 +368,7 @@ const responsiveCSS = `
     color: #FFB6C1;
   }
 `;
+
 const navStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
@@ -383,4 +384,12 @@ const arrowBtnStyle: React.CSSProperties = {
   cursor: "pointer",
   fontSize: "16px",
   transition: "background 0.2s",
+};
+
+const noDataStyle: React.CSSProperties = {
+  textAlign: "center",
+  padding: "30px",
+  backgroundColor: "#f8f8f8",
+  borderRadius: "12px",
+  color: "#666",
 };
