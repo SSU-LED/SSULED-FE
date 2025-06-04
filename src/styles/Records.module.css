@@ -11,6 +11,7 @@
   padding: 16px;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE */
+  padding-bottom: 3rem;
 }
 
 .scrollArea::-webkit-scrollbar {
@@ -22,4 +23,39 @@
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
   place-items: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.pageButton {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #f1f2f6;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+  background-color: #e2e4e8;
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.activePage {
+  background-color: #111;
+  color: white;
+  font-weight: bold;
 }

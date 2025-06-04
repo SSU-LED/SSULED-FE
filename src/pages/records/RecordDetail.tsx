@@ -262,6 +262,9 @@ function RecordDetail() {
           placeholder="Leave a comment..."
           value={commentInput}
           onChange={handleInputChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSendClick();
+          }}
         />
         <div className={styles.uploadIconWrapper} onClick={handleSendClick}>
           <FaRegPaperPlane />

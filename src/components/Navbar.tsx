@@ -65,17 +65,16 @@ const navbarStyle: React.CSSProperties = {
   transform: "translateX(-50%)",
   zIndex: 10,
   backgroundColor: "#fff",
-  background: "linear-gradient(to top, rgba(255,255,255,1) 75%, rgba(255,255,255,0) 100%)",
-  height: "3rem",
+  background: "linear-gradient(to top, rgba(255,255,255,1) 65%, rgba(255,255,255,0) 100%)",
+  height: "4rem",
   alignItems: "center",
-  padding: "2rem 0",
 };
 
 const ulStyle: React.CSSProperties = {
   display: "flex",
   width: "100%",
   listStyle: "none",
-  padding: 0,
+  padding: "1rem 0 0 0",
 };
 
 const liStyle: React.CSSProperties = {
@@ -85,7 +84,6 @@ const liStyle: React.CSSProperties = {
 
 const linkStyle: React.CSSProperties = {
   display: "block",
-  padding: "8px 0",
   fontSize: "12px",
   fontWeight: "seni-bold",
   color: "#888",
