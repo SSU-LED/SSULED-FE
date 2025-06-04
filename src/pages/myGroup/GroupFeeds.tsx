@@ -82,15 +82,6 @@ function GroupFeeds() {
     deleteMyGroup();
   };
 
-  // // 오늘 날짜를 YYYY.MM.DD 형식으로 반환하는 함수
-  // const getTodayDate = () => {
-  //   const today = new Date();
-  //   const year = today.getFullYear();
-  //   const month = String(today.getMonth() + 1).padStart(2, "0");
-  //   const day = String(today.getDate()).padStart(2, "0");
-  //   return `${year}.${month}.${day}`;
-  // };
-
   useEffect(() => {
     const getMyGroup = async () => {
       const response = await apiClient.get("/group/user");
@@ -155,26 +146,24 @@ function GroupFeeds() {
           }
         `}
       </style>
-
       <div style={headerWrapperStyle}>
         <MoveLeftTitle title="My Group" page="/group" />
 
-        {group && (
-          <div style={centerTitleStyle}>{group.title}</div>
-        )}
+        {group && <div style={centerTitleStyle}>{group.title}</div>}
         {group?.isOwner && (
-          <button style={iconButtonStyle} onClick={() => navigate(`/edit-group`)}>
+          <button
+            style={iconButtonStyle}
+            onClick={() => navigate(`/edit-group`)}
+          >
             <Settings size={20} color="#555" />
           </button>
         )}
       </div>
-
       <div style={barStyle}>
         <div>
           <GroupTabsbar />
         </div>
       </div>
-
       <div className="no-scrollbar" style={scrollAreaStyle}>
         {!isJoined ? (
           <div style={noGroupMessageStyle}>그룹에 가입되어 있지 않습니다.</div>
@@ -217,6 +206,7 @@ function GroupFeeds() {
                         fontSize: "20px",
                         marginBottom: "5px",
                         fontWeight: "bold",
+                        marginLeft: "15px",
                       }}
                     >
                       {item.title}
@@ -263,12 +253,12 @@ function GroupFeeds() {
           </div>
         )}
       </div>
-
       {isJoined && group && (
         <button style={buttonStyle} onClick={() => handleButtonClick(group.id)}>
           탈퇴하기
         </button>
       )}
+      ㅊ
     </div>
   );
 }
@@ -280,6 +270,7 @@ export default GroupFeeds;
 const pageStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
   width: "100%",
   height: "100vh",
   overflow: "hidden",
@@ -292,10 +283,8 @@ const scrollAreaStyle: React.CSSProperties = {
 };
 
 const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
   display: "flex",
   flexDirection: "column",
-  gap: "12px",
 };
 
 const feedListStyle: React.CSSProperties = {
@@ -337,13 +326,15 @@ const buttonStyle: React.CSSProperties = {
   cursor: "pointer",
   borderRadius: "12px",
   marginBottom: "60px",
+  width: "400px",
 };
 
 const headerWrapperStyle: React.CSSProperties = {
   position: "relative",
+  width: "100%",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "space-between",
   padding: "0 16px",
   marginBottom: "8px",
   height: "50px",

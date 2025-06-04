@@ -349,13 +349,6 @@ const loadingStyle: React.CSSProperties = {
   color: "#666",
 };
 
-const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "12px",
-};
-
 const listStyle: React.CSSProperties = {
   display: "grid",
   gap: "12px",
