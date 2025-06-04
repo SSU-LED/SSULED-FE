@@ -5,6 +5,7 @@ import { apiClient } from "../../api/apiClient";
 import { FaUsers } from "react-icons/fa";
 import SmallCard from "../../components/card/SmallCard";
 import GroupTabsbar from "../../components/GroupTabsbar";
+import { IoClose } from "react-icons/io5";
 
 export interface IFGroup {
   createdAt: string;
@@ -269,6 +270,17 @@ function NewGroup() {
 
       {showPasswordInput && (
         <div style={passwordContainerStyle}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              width: "100%",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowPasswordInput(false)}
+          >
+            <IoClose />
+          </div>
           <h3 style={titleStyle}>그룹 비밀번호 입력</h3>
           <input
             type="password"
@@ -295,6 +307,7 @@ export default NewGroup;
 const pageStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
   width: "100%",
   height: "100vh",
   overflow: "hidden",
@@ -308,6 +321,7 @@ const headerWrapperStyle: React.CSSProperties = {
   padding: "0 16px",
   marginBottom: "8px",
   height: "50px",
+  width: "100%",
 };
 
 const groupInfoHeaderStyle: React.CSSProperties = {
@@ -315,6 +329,7 @@ const groupInfoHeaderStyle: React.CSSProperties = {
   justifyContent: "space-between",
   padding: "0 16px 8px 16px",
   borderBottom: "1px solid #eee",
+  width: "100%",
 };
 
 const scrollAreaStyle: React.CSSProperties = {
@@ -379,7 +394,7 @@ const accessInfoStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-  padding: "10px 20px",
+  padding: "10px 5px",
   border: "none",
   fontSize: "16px",
   fontWeight: 500,
@@ -388,6 +403,7 @@ const buttonStyle: React.CSSProperties = {
   cursor: "pointer",
   borderRadius: "12px",
   marginBottom: "60px",
+  width: "400px",
 };
 
 const passwordContainerStyle: React.CSSProperties = {
@@ -399,8 +415,8 @@ const passwordContainerStyle: React.CSSProperties = {
   backgroundColor: "#fff",
   padding: "24px",
   borderRadius: "8px",
-  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-  maxWidth: "400px",
+  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.5)",
+  width: "400px",
   maxHeight: "400px",
   marginBottom: "60px",
 };

@@ -92,6 +92,8 @@ const containerStyle: React.CSSProperties = {
   marginBottom: "8px",
   gap: "8px",
   padding: "8px 0",
+  width: "100%",
+  cursor: "pointer",
 };
 
 const imageContainerStyle: React.CSSProperties = {
