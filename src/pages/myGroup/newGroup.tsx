@@ -5,6 +5,7 @@ import { apiClient } from "../../api/apiClient";
 import { FaUsers } from "react-icons/fa";
 import SmallCard from "../../components/card/SmallCard";
 import GroupTabsbar from "../../components/GroupTabsbar";
+import { IoClose } from "react-icons/io5";
 
 export interface IFGroup {
   createdAt: string;
@@ -242,6 +243,17 @@ function NewGroup() {
 
       {showPasswordInput && (
         <div style={passwordContainerStyle}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              width: "100%",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowPasswordInput(false)}
+          >
+            <IoClose />
+          </div>
           <h3 style={titleStyle}>그룹 비밀번호 입력</h3>
           <input
             type="password"
@@ -376,8 +388,8 @@ const passwordContainerStyle: React.CSSProperties = {
   backgroundColor: "#fff",
   padding: "24px",
   borderRadius: "8px",
-  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-  maxWidth: "400px",
+  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.5)",
+  width: "400px",
   maxHeight: "400px",
   marginBottom: "60px",
 };
