@@ -67,7 +67,7 @@ const navbarStyle: React.CSSProperties = {
   height: "56px",
   display: "flex",
   alignItems: "center",
-  maxWidth: "430px",
+  maxWidth: "450px",
 };
 
 const ulStyle: React.CSSProperties = {
