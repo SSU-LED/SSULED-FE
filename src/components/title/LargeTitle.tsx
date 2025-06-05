@@ -7,7 +7,7 @@ function LargeTitle({ children }: React.PropsWithChildren<object>) {
 export default LargeTitle;
 
 const titleStyle: React.CSSProperties = {
-    fontSize: "48px",
+    fontSize: "36px",
     fontWeight: "bold",
     marginBottom: "16px",
     marginTop: "24px",

@@ -16,7 +16,7 @@ function Login() {
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
       <div className="title-wrapper">
-        <LargeTitle>SSULED💡</LargeTitle>
+        <LargeTitle>💡<br/>SSULED</LargeTitle>
       </div>
       <div className="brif-content-wrapper">
         This app allows users to join or create workout groups where they can
@@ -49,19 +49,20 @@ const layoutStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   height: "100vh",
-  padding: "2rem",
+  padding: "1rem",
   fontFamily: "sans-serif",
   textAlign: "center",
 };
 
 const responsiveCSS = `
     .title-wrapper {
-        margin-bottom: 2rem;
+        top: "24px",
+        margin-bottom: 1rem;
     }
 
     .brif-content-wrapper {
         max-width: 500px;
-        margin-bottom: 3rem;
+        margin-bottom: 0.5rem;
         font-size: 1rem;
         color: #555;
         line-height: 1.5;
