@@ -1,36 +1,28 @@
 name: Deploy Frontend to EC2
-
 on:
   push:
     branches:
       - main
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
           cache: "npm"
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build application
         run: |
           # 환경 변수 설정
           echo "${{ secrets.FRONTEND_ENV }}" > .env.production
-
           # Vite 빌드
           npm run build
-
       - name: Prepare deployment files
         run: |
           mkdir -p deploy
@@ -39,7 +31,6 @@ jobs:
           cp package-lock.json deploy/
           cp .env.production deploy/
           tar -czf deploy.tar.gz deploy
-
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
@@ -47,63 +38,97 @@ jobs:
             ServerAliveInterval 60
             ServerAliveCountMax 30" > ~/.ssh/config
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
-
       - name: Transfer files to EC2
         run: scp deploy.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
-
       - name: Deploy application
         run: |
-          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOL'
             set -e
             
-            echo '🚀 프론트엔드 배포 시작...'
+            echo 'Starting frontend deployment...'
             
-            # 배포 디렉토리 생성
+            # Create deployment directory
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # 압축 해제
+            # Extract files
             tar -xzf deploy.tar.gz
             
-            # 기존 dist 디렉토리 삭제
+            # Remove existing dist directory
             if [ -d '/home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist' ]; then
               rm -rf /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist
             fi
             
-            # 파일 복사
+            # Copy files
             cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             cp -f deploy/.env.production /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             
-            # 디렉토리 이동
+            # Change directory
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # 기존 프로세스 정리
-            echo '🛑 기존 프론트엔드 프로세스 종료...'
+            # Stop existing processes
+            echo 'Stopping existing frontend processes...'
             pm2 stop ssuled-client || true
             pm2 delete ssuled-client || true
             
-            # 포트 정리
+            # Kill processes on port 3000
             sudo lsof -ti :3000 | xargs -r sudo kill -9 || true
-            sleep 2
+            sleep 3
             
-            # 로그 디렉토리 생성
-            mkdir -p logs
+            # Initialize PM2 environment
+            source ~/.bashrc || true
+            export PATH=$PATH:/usr/local/bin:/usr/bin
             
-            echo '🚀 PM2로 프론트엔드 시작...'
-            pm2 start serve --name ssuled-client -- -s dist -l 3000
+            echo 'Starting frontend with PM2...'
             
-            # PM2 설정 저장
-            pm2 save
+            # Start application with PM2
+            pm2 start serve --name ssuled-client -- -s dist -l 3000 --no-daemon
             
-            # 임시 파일 정리
+            # Verify process started
+            sleep 5
+            
+            # Check PM2 status
+            echo 'Checking PM2 status...'
+            pm2 status
+            
+            # Verify process is online
+            if pm2 list | grep -q "ssuled-client.*online"; then
+                echo 'Frontend service started successfully!'
+                
+                # Save PM2 configuration
+                pm2 save
+                
+                # Check if port 3000 is open
+                if netstat -tuln | grep -q ":3000 "; then
+                    echo 'Port 3000 is open successfully!'
+                else
+                    echo 'Port 3000 is not open. Retrying...'
+                fi
+                
+            else
+                echo 'Frontend service failed to start. Checking logs...'
+                pm2 logs ssuled-client --lines 10
+                
+                # Retry
+                echo 'Retrying...'
+                pm2 restart ssuled-client || pm2 start serve --name ssuled-client -- -s dist -l 3000
+                
+                sleep 3
+                pm2 status
+            fi
+            
+            # Display final status
+            echo 'Final PM2 status:'
+            pm2 list
+            
+            # Cleanup temporary files
             rm -rf /home/${{ secrets.EC2_USERNAME }}/deploy
             rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
             
-            echo '🎉 프론트엔드 배포 완료!'
-          "
+            echo 'Frontend deployment completed!'
+          EOL
