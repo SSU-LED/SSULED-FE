@@ -17,6 +17,12 @@ import { newComment } from "../../types/CommentTypes";
 import layoutStyles from "../../styles/Layout.module.css";
 import styles from "../../styles/RecordDetail.module.css";
 import { format } from "date-fns";
+import { apiClient } from "../../api/apiClient";
+
+interface IMyInfo {
+  name: string;
+  image: string;
+}
 
 function RecordDetail() {
   const { id } = useParams();
@@ -24,6 +30,7 @@ function RecordDetail() {
 
   const [record, setRecord] = useState<RecordData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [myInfo, setMyInfo] = useState<IMyInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [comments, setComments] = useState<commentCard[]>([]);
   const [showOptions, setShowOptions] = useState(false);
@@ -48,6 +55,19 @@ function RecordDetail() {
       }
     };
 
+    const getMyInfo = async () => {
+      try {
+        const response = await apiClient.get("/user/userInfo");
+        setMyInfo({
+          name: response.data.userName,
+          image: response.data.userImage,
+        });
+      } catch (error) {
+        console.error("내 정보 불러오기 실패: ", error);
+      }
+    };
+
+    getMyInfo();
     fetchRecord();
   }, [id]);
 
@@ -93,8 +113,8 @@ function RecordDetail() {
           {
             ...response,
             isMine: true,
-            nickname: record.user.nickname,
-            profileImage: record.user.profileImage,
+            nickname: myInfo?.name || "(알 수 없음)",
+            profileImage: myInfo?.image || "",
           },
         ]);
         setCommentInput("");
@@ -264,7 +284,10 @@ function RecordDetail() {
           value={commentInput}
           onChange={handleInputChange}
           onKeyDown={(e) => {
-            if (e.key === "Enter") handleSendClick();
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              handleSendClick();
+            }
           }}
         />
         <div className={styles.uploadIconWrapper} onClick={handleSendClick}>

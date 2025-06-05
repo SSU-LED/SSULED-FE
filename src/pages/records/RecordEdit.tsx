@@ -21,11 +21,13 @@ function RecordEdit() {
   const partLabelMap: Record<string, string> = {
     chest: "가슴",
     back: "등",
-    shoulders_arms: "어깨/팔",
     legs: "하체",
-    abs: "복근",
+    core: "코어",
+    sports: "스포츠",
+    shoulders_arms: "어깨&팔",
     cardio: "유산소",
-    full_body: "전신",
+    abs: "복부",
+    other: "기타",
   };
 
   useEffect(() => {
@@ -97,14 +99,18 @@ function RecordEdit() {
             <div className={styles.segmentedControl} id="visibility">
               <button
                 type="button"
-                className={`${styles.segmentButton} ${visibility === "group" ? styles.active : ""}`}
+                className={`${styles.segmentButton} ${
+                  visibility === "group" ? styles.active : ""
+                }`}
                 onClick={() => setVisibility("group")}
               >
                 그룹공개
               </button>
               <button
                 type="button"
-                className={`${styles.segmentButton} ${visibility === "public" ? styles.active : ""}`}
+                className={`${styles.segmentButton} ${
+                  visibility === "public" ? styles.active : ""
+                }`}
                 onClick={() => setVisibility("public")}
               >
                 전체공개
