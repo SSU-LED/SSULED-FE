@@ -42,6 +42,7 @@ const containerStyle: React.CSSProperties = {
   marginBottom: "8px",
   marginTop: "12px",
   gap: "8px",
+  padding: "0 16px",
 };
 
 const tabContainerStyle: React.CSSProperties = {

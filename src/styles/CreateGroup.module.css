@@ -99,8 +99,7 @@ input[type="password"]::-ms-reveal {
 .createWrapper {
   position: fixed;
   bottom: 3.5rem;
-  left: 0;
-  right: 0;
+  width: 390px;
   padding: 0 1rem 1rem;
   background-color: transparent;
   display: flex;
@@ -109,7 +108,6 @@ input[type="password"]::-ms-reveal {
 
 .createButton {
   width: 100%;
-  max-width: 26.875rem; /* 430px */
   padding: 1rem;
   font-size: 1rem;
   font-weight: 600;

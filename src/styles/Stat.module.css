@@ -1,0 +1,42 @@
+.headerWrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: white;
+  padding: 1rem 1rem 0.5rem 1rem;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+}
+
+.mainTitle {
+  position: sticky;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+  background-color: white;
+}
+
+.subTitle {
+  position: sticky;
+  top: -2px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  z-index: 2;
+  padding: 0.5rem 0;
+}
+
+.scrollableContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 1rem 1rem 1rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollableContent::-webkit-scrollbar {
+  display: none;
+}

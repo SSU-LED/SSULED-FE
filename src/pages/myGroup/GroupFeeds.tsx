@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import GroupTabsbar from "../../components/GroupTabsbar";
-import { Settings } from "lucide-react";
-import { apiClient } from "../../api/apiClient";
 import { FaHeart } from "react-icons/fa6";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 
@@ -17,24 +13,6 @@ interface MyGroup {
   createdAt: string;
   updatedAt: string;
   isOwner: boolean;
-}
-
-interface GroupPostItem {
-  id: number;
-  title: string | null;
-  userUuid: string;
-  content: string;
-  imageUrl: string[];
-  isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
-  likeCount: number;
-  commentCount: number;
-  isMine: boolean;
-  user: {
-    nickname: string;
-    profileImage: string;
-  };
 }
 
 interface MyGroupPost {
@@ -53,120 +31,20 @@ interface MyGroupPost {
   profileImage: string;
 }
 
-function GroupFeeds() {
+function GroupFeeds({ group, post }: {
+  group: MyGroup | null;
+  post: MyGroupPost[];
+}) {
   const navigate = useNavigate();
-
-  const [group, setGroup] = useState<MyGroup | null>(null);
-  const [post, setPost] = useState<MyGroupPost[]>([]);
 
   const handleCardClick = (id: number) => {
     navigate(`/records/${id}`);
   };
 
-
-  const handleButtonClick = (id: number) => {
-    const deleteMyGroup = async () => {
-      const confirmLeave = window.confirm("정말 탈퇴하시겠습니까? 🥺");
-      if (confirmLeave) {
-        try {
-          await apiClient.delete(`/group/${id}/leave`);
-          setIsJoined(false);
-          alert("그룹에서 탈퇴했습니다.");
-          navigate(`/newgroup/${id}`);
-        } catch (error) {
-          console.error("그룹 탈퇴 실패:", error);
-          alert("그룹 탈퇴 중 오류가 발생했습니다.");
-        }
-      }
-    };
-    deleteMyGroup();
-  }
-    
-  useEffect(() => {
-    const getMyGroup = async () => {
-      const response = await apiClient.get("/group/user");
-      console.log("MyGroup data:", response.data);
-      if (response.data) {
-        setGroup(response.data);
-      }
-    };
-    getMyGroup();
-  }, []);
-
-  useEffect(() => {
-    const getGroupPost = async () => {
-      if (!group) return;
-
-      try {
-        const response = await apiClient.get(`/post/group/${group.id}`, {
-          params: {
-            page: 1,
-            limit: 24,
-          },
-        });
-
-        console.log("Group Posts:", response.data.data);
-
-        const posts = response.data.data as GroupPostItem[];
-        setPost(
-          posts.map((item) => ({
-            id: item.id,
-            title: item.title,
-            userUuid: item.userUuid,
-            content: item.content,
-            imageUrl: item.imageUrl[0],
-            isPublic: item.isPublic,
-            createAt: item.createdAt,
-            updateAt: item.updatedAt,
-            likeCount: item.likeCount,
-            commentCount: item.commentCount,
-            isMine: item.isMine,
-            nickname: item.user.nickname,
-            profileImage: item.user.profileImage,
-          }))
-        );
-      } catch (error) {
-        console.error("그룹 게시물 불러오기 실패:", error);
-      }
-    };
-
-    getGroupPost();
-  }, [group]);
-
   return (
-    <div style={pageStyle}>
-      <style>
-        {`
-          .no-scrollbar {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-          }
-          .no-scrollbar::-webkit-scrollbar {
-            display: none;
-          }
-        `}
-      </style>
-      <div style={headerWrapperStyle}>
-        <MoveLeftTitle title="My Group" page="/group" />
-
-        {group && <div style={centerTitleStyle}>{group.title}</div>}
-        {group && (
-          <button
-            style={iconButtonStyle}
-            onClick={() => navigate(`/edit-group`)}
-          >
-            <Settings size={20} color="#555" />
-          </button>
-        )}
-      </div>
+    <>
       {group ? (
         <>
-          {" "}
-          <div style={barStyle}>
-            <div>
-              <GroupTabsbar />
-            </div>
-          </div>
           <div className="no-scrollbar" style={scrollAreaStyle}>
             <div style={feedListStyle}>
               {post.length === 0 ? (
@@ -203,10 +81,10 @@ function GroupFeeds() {
                     >
                       <div
                         style={{
-                          fontSize: "20px",
-                          marginBottom: "5px",
+                          fontSize: "16px",
+                          marginBottom: "6px",
                           fontWeight: "bold",
-                          marginLeft: "15px",
+                          marginLeft: "8px",
                         }}
                       >
                         {item.title}
@@ -261,32 +139,16 @@ function GroupFeeds() {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }
 
 export default GroupFeeds;
 
-// --- 스타일 ---
-
-const pageStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  width: "100%",
-  height: "100vh",
-  overflow: "hidden",
-};
 
 const scrollAreaStyle: React.CSSProperties = {
   flex: 1,
   overflowY: "auto",
-  padding: "16px",
-};
-
-const barStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
 };
 
 const feedListStyle: React.CSSProperties = {
@@ -308,40 +170,6 @@ const noPostMessageStyle: React.CSSProperties = {
   marginRight: "auto",
 };
 
-const headerWrapperStyle: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "0 16px",
-  marginBottom: "8px",
-  height: "50px",
-};
-
-const centerTitleStyle: React.CSSProperties = {
-  position: "absolute",
-  left: "50%",
-  transform: "translateX(-50%)",
-  fontWeight: "bold",
-  fontSize: "18px",
-  whiteSpace: "nowrap",
-  color: "#000",
-  zIndex: 101,
-};
-
-const iconButtonStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  padding: "8px",
-  borderRadius: "50%",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "background 0.2s",
-};
-
 const feedCardStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -357,7 +185,7 @@ const feedCardStyle: React.CSSProperties = {
 const feedHeaderStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  padding: "12px",
+  padding: "8px",
 };
 
 const userInfoStyle: React.CSSProperties = {
@@ -367,14 +195,14 @@ const userInfoStyle: React.CSSProperties = {
 };
 
 const profileImageStyle: React.CSSProperties = {
-  width: "40px",
-  height: "40px",
+  width: "36px",
+  height: "36px",
   borderRadius: "50%",
 };
 
 const usernameStyle: React.CSSProperties = {
   fontWeight: "bold",
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#000",
 };
 

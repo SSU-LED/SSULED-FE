@@ -158,13 +158,13 @@ function RecordDetail() {
                   });
                 }}
               >
-                Edit
+                수정
               </button>
               <button
                 className={styles.deleteButton}
                 onClick={handleDeleteClick}
               >
-                Delete
+                삭제
               </button>
             </div>
           </div>
@@ -197,7 +197,7 @@ function RecordDetail() {
 
       <div className={styles.headerWrapper}>
         <MoveLeftTitle
-          title={`${record.id}: ${record.title}`}
+          title=""
           showOptionButton={record.isMine}
           onOptionClick={handleOptionClick}
         />

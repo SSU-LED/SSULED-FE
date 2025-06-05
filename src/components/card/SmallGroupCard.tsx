@@ -55,7 +55,7 @@ const cardStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: "8px",
-  padding: "16px",
+  padding: "8px 16px",
   backgroundColor: "white",
   borderRadius: "12px",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",

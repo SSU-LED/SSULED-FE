@@ -82,9 +82,12 @@
 }
 
 .createWrapper {
-  padding: 32px 20px;
+  padding: 16px 20px;
+  position: fixed;
+  width: 390px;
   display: flex;
   flex-direction: column;
+  bottom: 3.5rem;
 }
 
 .deleteButton {

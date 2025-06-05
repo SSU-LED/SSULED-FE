@@ -1,0 +1,20 @@
+.mainTitle {
+  position: sticky;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+  background-color: white;
+}
+
+.subTitle {
+  position: sticky;
+  top: -2px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  z-index: 2;
+  padding: 0.5rem 0;
+}

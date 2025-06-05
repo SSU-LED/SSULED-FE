@@ -46,7 +46,9 @@ function Records() {
 
   return (
     <div className={styles.page}>
-      <MoveLeftTitle title="Records" page="/" />
+      <div className={styles.headerWrapper}>
+        <MoveLeftTitle title="Records" page="/" />
+      </div>
 
       <div className={styles.scrollArea}>
         {loading ? (

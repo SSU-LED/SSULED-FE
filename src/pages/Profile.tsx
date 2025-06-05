@@ -3,6 +3,8 @@ import MoveRightTitle from "../components/title/MoveRightTitle";
 import { apiClient } from "../api/apiClient";
 import { useNavigate } from "react-router-dom";
 
+import Layout from "../styles/Layout.module.css";
+
 interface IFUserInfo {
   userImage: string;
   userIntroduction: string | null;
@@ -75,7 +77,7 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="layout">
+    <div className={Layout.layout}>
       <style>{responsiveCSS}</style>
       <div className="header-wrapper">
         <header className="header-title">Profile</header>
@@ -124,7 +126,6 @@ const responsiveCSS = `
     width: 100%;
     height: 100vh;
     background: #ffffff;
-    padding: 24px 16px;
   }
   
   .header-wrapper {
@@ -132,14 +133,19 @@ const responsiveCSS = `
     top: 0;
     z-index: 100;
     background-color: white;
-    padding: 20px 20px 0 20px;
+    padding: 16px 16px 8px 16px;
     text-align: center;
     width: 100%;
   }
   
   .header-title {
-    font-size: 28px;
+    position: sticky;
+    font-size: 1.2rem;
     font-weight: bold;
+    color: #333;
+    margin-bottom: 1rem;
+    background-color: white;
+    text-align: center;
   }
   
   .profile-wrapper {

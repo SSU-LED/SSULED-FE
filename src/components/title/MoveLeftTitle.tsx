@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
-import { IoOptionsOutline } from "react-icons/io5";
+import { Settings } from "lucide-react";
 
 type MoveLeftTitleProps = {
   title: string;
@@ -10,6 +10,7 @@ type MoveLeftTitleProps = {
 };
 
 function MoveLeftTitle({
+  title,
   page,
   showOptionButton = false,
   onOptionClick,
@@ -31,14 +32,14 @@ function MoveLeftTitle({
       <button onClick={handleBack} className="back-button">
         <IoIosArrowBack />
       </button>
-
+      <div className="title">{title}</div>
       {showOptionButton && (
         <button
           onClick={onOptionClick}
           className="option-button"
           aria-label="Options"
         >
-          <IoOptionsOutline />
+          <Settings />
         </button>
       )}
     </div>
@@ -66,7 +67,7 @@ const containerStyle: React.CSSProperties = {
 const responsiveCSS = `
   .back-button {
     position: absolute;
-    left: 16px;
+    left: 8px;
     background: none;
     border: none;
     font-size: 20px;
@@ -85,8 +86,8 @@ const responsiveCSS = `
   }
 
   .title {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: semi-bold;
   }
 
   @media (max-width: 480px) {
@@ -94,16 +95,16 @@ const responsiveCSS = `
       font-size: 16px;
     }
     .back-button, .option-button {
-      font-size: 18px;
+      font-size: 16px;
     }
   }
 
   @media (min-width: 768px) {
     .title {
-      font-size: 20px;
+      font-size: 16px;
     }
     .back-button, .option-button {
-      font-size: 22px;
+      font-size: 16px;
     }
   }
 `;

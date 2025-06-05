@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import MediumTitle from "../components/title/MediumTitle";
 import Top3Ranking from "../components/Top3Ranking";
 import SmallGroupCard from "../components/card/SmallGroupCard";
 import MoveRightTitle from "../components/title/MoveRightTitle";
@@ -8,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { apiClient } from "../api/apiClient";
 import { CardProps } from "../types/CardProps";
 import { AxiosError } from "axios";
+
+import styles from "../styles/Group.module.css";
 
 interface IFGroup {
   createdAt: string;
@@ -51,17 +52,24 @@ function Group() {
   const [group, setGroup] = useState<IFGroup[]>([]);
   const [rankingData, setRankingData] = useState<CardProps[]>([]);
   const [activeTab, setActiveTab] = useState("이번 분기");
+  const [isJoined, setIsJoined] = useState(false);
 
+  // 모든 그룹 조회
   useEffect(() => {
     const fetchGroups = async () => {
-      const res = await apiClient.get("/group", {
-        params: { page: 1, limit: 10 },
-      });
-      setGroup(res.data.data);
+      try {
+        const res = await apiClient.get("/group", {
+          params: { page: 1, limit: 10 },
+        });
+        setGroup(res.data.data);
+      } catch (error) {
+        console.error("그룹 목록 조회 실패", error);
+      }
     };
     fetchGroups();
   }, []);
 
+  // 그룹 랭킹 조회
   useEffect(() => {
     const quarter = getQuarterFromTab(activeTab);
     const year = new Date().getFullYear();
@@ -72,7 +80,7 @@ function Group() {
           params: { quarter, year },
         });
         const top3Raw = res.data.top3 as RankingItem[];
-        const formattedTop3 = top3Raw.map((item: RankingItem) => ({
+        const formattedTop3 = top3Raw.map((item) => ({
           id: item.groupId,
           title: item.groupName,
           rank: item.rank,
@@ -81,7 +89,6 @@ function Group() {
           imageUrl: "",
         }));
         setRankingData(formattedTop3);
-        console.log(res);
       } catch (err) {
         const e = err as AxiosError;
         console.error("Top3 랭킹 불러오기 실패", e);
@@ -91,34 +98,44 @@ function Group() {
     fetchTop3();
   }, [activeTab]);
 
+  // 가입 여부 판단 (UI용)
+  useEffect(() => {
+    const checkJoined = async () => {
+      try {
+        const res = await apiClient.get("/group/user");
+        setIsJoined(!!res.data?.id);
+      } catch {
+        setIsJoined(false);
+      }
+    };
+    checkJoined();
+  }, []);
+
+  // "내 그룹" 클릭 시에만 조건 판단
   const checkIsJoined = async () => {
     try {
-      const res = await apiClient.get("/group/user"); // 실제 가입된 그룹 조회
+      const res = await apiClient.get("/group/user");
       if (res.data && res.data.id) {
-        // setIsJoined(true);
-        navigate("/groupfeeds");
+        navigate("/mygroup");
       } else {
-        // setIsJoined(false);
         alert("가입한 그룹이 없습니다 🥲");
-        navigate("/group");
       }
     } catch (error) {
-      // setIsJoined(false);
       console.error("가입된 그룹 조회 실패: ", error);
       alert("가입한 그룹이 없습니다 🥲");
-      navigate("/group");
     }
   };
 
   return (
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
+
       <div className="header-wrapper">
-        <MediumTitle>Group</MediumTitle>
+        <div className={styles.mainTitle}>Group</div>
         <MoveRightTitle
           title="내 그룹"
           subtitle=""
-          to="/groupfeeds"
+          to="/mygroup"
           onClick={(e) => {
             e.preventDefault();
             checkIsJoined();
@@ -129,14 +146,14 @@ function Group() {
       <PeriodTabsbar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="scrollable-content">
-        <h3>🏆명예의 전당🏆</h3>
+        <div className={styles.subTitle}>🏆명예의 전당🏆</div>
         <Top3Ranking data={rankingData} />
 
-        <h3 style={sectionTitleStyle}>모든 그룹</h3>
+        <div className={styles.subTitle}>모든 그룹</div>
         <div className="group-card-grid">
-          {group.map((item, index) => (
+          {group.map((item) => (
             <SmallGroupCard
-              key={index}
+              key={item.id}
               id={item.id}
               title={item.title}
               isAccessible={item.isAccessible}
@@ -148,14 +165,16 @@ function Group() {
         </div>
       </div>
 
-      <div className="buttonPosition">
-        <button
-          className="floatingButtonStyle"
-          onClick={() => navigate("/create-group")}
-        >
-          +
-        </button>
-      </div>
+      {!isJoined && (
+        <div className="buttonPosition">
+          <button
+            className="floatingButtonStyle"
+            onClick={() => navigate("/create-group")}
+          >
+            +
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -168,13 +187,6 @@ const layoutStyle: React.CSSProperties = {
   overflow: "hidden",
   width: "100%",
   height: "100vh",
-  padding: "0 25px",
-};
-
-const sectionTitleStyle: React.CSSProperties = {
-  fontSize: "18px",
-  fontWeight: "bold",
-  margin: "24px 0 12px 0",
 };
 
 const responsiveCSS = `
@@ -208,13 +220,13 @@ const responsiveCSS = `
     bottom: 68px;
     align-self: flex-end;
     right: 16px;
-    z-index: 1000;
+    z-index: 1;
   }
   .floatingButtonStyle {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background-color: #FFB6C1;
+    background-color: black;
     color: white;
     font-size: 32px;
     border: none;

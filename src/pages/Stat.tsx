@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import MediumTitle from "../components/title/MediumTitle";
 import { ResponsivePie } from "@nivo/pie";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { apiClient } from "../api/apiClient";
+
+import styles from "../styles/Stat.module.css";
 
 interface HeatmapValue {
   date: string;
@@ -44,6 +45,18 @@ interface WorkoutData {
     other: number;
   };
 }
+
+const grayscaleColors = [
+  '#f8f9fa', // 거의 흰색
+  '#e9ecef',
+  '#dee2e6',
+  '#ced4da',
+  '#adb5bd',
+  '#6c757d',
+  '#495057',
+  '#343a40',
+  '#212529', // 거의 검정
+];
 
 function getQuarterDateRange(
   year: number,
@@ -89,33 +102,48 @@ export function ThreeMonthHeatmap({ values }: Props) {
   };
 
   return (
-    <div style={{ marginTop: 20, width: "100%" }}>
+    <div style={heatmapCardStyle}>
+      <style>
+        {`
+          .react-calendar-heatmap rect {
+            rx: 2px;
+            ry: 2px;
+          }
+          .react-calendar-heatmap text {
+            font-size: 6px;
+            fill: #999;
+          }
+        `}
+      </style>
       <div style={navStyle}>
         <button onClick={goToPrevQuarter} style={arrowBtnStyle}>
-          ←
+          {"<"}
         </button>
-        <span style={{ fontWeight: 500 }}>
-          {startDate.toISOString().slice(0, 10)} ~{" "}
-          {endDate.toISOString().slice(0, 10)}
+        <span style={dateRangeTextStyle}>
+          {startDate.toISOString().slice(0, 10)} ~ {endDate.toISOString().slice(0, 10)}
         </span>
         <button onClick={goToNextQuarter} style={arrowBtnStyle}>
-          →
+          {">"}
         </button>
       </div>
 
-      <CalendarHeatmap
-        startDate={startDate}
-        endDate={endDate}
-        values={values}
-        classForValue={(value) => {
-          if (!value || value.count === 0) return "color-empty";
-          return `color-github-${value.count}`;
-        }}
-        showWeekdayLabels
-        tooltipDataAttrs={(value: any) => ({
-          "data-tip": `${value.date} - 활동: ${value.count}`,
-        })}
-      />
+      <div style={{ overflowX: "auto" }}>
+        <div style={{ minWidth: 300 }}>
+          <CalendarHeatmap
+            startDate={startDate}
+            endDate={endDate}
+            values={values}
+            classForValue={(value) => {
+              if (!value || value.count === 0) return "color-empty";
+              return `color-github-${value.count}`;
+            }}
+            showWeekdayLabels={false}
+            tooltipDataAttrs={(value: any) => ({
+              "data-tip": `${value.date} - 활동: ${value.count}`,
+            })}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -210,55 +238,55 @@ const Stat = () => {
   }
 
   return (
-    <div style={pageStyle}>
+    <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
-      <div className="header-wrapper">
-        <MediumTitle>Stat</MediumTitle>
+      <div className={styles.headerWrapper}>
+        <div className={styles.mainTitle}>Stat</div>
       </div>
 
-      <div className="no-scrollbar" style={scrollAreaStyle}></div>
-      <div>
+      <div className={styles.scrollableContent}>
+
         <div>
-          <h2 style={{ marginTop: "0px" }}>Streak 🎖️</h2>
-          <div style={{ height: 200 }}>
+          <div className={styles.subTitle}>Streak 🎖️</div>
+          <div>
             <ThreeMonthHeatmap values={heatmapValues} />
           </div>
         </div>
 
         <div>
-          <h3 style={{ marginTop: "100px" }}>선호도 분석 💗</h3>
+          <div className={styles.subTitle}>선호도 분석 💗</div>
           {rawPartData.length === 0 ? (
-              <p style={noDataStyle}>
-                당신의 선호도를 분석할 수 없어요.
-              </p>
+            <p style={noDataStyle}>
+              당신의 선호도를 분석할 수 없어요.
+            </p>
           ) : (
-          <div style={{ height: 250 }}>
-            <ResponsivePie
-              data={rawPartData}
-              margin={{ top: 30, right: 100, bottom: 30, left: 100 }}
-              innerRadius={0.5}
-              padAngle={1}
-              cornerRadius={2}
-              colors={{ scheme: "paired" }}
-              borderWidth={1}
-              borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
-              legends={[
-                {
-                  anchor: "bottom",
-                  direction: "row",
-                  translateY: 56,
-                  itemWidth: 100,
-                  itemHeight: 18,
-                  symbolSize: 18,
-                },
-              ]}
-            />
-          </div>
+            <div style={{ height: 250 }}>
+              <ResponsivePie
+                data={rawPartData}
+                margin={{ top: 30, right: 100, bottom: 30, left: 100 }}
+                innerRadius={0.65}
+                padAngle={1}
+                cornerRadius={2}
+                colors={grayscaleColors}
+                borderWidth={1}
+                borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
+                legends={[
+                  {
+                    anchor: "bottom",
+                    direction: "row",
+                    translateY: 56,
+                    itemWidth: 100,
+                    itemHeight: 18,
+                    symbolSize: 18,
+                  },
+                ]}
+              />
+            </div>
           )}
         </div>
 
         <div style={{ marginBottom: 80 }}>
-          <h3>시간대 분석 🕐</h3>
+          <div className={styles.subTitle}>시간대 분석 🕐</div>
           <p
             style={noDataStyle}
           >
@@ -276,14 +304,14 @@ const Stat = () => {
                 }}
               >
                 <div style={{ width: 24 }}>{item.id}</div>
-                <div style={{ width: 50 }}>{item.emoji}</div>
-                <div style={{ width: 100 }}>{item.label}</div>
-                <div style={{ width: 60 }}>{item.commits} commits</div>
+                <div style={{ width: 24 }}>{item.emoji}</div>
+                <div style={{ width: 80 }}>{item.label}</div>
+                <div style={{ width: 80 }}>{item.commits} commits</div>
                 <div
                   style={{
                     flex: 1,
-                    marginLeft: 8,
-                    marginRight: 8,
+                    marginLeft: 4,
+                    marginRight: 4,
                     background: "#eee",
                     height: 8,
                     borderRadius: 4,
@@ -310,19 +338,12 @@ const Stat = () => {
 
 export default Stat;
 
-const pageStyle: React.CSSProperties = {
+const layoutStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
+  overflow: "hidden",
   width: "100%",
   height: "100vh",
-  overflowY: "scroll",
-  padding: "0px 25px",
-};
-
-const scrollAreaStyle: React.CSSProperties = {
-  flex: 1,
-  overflowY: "auto",
-  padding: "16px",
 };
 
 const responsiveCSS = `
@@ -365,24 +386,23 @@ const responsiveCSS = `
   }
 
   button:hover {
-    color: #FFB6C1;
+    color: black;
   }
 `;
 
 const navStyle: React.CSSProperties = {
   display: "flex",
-  justifyContent: "space-between",
+  justifyContent: "space-around",
   alignItems: "center",
   marginBottom: 8,
 };
 
 const arrowBtnStyle: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #ccc",
-  borderRadius: "6px",
+  background: "trasparent",
   padding: "4px 10px",
   cursor: "pointer",
   fontSize: "16px",
+  fontWeight: "bold",
   transition: "background 0.2s",
 };
 
@@ -393,4 +413,15 @@ const noDataStyle: React.CSSProperties = {
   borderRadius: "12px",
   color: "#666",
   whiteSpace: "pre-line",
+};
+
+const heatmapCardStyle: React.CSSProperties = {
+  backgroundColor: "#ffffff",
+  borderRadius: "12px",
+  padding: "16px",
+};
+
+const dateRangeTextStyle: React.CSSProperties = {
+  fontWeight: 600,
+  fontSize: "16px",
 };

@@ -61,7 +61,7 @@ const navbarStyle: React.CSSProperties = {
   left: "50%",
   display: "flex",
   justifyContent: "center",
-  width: "420px",
+  width: "390px",
   transform: "translateX(-50%)",
   zIndex: 10,
   backgroundColor: "#fff",

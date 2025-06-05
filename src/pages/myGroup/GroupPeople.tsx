@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import GroupTabsbar from "../../components/GroupTabsbar";
 import { apiClient } from "../../api/apiClient";
 
 interface MyGroup {
@@ -24,10 +22,9 @@ interface Member {
   isCertificated: boolean;
 }
 
-function GroupPeople() {
+function GroupPeople({ group }: { group: MyGroup | null }) {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const [group, setGroup] = useState<MyGroup | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
 
   const filteredMembers = members.filter((member) =>
@@ -37,17 +34,6 @@ function GroupPeople() {
   const handleClick = (nickname: string) => {
     navigate(`/peopleinfo/${nickname}`);
   };
-
-  useEffect(() => {
-    const getMyGroup = async () => {
-      const response = await apiClient.get("/group/user");
-      console.log("MyGroup data:", response.data);
-      if (response.data) {
-        setGroup(response.data);
-      }
-    };
-    getMyGroup();
-  }, []);
 
   useEffect(() => {
   const getMember = async () => {
@@ -79,28 +65,8 @@ function GroupPeople() {
 
 
   return (
-    <div style={pageStyle}>
-      <style>
-        {`
-          .no-scrollbar {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-          }
-          .no-scrollbar::-webkit-scrollbar {
-            display: none;
-          }
-        `}
-      </style>
-      <div style={headerWrapperStyle}>
-        <MoveLeftTitle title="My Group" page="/group" />
-        {group && (
-          <div style={centerTitleStyle}>{group.title}</div>
-        )}
-      </div>
+    <>
       <div style={barStyle}>
-        <div>
-          <GroupTabsbar />
-        </div>
         <input
           type="text"
           placeholder="팀원 이름 검색..."
@@ -138,24 +104,15 @@ function GroupPeople() {
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export default GroupPeople;
 
-const pageStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  height: "100vh",
-  overflow: "hidden",
-};
-
 const scrollAreaStyle: React.CSSProperties = {
   flex: 1,
   overflowY: "auto",
-  padding: "16px",
 };
 
 const barStyle: React.CSSProperties = {
@@ -183,14 +140,14 @@ const memberCardStyle: React.CSSProperties = {
   alignItems: "center",
   backgroundColor: "#fff",
   borderRadius: "12px",
-  padding: "12px 16px",
+  padding: "8px 8px",
   boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   cursor: "pointer",
 };
 
 const profileImageStyle: React.CSSProperties = {
-  width: "80px",
-  height: "80px",
+  width: "48px",
+  height: "48px",
   borderRadius: "50%",
   objectFit: "cover",
   marginRight: "16px",
@@ -201,13 +158,13 @@ const infoStyle: React.CSSProperties = {
 };
 
 const nameStyle: React.CSSProperties = {
-  fontSize: "18px",
+  fontSize: "14px",
   fontWeight: "bold",
   marginBottom: "4px",
 };
 
 const roleStyle: React.CSSProperties = {
-  fontSize: "14px",
+  fontSize: "12px",
   fontWeight: "normal",
   marginLeft: "8px",
   color: "#888",
@@ -224,24 +181,3 @@ const statusStyle = (status: string): React.CSSProperties => ({
   fontWeight: "normal",
   color: status === "참여완료" ? "#888" : "#FFB6C1", 
 });
-
-const headerWrapperStyle: React.CSSProperties = {
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "0 16px",
-  marginBottom: "8px",
-  height: "50px",
-};
-
-const centerTitleStyle: React.CSSProperties = {
-  position: "absolute",
-  left: "50%",
-  transform: "translateX(-50%)",
-  fontWeight: "bold",
-  fontSize: "18px",
-  whiteSpace: "nowrap",
-  color: "#000", 
-  zIndex: 101, 
-};

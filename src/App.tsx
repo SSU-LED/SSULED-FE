@@ -19,9 +19,6 @@ import RecordEdit from "./pages/records/RecordEdit";
 import Profile from "./pages/Profile";
 import ChangeNickname from "./pages/ChangeNickname";
 import Group from "./pages/Group";
-import GroupFeeds from "./pages/myGroup/GroupFeeds";
-import GroupPeople from "./pages/myGroup/GroupPeople";
-import GroupStatistics from "./pages/myGroup/GroupSatistics";
 import PeopleInfo from "./pages/myGroup/PeopleInfo";
 import CreateGroup from "./pages/group/CreateGroup";
 import EditGroup from "./pages/group/EditGroup";
@@ -29,6 +26,7 @@ import Verify from "./pages/Verify";
 import Stat from "./pages/Stat";
 import NewGroup from "./pages/myGroup/newGroup";
 import { LoginCallback } from "./pages/auth/LoginCallback";
+import MyGroupInfo from "./pages/myGroup/MyGroupInfo";
 
 function App() {
   return (
@@ -133,26 +131,10 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/groupfeeds"
+          path="/mygroup"
           element={
             <ProtectedRoute>
-              <GroupFeeds />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/grouppeople"
-          element={
-            <ProtectedRoute>
-              <GroupPeople />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/groupstatistics"
-          element={
-            <ProtectedRoute>
-              <GroupStatistics />
+              <MyGroupInfo />
             </ProtectedRoute>
           }
         />

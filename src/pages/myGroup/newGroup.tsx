@@ -147,7 +147,7 @@ function NewGroup() {
       await apiClient.post(`/group/${id}/join`);
       alert("그룹에 등록되었습니다!");
       setIsJoined(true);
-      navigate("/groupfeeds");
+      navigate("/mygroup");
     } catch (error: any) {
       console.error("공개 그룹 등록 실패", error.response?.data || error.message);
       alert(error.response?.data?.message || "그룹 등록 중 오류가 발생했습니다.");
@@ -173,7 +173,7 @@ const handlePasswordSubmit = async () => {
     await apiClient.post(`/group/${id}/join`, { password });
     alert("그룹에 등록되었습니다!");
     setIsJoined(true);
-    navigate("/groupfeeds");
+    navigate("/mygroup");
   } catch (error: any) {
     console.error("비공개 그룹 등록 실패", error.response?.data || error.message);
     if (error.response?.status === 401 || error.response?.status === 400) {
@@ -198,10 +198,7 @@ const handlePasswordSubmit = async () => {
         `}
       </style>
 
-      <div style={headerWrapperStyle}>
-        <MoveLeftTitle title="My Group" page="/group" />
-        {groupData && <div style={centerTitleStyle}>{groupData.title}</div>}
-      </div>
+      <MoveLeftTitle title={groupData?.title ?? ""} page="/group" />
 
       {groupData && (
         <div style={groupInfoHeaderStyle}>
@@ -308,16 +305,6 @@ const pageStyle: React.CSSProperties = {
   overflow: "hidden",
 };
 
-const headerWrapperStyle: React.CSSProperties = {
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "0 16px",
-  marginBottom: "8px",
-  height: "50px",
-  width: "100%",
-};
 
 const groupInfoHeaderStyle: React.CSSProperties = {
   display: "flex",
@@ -325,6 +312,7 @@ const groupInfoHeaderStyle: React.CSSProperties = {
   padding: "0 16px 8px 16px",
   borderBottom: "1px solid #eee",
   width: "100%",
+  marginTop: "16px",
 };
 
 const scrollAreaStyle: React.CSSProperties = {
@@ -387,8 +375,8 @@ const buttonStyle: React.CSSProperties = {
   border: "none",
   fontSize: "16px",
   fontWeight: 500,
-  backgroundColor: "#FFB6C1",
-  color: "black",
+  backgroundColor: "black",
+  color: "white",
   cursor: "pointer",
   borderRadius: "12px",
   marginBottom: "60px",
@@ -437,20 +425,10 @@ const errorStyle: React.CSSProperties = {
 const submitButtonStyle: React.CSSProperties = {
   padding: "12px 20px",
   border: "none",
-  backgroundColor: "#FFB6C1",
+  backgroundColor: "black",
   color: "white",
   fontSize: "16px",
   fontWeight: "500",
   borderRadius: "12px",
   cursor: "pointer",
-};
-const centerTitleStyle: React.CSSProperties = {
-  position: "absolute",
-  left: "50%",
-  transform: "translateX(-50%)",
-  fontWeight: "bold",
-  fontSize: "18px",
-  whiteSpace: "nowrap",
-  color: "#000",
-  zIndex: 101,
 };

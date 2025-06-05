@@ -68,6 +68,7 @@ const wrapperStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  marginBottom: "16px",
 };
 
 const bottomRowStyle: React.CSSProperties = {

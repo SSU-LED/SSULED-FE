@@ -69,17 +69,28 @@ function Home() {
       <div className={styles.scrollableContent}>
         <div className={styles.imageScrollContainer}>
           <div className={styles.imageCardGrid}>
-            {records.map((item, index) => (
+            {records.length === 0 ? (
               <LargeCard
-                key={index}
-                id={item.id}
-                imageUrl={item.imageUrl}
-                title={item.title}
-                likeCount={item.likeCount}
-                commentCount={item.commentCount}
-                onClick={handleCardClick}
+                id={-1}
+                imageUrl={""}
+                title="기록 없음"
+                likeCount={0}
+                commentCount={0}
+                onClick={() => { }}
               />
-            ))}
+            ) : (
+              records.map((item, index) => (
+                <LargeCard
+                  key={index}
+                  id={item.id}
+                  imageUrl={item.imageUrl}
+                  title={item.title}
+                  likeCount={item.likeCount}
+                  commentCount={item.commentCount}
+                  onClick={handleCardClick}
+                />
+              ))
+            )}
           </div>
         </div>
 

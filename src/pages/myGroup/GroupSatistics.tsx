@@ -1,5 +1,3 @@
-import MoveLeftTitle from "../../components/title/MoveLeftTitle";
-import GroupTabsbar from "../../components/GroupTabsbar";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { useEffect, useState } from "react";
@@ -85,32 +83,47 @@ export function ThreeMonthHeatmap({ values }: Props) {
   };
   return (
     <div style={{ marginTop: 20, width: "100%" }}>
+      <style>
+        {`
+          .react-calendar-heatmap rect {
+            rx: 2px;
+            ry: 2px;
+          }
+          .react-calendar-heatmap text {
+            font-size: 6px;
+            fill: #999;
+          }
+        `}
+      </style>
       <div style={navStyle}>
         <button onClick={goToPrevQuarter} style={arrowBtnStyle}>
-          ←
+          {"<"}
         </button>
-        <span style={{ fontWeight: 500 }}>
-          {startDate.toISOString().slice(0, 10)} ~{" "}
-          {endDate.toISOString().slice(0, 10)}
+        <span style={dateRangeTextStyle}>
+          {startDate.toISOString().slice(0, 10)} ~ {endDate.toISOString().slice(0, 10)}
         </span>
         <button onClick={goToNextQuarter} style={arrowBtnStyle}>
-          →
+          {">"}
         </button>
       </div>
 
-      <CalendarHeatmap
-        startDate={startDate}
-        endDate={endDate}
-        values={values}
-        classForValue={(value) => {
-          if (!value || value.count === 0) return "color-empty";
-          return `color-github-${value.count}`;
-        }}
-        showWeekdayLabels
-        tooltipDataAttrs={(value: any) => ({
-          "data-tip": `${value.date} - 활동: ${value.count}`,
-        })}
-      />
+      <div style={{ overflowX: "auto" }}>
+        <div style={{ minWidth: 300 }}>
+          <CalendarHeatmap
+            startDate={startDate}
+            endDate={endDate}
+            values={values}
+            classForValue={(value) => {
+              if (!value || value.count === 0) return "color-empty";
+              return `color-github-${value.count}`;
+            }}
+            showWeekdayLabels={false}
+            tooltipDataAttrs={(value: any) => ({
+              "data-tip": `${value.date} - 활동: ${value.count}`,
+            })}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -125,21 +138,9 @@ function getCurrentYearAndQuarter(): { year: number; quarter: number } {
   return { year, quarter };
 }
 
-function GroupStatistics() {
+function GroupStatistics({group}: { group: MyGroup | null }) {
   const [ranking, setRanking] = useState<MyGroupRank | null>(null);
-  const [group, setGroup] = useState<MyGroup | null>(null);
   const [myGroupStat, setMyGroupStat] = useState<MyGroupStat | null>(null);
-
-  useEffect(() => {
-    const getMyGroup = async () => {
-      const response = await apiClient.get("/group/user");
-      console.log("MyGroup data:", response.data);
-      if (response.data) {
-        setGroup(response.data);
-      }
-    };
-    getMyGroup();
-  }, []);
 
   // 그룹 등수 정보 가져오기
   useEffect(() => {
@@ -186,32 +187,11 @@ function GroupStatistics() {
       count: d.value,
     })) ?? [];
 
-  return (
-    <div style={pageStyle}>
-      <style>
-        {`
-          .no-scrollbar {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE */
-          }
-          .no-scrollbar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
-          }
-        `}
-      </style>
-      <div style={headerWrapperStyle}>
-        <MoveLeftTitle title="My Group" page="/group" />
-        {group && <div style={centerTitleStyle}>{group.title}</div>}
-      </div>
-
-      <div style={barStyle}>
-        <GroupTabsbar />
-      </div>
+  return (<>
       <div className="no-scrollbar" style={scrollAreaStyle}>
         <div>
-          {/* 그룹 등수 표시 */}
           <div style={rankingStyle}>
-            <h2>Current Rank 🏆</h2>
+            <div style={{fontSize: "20px", fontWeight: "600"}}>Current Rank 🏆</div>
             {ranking && group && (
               <p>
                 <strong style={{ color: "#4CAF50" }}>{group.title}</strong>의
@@ -221,40 +201,27 @@ function GroupStatistics() {
               </p>
             )}
           </div>
-          <h2 style={{ marginTop: "50px" }}>Streak 🎖️</h2>
-          <div style={{ height: 200 }}>
+          <div style={{ marginTop: "24px", position: "sticky", fontSize: "1.2rem", fontWeight: "bold" }}>Streak 🎖️</div>
+          <div style={heatmapCardStyle}>
             {group && <ThreeMonthHeatmap values={heatmapValues} />}
           </div>
         </div>
       </div>
-    </div>
+      </>
   );
 }
 
 export default GroupStatistics;
 
-const pageStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  height: "100vh",
-  overflow: "hidden",
-};
-
 const scrollAreaStyle: React.CSSProperties = {
   flex: 1,
   overflowY: "auto",
-  padding: "16px",
-};
-
-const barStyle: React.CSSProperties = {
-  padding: "0 16px 16px 16px",
 };
 
 const rankingStyle: React.CSSProperties = {
   padding: "16px",
-  backgroundColor: "#f0f4f8",
-  borderRadius: "8px",
+  backgroundColor: "#f5f5f5",
+  borderRadius: "16px",
   marginBottom: "16px",
   textAlign: "center",
 };
@@ -268,31 +235,23 @@ const navStyle: React.CSSProperties = {
 
 const arrowBtnStyle: React.CSSProperties = {
   background: "white",
-  border: "1px solid #ccc",
-  borderRadius: "6px",
   padding: "4px 10px",
   cursor: "pointer",
   fontSize: "16px",
   transition: "background 0.2s",
-};
-
-const headerWrapperStyle: React.CSSProperties = {
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "0 16px",
-  marginBottom: "8px",
-  height: "50px",
-};
-
-const centerTitleStyle: React.CSSProperties = {
-  position: "absolute",
-  left: "50%",
-  transform: "translateX(-50%)",
+  border: "none",
+  outline: "none",
   fontWeight: "bold",
-  fontSize: "18px",
-  whiteSpace: "nowrap",
-  color: "#000",
-  zIndex: 101,
+};
+
+
+const heatmapCardStyle: React.CSSProperties = {
+  backgroundColor: "#ffffff",
+  borderRadius: "12px",
+  padding: "16px",
+};
+
+const dateRangeTextStyle: React.CSSProperties = {
+  fontWeight: 600,
+  fontSize: "16px",
 };

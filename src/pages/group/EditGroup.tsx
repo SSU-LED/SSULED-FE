@@ -205,13 +205,13 @@ function EditGroup() {
                 className={styles.modalCancel}
                 onClick={() => setShowModal(false)}
               >
-                Cancel
+                취소
               </button>
               <button
                 className={styles.modalConfirm}
                 onClick={isOwner ? handleDeleteConfirmed : handleLeaveConfirmed}
               >
-                Delete
+                탈퇴
               </button>
             </div>
           </div>

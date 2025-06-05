@@ -43,7 +43,7 @@ function RecordDetail() {
               navigate(`/records/${id}/edit`);
             }}
           >
-            Edit
+            수정
           </button>
           <button className="delete-button">Delete</button>
         </div>
@@ -60,7 +60,7 @@ function RecordDetail() {
       <div className="header-wrapper">
         <MoveLeftTitle
           title={`${item.id}: ${item.title}`}
-          page="/groupfeeds"
+          page="/mygroup"
           showOptionButton={true}
           onOptionClick={handleOptionClick}
         />
@@ -239,17 +239,16 @@ const responsiveCSS = `
     color: #000;
   }
 
-  .blur-overlay {
+  .blurOverlay {
     position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
+    max-width: 390px;
     height: 100%;
+    max-height: 100vh;
     backdrop-filter: blur(6px);
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
     z-index: 999;
     display: flex;
-    justify-content: center;
     align-items: flex-end;
   }
 

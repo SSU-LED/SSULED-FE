@@ -36,11 +36,22 @@ export interface RecordResponse {
   meta: RecordMeta;
 }
 
+export type BodyPartEnum =
+  | "chest"
+  | "back"
+  | "legs"
+  | "core"
+  | "sports"
+  | "shoulders_arms"
+  | "cardio"
+  | "other"
+  | "abs";
+
 export interface RecordCreateRequest {
   title: string;
   content: string;
   imageUrl: string[];
-  bodyPart: ("chest" | "shoulders_arms" | "back" | string)[];
+  bodyPart: BodyPartEnum[];
   duration: number;
   isPublic: boolean;
 }

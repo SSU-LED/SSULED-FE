@@ -114,9 +114,11 @@ function ChangeNickname() {
           style={inputStyle}
         />
       </div>
-      <button style={buttonStyle} onClick={changenickname}>
-        변경하기
-      </button>
+      <div style={buttonWrapperStyle}>
+        <button style={buttonStyle} onClick={changenickname}>
+          변경하기
+        </button>
+      </div>
     </div>
   );
 }
@@ -158,7 +160,8 @@ const inputContainerStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: "8px",
-  width: "80%",
+  width: "100%",
+  padding: "0 16px",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -174,9 +177,16 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
 };
 
+const buttonWrapperStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+  padding: "0 16px",
+}
+
 const buttonStyle: React.CSSProperties = {
-  width: "80%",
-  padding: "10px 20px",
+  width: "100%",
+  padding: "16px",
   border: "none",
   fontSize: "16px",
   fontWeight: 500,

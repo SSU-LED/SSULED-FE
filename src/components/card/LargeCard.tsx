@@ -11,8 +11,10 @@ function LargeCard({
   commentCount,
   onClick,
 }: CardProps) {
+  const isPlaceholder = id === -1;
+
   const handleClick = () => {
-    if (onClick) {
+    if (!isPlaceholder && onClick) {
       onClick(id);
     }
   };
@@ -20,19 +22,29 @@ function LargeCard({
   return (
     <div style={containerStyle} onClick={handleClick}>
       <div style={imageStyleWrapper}>
-        <img src={imageUrl} alt={title} style={imageStyle} />
-        {(likeCount !== undefined || commentCount !== undefined) && (
-          <div style={statsOverlayStyle}>
-            <span style={statItemStyle}>
-              <FaHeart /> {likeCount || 0}
-            </span>
-            <span style={statItemStyle}>
-              <IoChatboxEllipsesOutline /> {commentCount || 0}
-            </span>
+        {isPlaceholder ? (
+          <div style={placeholderBoxStyle}>
+            <span style={placeholderTextStyle}>기록 없음</span>
           </div>
+        ) : (
+          <>
+            <img src={imageUrl} alt={title} style={imageStyle} />
+            {(likeCount !== undefined || commentCount !== undefined) && (
+              <div style={statsOverlayStyle}>
+                <span style={statItemStyle}>
+                  <FaHeart /> {likeCount || 0}
+                </span>
+                <span style={statItemStyle}>
+                  <IoChatboxEllipsesOutline /> {commentCount || 0}
+                </span>
+              </div>
+            )}
+          </>
         )}
       </div>
-      <div style={textStyle}>{title}</div>
+      <div style={{ ...textStyle, opacity: isPlaceholder ? 0.5 : 1 }}>
+        {title}
+      </div>
     </div>
   );
 }
@@ -83,4 +95,20 @@ const statItemStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "3px",
+};
+
+const placeholderBoxStyle: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  backgroundColor: "#ccc",
+  borderRadius: "12px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const placeholderTextStyle: React.CSSProperties = {
+  color: "#666",
+  fontSize: "14px",
+  fontWeight: "bold",
 };

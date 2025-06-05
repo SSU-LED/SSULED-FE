@@ -64,10 +64,7 @@ function GroupFeeds() {
       </style>
   
       <div style={headerWrapperStyle}>
-        <MoveLeftTitle title={`${nickname}의 모든 기록`} page="/grouppeople" />
-      {memberData?.[0]?.user?.nickname && (
-        <div style={centerTitleStyle}>{memberData[0].user.nickname}의 기록</div>
-      )}
+        <MoveLeftTitle title={`${nickname}의 모든 기록`} page="/mygroup" />
       </div>
       
       <div className="no-scrollbar" style={scrollAreaStyle}>
@@ -113,17 +110,6 @@ const listStyle: React.CSSProperties = {
   display: "grid",
   gap: "12px",
   placeItems: "flex-start",
-};
-
-const centerTitleStyle: React.CSSProperties = {
-  position: "absolute",
-  left: "50%",
-  transform: "translateX(-50%)",
-  fontWeight: "bold",
-  fontSize: "18px",
-  whiteSpace: "nowrap",
-  color: "#000", 
-  zIndex: 101, 
 };
 
 const headerWrapperStyle: React.CSSProperties = {
