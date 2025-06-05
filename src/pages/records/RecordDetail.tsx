@@ -249,6 +249,7 @@ function RecordDetail() {
                 profileImage={comment.profileImage}
                 nickname={comment.nickname}
                 content={comment.content}
+                updatedAt={comment.updatedAt}
                 onClick={(id) => setSelectedCommentId(id)}
               />
             ))}

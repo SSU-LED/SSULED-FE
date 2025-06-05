@@ -23,5 +23,6 @@ export interface commentCard {
   nickname: string;
   profileImage: string;
   isMine: boolean;
+  updatedAt: string;
   onClick?: (id: number) => void;
 }

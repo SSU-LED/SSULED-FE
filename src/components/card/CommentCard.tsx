@@ -8,6 +8,7 @@ function CommentCard({
   content,
   isMine,
   commentId,
+  updatedAt,
   onClick,
 }: commentCard) {
   return (
@@ -16,7 +17,12 @@ function CommentCard({
         <img src={profileImage} alt={nickname} style={imageStyle} />
       </div>
       <div style={textContainerStyle}>
-        <div style={textStyle}>{nickname}</div>
+        <div style={{ display: "flex", alignItems: "center", flexDirection: "row", gap: "8px", bottom: 0 }}>
+          <div style={textStyle}>{nickname}</div>
+          <span style={{ fontSize: "10px", color: "#888" }}>
+            {updatedAt.substring(0,19).replace("T", " ")}
+          </span>
+        </div>
         <div style={contentStyle}>{content}</div>
       </div>
 
