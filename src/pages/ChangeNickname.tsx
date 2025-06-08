@@ -8,6 +8,7 @@ function ChangeNickname() {
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,15 +31,29 @@ function ChangeNickname() {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setProfileImage(imageUrl);
+      setImageFile(file);
     }
   };
 
   const changenickname = async () => {
     try {
+      let imageUrl = "";
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+
+        const uploadResponse = await apiClient.post("/upload/image", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        imageUrl = uploadResponse.data.imageUrl;
+      }
+
       const requestBody: any = {};
       if (nickname.trim() !== "") requestBody.newNickname = nickname;
       if (bio.trim() !== "") requestBody.newIntroduction = bio;
-      if (profileImage.trim() !== "") requestBody.newProfileImg = profileImage;
+      if (imageUrl) requestBody.newProfileImg = imageUrl;
 
       if (Object.keys(requestBody).length === 0) {
         alert("변경할 내용을 입력하세요.");
@@ -182,7 +197,7 @@ const buttonWrapperStyle: React.CSSProperties = {
   justifyContent: "center",
   width: "100%",
   padding: "0 16px",
-}
+};
 
 const buttonStyle: React.CSSProperties = {
   width: "100%",
