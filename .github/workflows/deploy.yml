@@ -87,7 +87,7 @@ jobs:
             echo 'Starting frontend with PM2...'
             
             # Start application with PM2
-            pm2 start serve --name ssuled-client -- -s dist -l 3000 --no-daemon
+            pm2 start npm --name "ssuled-client" -- run start
             
             # Verify process started
             sleep 5
@@ -116,7 +116,7 @@ jobs:
                 
                 # Retry
                 echo 'Retrying...'
-                pm2 restart ssuled-client || pm2 start serve --name ssuled-client -- -s dist -l 3000
+                pm2 restart ssuled-client || pm2 start npm --name "ssuled-client" -- run start
                 
                 sleep 3
                 pm2 status
