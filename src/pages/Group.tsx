@@ -59,7 +59,7 @@ function Group() {
     const fetchGroups = async () => {
       try {
         const res = await apiClient.get("/group", {
-          params: { page: 1, limit: 10 },
+          params: { page: 1, limit: 20 },
         });
         setGroup(res.data.data);
       } catch (error) {
