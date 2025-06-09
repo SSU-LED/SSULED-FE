@@ -27,9 +27,6 @@ jobs:
         run: |
           mkdir -p deploy
           cp -r dist deploy/
-          cp package.json deploy/
-          cp package-lock.json deploy/
-          cp .env.production deploy/
           tar -czf deploy.tar.gz deploy
       - name: Configure SSH
         run: |
@@ -62,21 +59,17 @@ jobs:
               rm -rf /home/${{ secrets.EC2_USERNAME }}/apps/frontend/dist
             fi
             
-            # Copy files
+            # Copy dist files
             cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
-            cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
-            cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
-            cp -f deploy/.env.production /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             
             # Change directory
             cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
             
-            # Stop existing processes
+            # Stop and delete existing PM2 process
             echo 'Stopping existing frontend processes...'
-            pm2 stop ssuled-client || true
             pm2 delete ssuled-client || true
             
-            # Kill processes on port 3000
+            # Kill any processes on port 3000
             sudo lsof -ti :3000 | xargs -r sudo kill -9 || true
             sleep 3
             
@@ -84,10 +77,10 @@ jobs:
             source ~/.bashrc || true
             export PATH=$PATH:/usr/local/bin:/usr/bin
             
-            echo 'Starting frontend with PM2...'
+            echo 'Starting frontend with serve...'
             
-            # Start application with PM2
-            pm2 start npm --name "ssuled-client" -- run start
+            # Start application with PM2 using serve
+            pm2 start serve --name ssuled-client -- -s dist -l 3000
             
             # Verify process started
             sleep 5
@@ -107,19 +100,19 @@ jobs:
                 if netstat -tuln | grep -q ":3000 "; then
                     echo 'Port 3000 is open successfully!'
                 else
-                    echo 'Port 3000 is not open. Retrying...'
+                    echo 'Port 3000 is not open yet. Waiting...'
+                    sleep 5
+                    if netstat -tuln | grep -q ":3000 "; then
+                        echo 'Port 3000 is now open!'
+                    else
+                        echo 'Warning: Port 3000 may not be open yet'
+                    fi
                 fi
                 
             else
                 echo 'Frontend service failed to start. Checking logs...'
                 pm2 logs ssuled-client --lines 10
-                
-                # Retry
-                echo 'Retrying...'
-                pm2 restart ssuled-client || pm2 start npm --name "ssuled-client" -- run start
-                
-                sleep 3
-                pm2 status
+                exit 1
             fi
             
             # Display final status
