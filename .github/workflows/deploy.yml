@@ -41,12 +41,12 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       - name: Transfer files to EC2
         run: scp deploy.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
-      - name: Deploy application
+      - name: Upload files to EC2
         run: |
           ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOL'
             set -e
             
-            echo 'Starting frontend deployment...'
+            echo 'Uploading frontend files...'
             
             # Create deployment directory
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/frontend
@@ -62,66 +62,13 @@ jobs:
             # Copy dist files
             cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/apps/frontend/
             
-            # Change directory
-            cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend
-            
-            # Stop and delete existing PM2 process
-            echo 'Stopping existing frontend processes...'
-            pm2 delete ssuled-client || true
-            
-            # Kill any processes on port 3000
-            sudo lsof -ti :3000 | xargs -r sudo kill -9 || true
-            sleep 3
-            
-            # Initialize PM2 environment
-            source ~/.bashrc || true
-            export PATH=$PATH:/usr/local/bin:/usr/bin
-            
-            echo 'Starting frontend with serve...'
-            
-            # Start application with PM2 using serve
-            pm2 start serve --name ssuled-client -- -s dist -l 3000
-            
-            # Verify process started
-            sleep 5
-            
-            # Check PM2 status
-            echo 'Checking PM2 status...'
-            pm2 status
-            
-            # Verify process is online
-            if pm2 list | grep -q "ssuled-client.*online"; then
-                echo 'Frontend service started successfully!'
-                
-                # Save PM2 configuration
-                pm2 save
-                
-                # Check if port 3000 is open
-                if netstat -tuln | grep -q ":3000 "; then
-                    echo 'Port 3000 is open successfully!'
-                else
-                    echo 'Port 3000 is not open yet. Waiting...'
-                    sleep 5
-                    if netstat -tuln | grep -q ":3000 "; then
-                        echo 'Port 3000 is now open!'
-                    else
-                        echo 'Warning: Port 3000 may not be open yet'
-                    fi
-                fi
-                
-            else
-                echo 'Frontend service failed to start. Checking logs...'
-                pm2 logs ssuled-client --lines 10
-                exit 1
-            fi
-            
-            # Display final status
-            echo 'Final PM2 status:'
-            pm2 list
-            
             # Cleanup temporary files
             rm -rf /home/${{ secrets.EC2_USERNAME }}/deploy
             rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
             
-            echo 'Frontend deployment completed!'
+            echo 'Frontend files uploaded successfully!'
+            echo 'To start the application, SSH into the server and run:'
+            echo 'cd /home/${{ secrets.EC2_USERNAME }}/apps/frontend'
+            echo 'pm2 delete ssuled-client || true'
+            echo 'pm2 start serve --name ssuled-client -- -s dist -l 3000'
           EOL
