@@ -16,13 +16,15 @@ function Login() {
     <div style={layoutStyle}>
       <style>{responsiveCSS}</style>
       <div className="title-wrapper">
-        <LargeTitle>💡<br/>SSULED</LargeTitle>
+        <LargeTitle>
+          💪🏻
+          <br />
+          오운완
+        </LargeTitle>
       </div>
       <div className="brif-content-wrapper">
-        This app allows users to join or create workout groups where they can
-        check in and verify their daily exercise. Group members can view each
-        other's check-ins, leave comments, and motivate one another to stay
-        consistent.
+        운동 습관 형성과 커뮤니티 기반 <br /> 동기부여를 위한 웹 기반 운동 인증
+        플랫폼
       </div>
       <div className="content-wrapper">
         <MediumTitle>소셜 로그인</MediumTitle>
